@@ -1,0 +1,44 @@
+header {
+  background-color: #000;
+  height: 7vh;
+  color: var(--color-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+}
+
+.header-logo {
+  width: 3.5rem;
+}
+
+.header-navbar {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.header-navbar li a {
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: larger;
+}
+
+.header-navbar li a:hover {
+  color: #ccc;
+}
+
+/* ------------------------------------------ RESONSIVE */
+
+  @media (max-width: 768px) {
+    header {
+      justify-content: space-around;
+      padding: 0 10px;
+    }
+
+    .header-navbar li a {
+      font-size: large;
+    }
+    
+  }

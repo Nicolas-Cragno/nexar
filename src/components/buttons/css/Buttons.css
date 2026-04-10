@@ -1,0 +1,134 @@
+/* alert button */
+
+.alert-btn {
+  background-color: #fff3cd;
+  color: hsla(45, 95%, 29%, 0.527);
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-weight: bold;
+  margin-left: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  height: 40px; 
+  min-width: 200px; 
+}
+
+.btn-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /*transition: opacity 0.2s ease-in-out;*/
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.alert-btn:hover .visible {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.alert-btn:hover{
+    background-color: transparent;
+    color: black;
+    border-color: black;
+}
+
+.alert-btn:hover .hidden {
+  opacity: 1;
+  pointer-events: auto;
+  
+}
+
+.btn-body {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-body-doble {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+  display: grid;
+  
+}
+
+.btn-doble-text{
+  font-size: smaller;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.btn-body-mini{
+   background-color: #2563eb;
+   opacity: .5;
+  color: white;
+  border: none;
+  padding: 0.1rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-body-mini:hover {
+  opacity: 1;
+}
+
+.btn-body:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-logo{
+  padding: .1rem;
+  max-width: 2rem;
+}

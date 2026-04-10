@@ -1,0 +1,22 @@
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: transparent;
+  display: flex;
+  justify-content: left;
+  color: #aaa;
+  font-style: italic;
+  padding: 10px;
+  left: 10px;
+  font-size: 0.9rem;
+}
+
+/* ------------------------------------------ RESONSIVE */
+
+  @media (max-width: 768px) {
+    footer {
+        justify-content: center;
+        left: 0;
+    }
+  }
