@@ -1,0 +1,371 @@
+//------------------------------------------------------ externos
+import Swal from "sweetalert2";
+//------------------------------------------------------ funciones
+import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions } from "../components/formularios/data/OptionsContent";
+import { useData } from "../contexto/DataContext";
+
+export const convertirFecha = (fecha) => {
+  if (!fecha) return new Date(0);
+
+  // Firestore timestamp
+  if (fecha.seconds) {
+    return new Date(fecha.seconds * 1000);
+  }
+
+  // Date nativo
+  if (fecha instanceof Date) {
+    return fecha;
+  }
+
+  // String ISO
+  return new Date(fecha);
+};
+
+export const limpiarFecha = (fecha) => {
+  // para comparar fechas 
+
+  if (!fecha) return 0;
+
+  if (typeof fecha.toDate === "function") {
+    return fecha.toDate().getTime();
+  }
+  if (fecha.seconds) {
+    return fecha.seconds * 1000;
+  }
+
+  if (fecha instanceof Date) {
+    return fecha.getTime();
+  }
+
+  if (typeof fecha === "string") {
+    return new Date(fecha).getTime();
+  }
+
+  return 0;
+};
+
+export const formatearCampoFirestore = (valor) => {
+  // de firestore al front
+  if (valor === null || valor === undefined) return "-";
+
+  if (typeof valor === "boolean") return valor ? "Activo" : "Inactivo";
+
+  // fechas
+  const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/; // formato 2025-08-22T08:00:00Z
+  const isoRegex2 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{3}Z$/; // formato 2025-08-22T08:00:000Z (error)
+  
+  if (typeof valor === "string" && isoRegex.test(valor)) {
+    return new Date(valor).toLocaleDateString("es-AR");
+  }
+  if (typeof valor === "string" && isoRegex2.test(valor)) {
+    // corregir y eliminar el 0 de más en 000Z (debe ser 00Z)
+    const corregido = valor.replace(
+    /T(\d{2}:\d{2}):(\d{3})Z$/,
+    "T$1:00.$2Z"
+    );
+
+    return new Date(corregido).toLocaleDateString("es-AR");
+  }
+  if (typeof valor.toDate === "function") {
+    return valor.toDate().toLocaleString();
+  }
+  if (valor?.seconds) {
+    return new Date(valor.seconds * 1000).toLocaleString();
+  }
+
+  // array y objetos
+  if (Array.isArray(valor)) {
+    return valor
+      .map(v => (typeof v === "object" ? "[obj]" : v))
+      .join(", ");
+  }
+  if (typeof valor === "object") {
+    if (valor.nombre) return valor.nombre;
+    if (valor.id) return valor.id;
+    // fechas
+    if (typeof valor._seconds === "number") {
+      const fecha = new Date(valor._seconds * 1000);
+      return fecha.toLocaleDateString("es-AR");
+    }
+
+    if (typeof valor.seconds === "number") {
+      const fecha = new Date(valor.seconds * 1000);
+      return fecha.toLocaleDateString("es-AR");
+    }
+
+    if (typeof valor.toDate === "function") {
+      return valor.toDate().toLocaleDateString("es-AR");
+    }
+
+    
+
+    //return JSON.stringify(valor);
+
+
+    return "[Objeto]";
+  }
+
+  return valor.toString();
+};
+
+export const formatearCampoParaCarga = (valor, tipo) => {
+  if (valor === "" || valor === null || valor === undefined) return null;
+
+  switch (tipo) {
+    case "number":
+      return Number(valor);
+
+    case "boolean":
+      if (typeof valor === "boolean") return valor;
+      return valor === "true" || valor === "1";
+
+    case "date":
+      return new Date(valor);
+
+    case "array":
+      return Array.isArray(valor) ? valor : [valor];
+
+    case "text":
+    default:
+      return String(valor).toUpperCase().trim();
+  }
+};
+
+export const capitalizarTexto = (texto) => {
+  return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+}
+
+export const renderizarValor = (valor, col, style = "normal") => {
+  if (valor === null || valor === undefined) return "-";
+
+  // 🔥 Firestore timestamp
+  if (valor?.seconds || valor?._seconds) {
+    return new Date(
+      (valor.seconds || valor._seconds) * 1000
+    ).toLocaleString("es-AR");
+  }
+
+  // Date nativo
+  if (valor instanceof Date) {
+    return valor.toLocaleString("es-AR");
+  }
+
+  // Boolean
+  if (typeof valor === "boolean") {
+    return valor ? "Activo" : "Inactivo";
+  }
+
+  // Array
+  if (Array.isArray(valor)) {
+    return valor.join(", ");
+  }
+
+  // Objeto dinámico
+  if (typeof valor === "object" && col) {
+    return valor[col] ?? "[Objeto]";
+  }
+
+  // Estilos
+  let valorFinal;
+
+  switch (style) {
+    case "upper":
+      valorFinal = typeof valor === "string" ? valor.toUpperCase() : valor;
+      break;
+    case "lower":
+      valorFinal = typeof valor === "string" ? valor.toLowerCase() : valor;
+      break;
+    default:
+      valorFinal = valor;
+      break;
+  }
+
+  return valorFinal;
+};
+
+export const minimizarVehiculo = (tipoVehiculo) => {
+  if(!tipoVehiculo) {
+    return "";
+  }
+  let tipo;
+  switch(tipoVehiculo.toUpperCase()){
+    case "TRACTORES": tipo = "TRACTOR"; break;
+    case "FURGONES": tipo = "FURGON"; break;
+    default: tipo = "VEHICULO"; break;
+  }
+  return tipo;
+};
+
+export const cargarOpciones = (campos, dataContext) => {
+  try {
+
+    const collectionsToLoad = [
+      ...new Set(
+        campos
+          .filter(c => c.inputType === "inputOptions")
+          .map(c => c.optionsConfig.collection)
+      )
+    ];
+
+    const resultado = {};
+
+    collectionsToLoad.forEach((collection) => {
+      resultado[collection] = dataContext?.[collection] || [];
+    });
+
+    return resultado;
+
+  } catch (error) {
+    console.error("[Error] cargando opciones:", error);
+    return {};
+  }
+};
+
+export const cargarSelects = (tipo, listado) => {
+  let lista = {};
+
+    switch(tipo.toLowerCase()){
+      case "personas": 
+                lista = listado.map(p => ({
+                  value: p.id,
+                  label: `${p.nombreCompleto}`,
+                  raw: p
+                 })); break;
+      default: lista = {};
+    }
+
+    return lista;
+};
+
+export const formatearFechaInput = (valor) => {
+  if (!valor) return "";
+
+  let fecha;
+
+  if (valor._seconds !== undefined) {
+    fecha = new Date(valor._seconds * 1000);
+  }
+  else if (typeof valor === "string") {
+    fecha = new Date(valor);
+  }
+  else if (valor instanceof Date) {
+    fecha = valor;
+  } else {
+    return "";
+  }
+
+  if (isNaN(fecha.getTime())) return "";
+
+  const year = fecha.getFullYear();
+  const month = String(fecha.getMonth() + 1).padStart(2, "0");
+  const day = String(fecha.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+export const buscarCampo = (coleccion, index, campo) => {
+  if (!Array.isArray(coleccion) || index === undefined || !campo) return "";
+
+  const valor = coleccion.find((item) => String(item.id) === String(index));
+
+  return valor?.[campo] ?? "";
+}
+
+export const idCorrelativo = (listado) => {
+  if (!Array.isArray(listado)) return "01";
+
+  const ids = listado.map((item) => Number(item?.id)).filter((id)=> !isNaN(id));
+
+  const maxId = ids.length  > 0 ? Math.max(...ids) : 0;
+  const codigo = maxId + 1;
+  return (codigo) < 10 ? `0${codigo}` : String(codigo);
+}
+
+export const verificarCamposObligatorios = (campos, formData) => {
+  // verificación para forms
+  const cantObligatorios = campos.filter((cp) => cp.important);
+  const cantCompletados = campos.filter(
+    (cp) =>
+      cp.important &&
+      formData[cp.key] !== null &&
+      formData[cp.key] !== undefined &&
+      formData[cp.key].toString().trim() !== "",
+  );
+
+  if(cantObligatorios.length!==cantCompletados.length) {
+    Swal.fire({
+        title: "Faltan datos",
+        text: "Complete los campos obligatorios.",
+        icon: "question",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#4161bd",
+    });
+
+    return false;
+  }
+
+  return true;
+}
+
+export const estandarizarCampo = (campo) => {
+  let valor;
+
+  switch (campo) {
+    case "number":
+      valor = valor === "" ? null : Number(valor);
+      break;
+
+    case "text":
+      valor = valor === "" ? null : String(valor).toUpperCase();
+      break;
+
+    case "date":
+      valor = valor ? formatearCampoFirestore(valor) : null;
+      break;
+
+    case "boolean":
+      valor = Boolean(valor);
+      break;
+
+    default:
+      valor = valor === "" ? null : valor;
+      break;
+  }
+
+  return valor;
+}
+
+/*
+export const generarCodigoStock = async (tipo, proveedor) => {
+  const { stock } = useData();
+  if (!tipo || !proveedor) return null;
+  
+  // 1 -------------------------------------- DEFINIR TIPO | EJ: "AC"
+  const stockTypes = stockTypeOptions();
+  const codTipo = Object.entries(stockTypes).find(
+    ([_, value]) =>
+      value.tipo.toLowerCase() === tipo.toLowerCase()
+  )?.[0]; 
+  // 2 -------------------------------------- DEFINIR CODIGO PROVEEDOR | EJ: "07"
+  const codProv = String(proveedor).padStart(2,"0");
+  const prefijo = `${codTipo}${codProv}` // PREFIJO EJ: "AC07"
+  
+  // 3 -------------------------------------- DEFINIR ORDEN | EJ: "0012"
+  
+  const codigos = stock.map(st => st.id).filter(id => id.slice(0,4) === prefijo);
+  
+  let ultimo = 0;
+  
+  if(codigos.length > 0) {
+    ultimo = Math.max(...codigos.map(codigo => Number(codigo.slice(-4))));
+  };
+  
+  const correlativo = String(ultimo + 1).padStart(4, "0");
+  
+  // 4 -------------------------------------- CODIGO FINAL | EJ: "AC070012"
+  
+  const codigo = `${prefijo}${correlativo}`;
+  
+  return codigo;
+};
+*/

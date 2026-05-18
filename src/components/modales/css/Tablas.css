@@ -1,0 +1,328 @@
+.table-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.on-responsive{
+  display: none;
+}
+
+.only-cel-on{
+  display: none;
+}
+
+.ok-logo{
+  color: #008000;
+}
+
+.table-scroll-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.table-body-wrapper {
+  max-height:55vh; 
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* virtual  */
+.table-body-wrapper {
+  overflow-y: auto;  /* scroll del virtual list */
+}
+
+.table-body-wrapper::-webkit-scrollbar {
+  width: 0px;
+}
+
+
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.table-title {
+  font-size: 1.7rem;
+}
+
+.table-linkto{
+  background-color: #F0B13B;
+  padding: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 1rem;
+  text-decoration: none;
+}
+
+
+.table-linkto-logo{
+  width: 1.8rem;
+}
+
+.table-linkto-txt{
+  margin-left: .5rem;
+  font-size: 1.2rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.table-options {
+  display: flex;
+  justify-content: space-between;
+}
+
+.table-options-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.table-checked{
+  width: 100%;
+  display: flex;
+  justify-content: right;
+}
+
+.table-check{
+  margin-right: 1rem;
+  margin-top: -1rem;
+  font-weight:800;
+  color: white;
+  font-size: large;
+}
+
+.check-input{
+  margin-right: 0.3rem;
+}
+
+.table-topheader{
+  display: flex;
+  justify-content: center;
+}
+
+.table-logo-box{
+  background-color: black;
+  width: max-content;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  border-top-left-radius: 2.2rem;
+  border-bottom-left-radius: 2.2rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  color: white;
+  font-size: x-large;
+}
+
+.table-logo{
+  padding: 0.5rem;
+  max-width: 3rem;
+  margin-right: 1rem;
+}
+
+.table-logo2{
+  padding: .1rem;
+  max-width: 2rem;
+}
+
+.table-logo3{
+  font-size: 1.5rem;
+}
+
+
+.table-busqueda {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  width: 50%;
+  min-width: 200px;
+  max-width: 100%;
+}
+
+.table-agregar {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.6rem .8rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.table-logo-span{
+  display: flex;
+  font-size: small;
+  align-items: center;
+  font-weight: bolder;
+  text-transform: uppercase;
+  margin: .2rem;
+}
+
+
+.table-agregar:hover {
+  background-color: #1d4ed8;
+}
+
+.table-lista {
+  margin: 0;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* para que las columnas coincidan */
+}
+
+.table-lista th,
+.table-lista td {
+  padding: 8px; 
+  text-align: center;
+}
+
+.txt-satelital{
+  color: #fff;
+  font-weight: bolder;
+}
+
+.table-titles{
+  background-color: #f3f4f6;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.table-item {
+  color: #555;
+  font-style: italic;
+  height: 50px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+  opacity: 0.9;
+}
+
+.table-item:hover{
+  color: black;
+  opacity: 1;
+}
+
+
+/* Laptops medianas y tablets horizontales */
+@media (max-width: 1280px) {
+  .table-container {
+  padding: .9rem;
+  }
+
+  .table-body-wrapper {
+    max-height: 70vh; 
+  }
+  
+
+  .table-options {
+    gap: 2rem; /* un poco de espacio para los dedos */
+    display: inline-flex;
+  }
+
+  .table-busqueda {
+    font-size: 1.2rem;
+    width: 70%;
+  }
+
+  .table-agregar {
+    font-size: 1.4rem;
+  }
+
+
+
+  .table-lista th,
+  .table-lista td {
+    padding: 5px; 
+  }
+}
+
+/*
+ Tablets verticales y notebooks chicas 
+@media (max-width: 1024px) {
+ 
+}
+
+ Tablets chicas / celulares grandes 
+@media (max-width: 768px) {
+
+}
+
+ Celulares comunes 
+@media (max-width: 480px) {
+  .only-cel-off{
+    display: none;
+  }
+  .only-cel-on{
+    display: flex;
+  }
+    .table-container {
+  padding: 0.1rem;
+  }
+
+  .table-body-wrapper {
+    max-height: 55vh; 
+  }
+  
+  .table-options {
+    gap: 2.5rem; un poco mas de espacio para los dedos 
+    justify-content: center;
+  }
+
+  .table-busqueda {
+    font-size: 1.5rem;
+    width: 100%;
+  }
+
+  .table-agregar {
+    font-size: 1.4rem;
+  }
+
+  .table-lista th,
+  .table-lista td {
+    padding: 5px; 
+  }
+}
+*/
+
+@media (max-width: 1140px) {
+
+  .table-body-wrapper {
+  max-height: 50vh; 
+
+}
+
+ .table-lista th,
+.table-lista td {
+  padding: 0.5px; 
+  
+}
+
+.on-responsive{
+  display: flex;
+
+}
+
+.off-responsive{
+  display: none;
+}
+
+.table-lista th,
+.table-lista td {
+  padding: 1px; 
+  
+}
+
+}

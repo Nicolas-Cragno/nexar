@@ -1,0 +1,40 @@
+.banner {
+    width: 100%;
+  height: 35vh;
+  display: flex;
+  justify-content: end;
+  align-items: end;
+  /* backgroun-image la recibe por props*/
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position:center;
+}
+
+.banner-footer{
+  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 25%;
+  display: flex;
+  justify-content: right;
+  align-items: end;
+  padding-right: 6rem;
+}
+
+.banner-logo-box{
+  width: max-content;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  border-top-left-radius: 2.2rem;
+  border-bottom-left-radius: 2.2rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  color: white;
+  transform:skew(-12deg);
+}
+
+.banner-logo{
+  padding: 0.5rem;
+  max-width: 3.5rem;
+  margin-right: 1rem;
+}

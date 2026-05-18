@@ -1,0 +1,19 @@
+.form-header{
+  display: block;
+}
+
+.form-subtitle{
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  margin-bottom: -2rem;
+  max-height: max-content;
+}
+
+.form-titlebottom {
+  color: #888; 
+  font-size: 1.2rem; 
+  font-weight: 700;
+  text-transform: uppercase;
+  display: block;
+}
