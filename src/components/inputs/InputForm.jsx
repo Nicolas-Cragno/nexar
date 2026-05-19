@@ -43,12 +43,9 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
         <Select
           className="form-input"
           classNamePrefix="react-select"
-          options={[
-            { value: "", label: "SIN ASIGNAR" },
-            ...(opciones[campo.optionsList] || []),
-          ]}
+          options={[{ value: "", label: "SIN ASIGNAR" }, ...(opciones || [])]}
           value={
-            (opciones[campo.optionsList] || []).find(
+            (opciones || []).find(
               (opt) => opt.value === formatearCampoFirestore(value),
             ) || null
           }
@@ -58,7 +55,6 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
           noOptionsMessage={() => "Sin opciones"}
         />
       )}
-
       {/* MULTI SELECT (multiOptions) */}
       {campo.inputType === "multiOptions" && (
         <Select

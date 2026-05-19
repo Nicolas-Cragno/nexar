@@ -9,6 +9,7 @@ import Loading from "../../routes/Loading";
 import { cargarSelects } from "../../functions/dataFunctions";
 import { submitPersona } from "./data/Submits";
 import { elementos } from "./data/FormContent";
+import { useData } from "../../contexto/DataContext";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
 
@@ -17,9 +18,8 @@ const FormPersona = ({ elemento = null, onGuardar, onClose }) => {
   const titulo = modoEdicion ? "Editar" : "Agregar";
   const subtitulo = "Persona";
   const campos = elementos["personas"];
-
-  const [loading, setLoading] = useState(true);
-  const [listas, setListas] = useState({}); //para los selects, recibe un array tipo {tractores: ..., furgones: ...}
+  const { personas } = useData();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     // información personal
     id: elemento?.id || "",
@@ -40,16 +40,6 @@ const FormPersona = ({ elemento = null, onGuardar, onClose }) => {
     comentario: elemento?.comentario || "",
     alerta: elemento?.alerta || "",
   });
-
-  useEffect(() => {
-    const cargarDatos = async () => {
-      const data = await cargarSelects(); // trae TODOS
-      setListas(data);
-    };
-
-    cargarDatos();
-    setLoading(false);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,11 +66,9 @@ const FormPersona = ({ elemento = null, onGuardar, onClose }) => {
           <FormContent
             elemento={elemento}
             campos={campos}
-            opciones={listas}
             data={formData}
             setData={setFormData}
           />
-
           <div className="form-buttons">
             <TextButton
               text={"Guardar"}

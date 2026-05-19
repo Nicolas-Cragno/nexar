@@ -58,6 +58,22 @@
   padding: 0;
 }
 
+.card-text{
+  font-size:large;
+  font-weight: bolder;
+  color: #6b7280;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  padding: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
+  margin-top: 5px;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: center;
+  text-transform: uppercase;
+}
 
 .card-logo{
   width: 15vh;
@@ -79,6 +95,14 @@
   overflow: hidden;
 }
 
+.card-section-info{
+  height: 100%;
+  display: block;
+  align-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
 .card-value {
   display: inline-block;
   font-size: 1.6rem;
@@ -90,7 +114,9 @@
   margin-top: 0.5rem;
 }
 
-
+.link{
+  cursor: pointer;
+}
 
 .card-route {
   text-decoration: none;

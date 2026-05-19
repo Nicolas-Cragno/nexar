@@ -1,39 +1,37 @@
 //------------------------------------------------------ externos
 import { useEffect, useState } from "react";
+import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
 import Logo from "../../assets/logos/logoPrincipal.png";
-import CardLogo from "../cards/CardLogo";
-import Modal from "../modales/Modal";
+import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../modales/data/Columnas";
 import { useData } from "../../contexto/DataContext";
 
 const FurgonesAccess = () => {
   const { furgones } = useData();
+  const [texto, setTexto] = useState(<Load className="spinner" />);
+
+  useEffect(() => {
+    if (furgones) {
+      const cantidadPersonas = furgones ? Object.keys(furgones).length : 0;
+      const text = `${cantidadPersonas} ${cantidadPersonas > 1 ? "activos" : cantidadPersonas === 1 ? "activo" : null}`;
+      setTexto(text);
+    }
+  }, [furgones]);
+
   const TITLE = "Furgones";
   const COLECCION = "furgones";
-  const [modalVisible, setModalVisible] = useState(false);
   const headers = columnas[COLECCION];
 
   return (
-    <>
-      <CardLogo
-        title={TITLE}
-        logo={Logo}
-        onClick={() => setModalVisible(true)}
-        onClose={() => setModalVisible(false)}
-      />
-
-      {modalVisible && headers.length > 0 && (
-        <Modal
-          title={TITLE}
-          coleccion={COLECCION}
-          data={furgones}
-          headers={headers}
-          onClose={() => setModalVisible(false)}
-        />
-      )}
-    </>
+    <Access
+      coleccion={furgones}
+      title={TITLE}
+      logo={Logo}
+      headers={headers}
+      text={texto}
+    />
   );
 };
 

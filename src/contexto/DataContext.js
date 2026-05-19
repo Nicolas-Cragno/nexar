@@ -8,6 +8,8 @@ const colecciones = [
     "personas",
     "tractores",
     "furgones",
+    "empresas",
+    "ubicaciones",
 ];
 
 let contador = 0;

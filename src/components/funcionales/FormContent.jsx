@@ -1,10 +1,12 @@
 import InputForm from "../inputs/InputForm";
 import FormList from "./FormList";
 
+import { useData } from "../../contexto/DataContext";
+import { cargarSelects } from "../../functions/dataFunctions";
 const FormContent = ({
   elemento,
   campos,
-  opciones,
+  //opciones,
   data,
   setData,
   listado,
@@ -17,6 +19,40 @@ const FormContent = ({
       ...prev,
       [key]: value,
     }));
+  };
+
+  // info para selects
+  const { personas, tractores, furgones, empresas, ubicaciones } = useData();
+
+  const listarOpciones = (col) => {
+    let listado;
+    switch (col) {
+      case "personas":
+        listado = cargarSelects("personas", personas);
+        break;
+      case "tractores":
+        listado = tractores;
+        break;
+      case "furgones":
+        listado = furgones;
+        break;
+      case "empresasPropias":
+        listado = cargarSelects("empresas", empresas);
+        break;
+      case "tipoEmpleados":
+        listado = cargarSelects("tipoEmpleado");
+        break;
+      case "puestos":
+        listado = cargarSelects("puestos");
+        break;
+      case "ubicaciones":
+        listado = cargarSelects("ubicaciones", ubicaciones);
+        break;
+      default:
+        listado = [];
+        break;
+    }
+    return listado;
   };
 
   const bloquePrincipal = campos.filter((cp) => cp.type === "principal");
@@ -37,7 +73,7 @@ const FormContent = ({
                 campo={campo}
                 value={data[campo.key]}
                 onChange={handleChange}
-                opciones={opciones}
+                opciones={listarOpciones(campo.optionsList)}
                 modoEdicion={modoEdicion}
               />
             ))}
@@ -55,7 +91,7 @@ const FormContent = ({
                 campo={campo}
                 value={data[campo.key]}
                 onChange={handleChange}
-                opciones={opciones}
+                opciones={listarOpciones(campo.optionsList)}
                 modoEdicion={modoEdicion}
               />
             ))}

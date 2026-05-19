@@ -102,9 +102,6 @@ export const eventos = {
         ]},
     ]
 }
-
-// personas & vehiculos
-
 export const elementos = {
     tractores : [
         { key: "interno", isId : true, label: "Interno", type: "principal", use: "database", dato: "text", inputType: "input", important: true, notChange: true}, // se envía como identificador
@@ -130,19 +127,6 @@ export const elementos = {
         { key: "comentarioSatelital", label: "Comentario (satelital)", use: "database", type: "secret", dato: "textarea", inputType: "input", important: false}, // retextido
 
     ],
-    vehiculos: [
-        { key: "dominio", isId : true, label: "Dominio", type: "principal", use:"database", dato: "", inputType: "input", important: true, notChange: true}, // se envía como identificador
-        { key: "chasis", label: "Chasis", use: "database", type:"principal", dato: "number", inputType: "input", important: false},
-        { key: "motor", label: "Motor", use: "database", type:"principal", dato: "number", inputType: "input", important: false},
-        { key: "marca", label: "Marca", use: "database", type:"principal", dato: "text", inputType: "input", important: false},
-        { key: "modelo", label: "Modelo", use: "database", type:"principal", dato: "number", inputType: "input", important: false},
-        { key: "detalle", label: "Detalle", use: "database", type:"principal", dato: "text", inputType: "textarea", important: false},
-        { key: "empresa", label: "Empresa", use: "database", type: "secondary", dato: "number", inputType: "inputOptions", optionsList: "empresasPropias", important: false},
-        { key: "satelital", label: "Satelital", type: "secondary", use: "database", dato: "number", inputType: "inputOptions", optionsList: "empresasProveedoras", important: false},
-        { key: "persona", label: "Persona asignada / dueño", use: "database", type: "secondary", dato: "number", inputType: "inputOptions", optionsList: "personas", important: false},
-        { key: "detalleSatelital", label: "Detalle (satelital)", use: "database", type: "secret", dato: "textarea", inputType: "input", important: false}, // retextido
-        { key: "comentarioSatelital", label: "Comentario (satelital)", use: "database", type: "secret", dato: "textarea", inputType: "input", important: false}, // retextido
-    ],
     personas: [
         // datos personales
     { key: "dni", isId: true, label: "DNI", type: "principal", use: "database", dato: "number", inputType: "input", important: true, notChange: true},
@@ -162,20 +146,4 @@ export const elementos = {
     { key: "comentario", label: "Comentario", type: "secret", use: "database", dato: "text", inputType: "", important: false},
     { key: "alerta", label: "Alerta", type: "secret", use: "database", dato: "", inputType: "text", important: false},
     ],
-    stock: [
-        { key: "tipo", label: "Tipo", type: "principal", use: "database", dato: "text",  inputType: "inputOptions", optionsList: "stockType", important: true},
-        { key: "descripcion", label: "Descripcion", type: "principal", use: "database", dato: "text", inputType: "input", important: true},
-        { key: "unidad", label: "Unidad de medida", type: "principal", use: "database", dato: "text",  inputType: "inputOptions", optionsList: "unidades", important: true},
-        { key: "deposito", label: "Deposito", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "depositos", important: true},
-        { key: "marca", label: "Marca", type: "secondary", use: "database", dato: "text", inputType: "input", important: true},
-        { key: "proveedor", label: "Proveedor", type: "secondary", use: "database", dato: "string", inputType: "inputOptions", optionsList: "proveedores", important: false},
-        { key: "codigoProveedor", label: "Codigo Proveedor", type: "secondary", use: "database", dato: "text", inputType: "input", important: false},
-        { key: "detalle", label: "Detalle", type:"secondary", use: "database", dato: "text", inputType: "textarea", important: false},
-    ],
-    proveedores: [
-        { key: "cuit", label: "Cuit", type: "principal", use: "database", dato: "number", inputType: "input", important: true},
-        { key: "nombre", label: "Razon Social", type: "principal", use: "database", dato: "text", inputType: "input", important: true},
-        { key: "marca", label: "Nombre Comercial", type: "principal", use: "database", dato: "text", inputType: "input", important: true},
-        { key: "detalle", label: "Detalle", type:"principal", use: "database", dato: "text", inputType: "textarea", important: false},
-    ]
 }

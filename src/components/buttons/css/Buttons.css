@@ -48,6 +48,20 @@
   cursor: pointer;
 }
 
+.plus-button{
+   background: none;
+  border: solid;
+  border-radius: 1rem;
+  font-size: 2.2rem;
+  cursor: pointer;
+  color: #fff3cd;
+  opacity: .5;
+}
+
+.plus-button:hover{
+  opacity: 1;
+}
+
 .visible {
   opacity: 1;
   pointer-events: auto;

@@ -1,8 +1,9 @@
 //------------------------------------------------------ externos
 import Swal from "sweetalert2";
 //------------------------------------------------------ funciones
-import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions } from "../components/formularios/data/OptionsContent";
+import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions } from "../components/formularios/data/OptionsContent";
 import { useData } from "../contexto/DataContext";
+
 
 export const convertirFecha = (fecha) => {
   if (!fecha) return new Date(0);
@@ -221,17 +222,55 @@ export const cargarOpciones = (campos, dataContext) => {
   }
 };
 
-export const cargarSelects = (tipo, listado) => {
-  let lista = {};
+export const cargarSelects = (tipo, listado = []) => {
+    if (!tipo) return [];
 
-    switch(tipo.toLowerCase()){
+    let lista =[];
+    
+    switch(tipo){
       case "personas": 
-                lista = listado.map(p => ({
-                  value: p.id,
-                  label: `${p.nombreCompleto}`,
-                  raw: p
+                lista = listado.map(ps => ({
+                  value: ps.id,
+                  label: `${ps.nombres}`,
+                  raw: ps
                  })); break;
-      default: lista = {};
+      case "tractores":
+        lista = listado.map(tr => ({
+                  value: tr.id,
+                  label: `${tr.id} (${tr.dominio})`,
+                  raw: tr
+                 })); break;
+                 case "furgones":
+        lista = listado.map(fg => ({
+                  value: fg.id,
+                  label: `${fg.id} (${fg.dominio})`,
+                  raw: fg
+                 })); break;
+      case "empresas":
+                lista = listado.map(em => ({
+                  value: em.id,
+                  label: `${em.nombre}`,
+                  raw: em
+                })); break;
+      case "tipoEmpleado":
+               lista = Object.values(tipoEmpleadoOptions()).map((te) => ({
+        value: te.key,
+        label: te.descripcion,
+        raw: te,
+      })); break;
+      case "puestos":
+                lista= Object.values(puestosOptions()).map((ps) => ({
+                  value: ps.key,
+        label: ps.descripcion,
+        raw: ps,
+                }));break;
+                  case "ubicaciones":
+        lista = listado.map(ub => ({
+                  value: ub.id,
+                  label: `${ub.nombre}`,
+                  raw: ub
+                 })); break;
+      default: lista = [];
     }
 
     return lista;

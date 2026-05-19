@@ -1,4 +1,133 @@
-section{
-    background-color: #171a4a;
-    height: 93vh;
+.section-container {
+  padding: 1.5rem;
+  gap: 2rem;
+  width: 100%;
+}
+
+.section-banner{
+  width: 100%;
+  height: 35vh;
+  display: flex;
+  justify-content: end;
+  align-items: end;
+}
+
+.sections-options-group {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin: 10px;
+  margin-top: 50px;
+}
+
+.sections-options-row{
+  display: flex;
+  justify-content: space-around;
+  width: 100%;  
+  gap:6px;
+}
+
+.sections-options-footer{
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  gap: 6px;
+  background-color: #1f2937;
+  padding: 6px;
+  min-height: 10vh;
+  max-height: 20vh;
+  border-radius: 10px;
+  
+}
+
+.banner-footer{
+  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 25%;
+  display: flex;
+  justify-content: right;
+  align-items: end;
+  padding-right: 6rem;
+}
+
+
+.section-logo-box{
+  width: max-content;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  border-top-left-radius: 2.2rem;
+  border-bottom-left-radius: 2.2rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  color: white;
+  transform:skew(-12deg);
+}
+
+.section-logo{
+  padding: 0.5rem;
+  max-width: 3.5rem;
+  margin-right: 1rem;
+}
+
+.section-logo2{
+  padding: .1rem;
+  max-width: 2rem;
+}
+
+.section-logo3{
+  font-size: 1.5rem;
+}
+
+.section-options{
+  width: 100%;
+  height: 55vh;
+  padding-right: 2rem;
+  padding-left: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sections-options-row{
+  display: flex;
+  justify-content: space-around;
+  width: 100%;  
+  gap:6px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.section-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+width: 100%;
+}
+
+
+@media (min-width: 640px) {
+  .section-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .banner-footer{
+  justify-content: center;
+  padding-right: 0;
+}
+}
+
+@media (min-width: 1024px) {
+  .section-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  
 }

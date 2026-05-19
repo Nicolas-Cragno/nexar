@@ -1,47 +1,54 @@
 //------------------------------------------------------ externos
 import { useEffect, useState } from "react";
+import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
 import Logo from "../../assets/logos/logoPrincipal.png";
-import CardLogo from "../../components/cards/CardLogo";
+import CardLogoText from "../../components/cards/CardLogoText";
 import Modal from "../modales/Modal";
+import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../../components/modales/data/Columnas";
 import { capitalizarTexto } from "../../functions/dataFunctions";
 import { useData } from "../../contexto/DataContext";
+import FormPersona from "../formularios/FormPersona";
 
 const PersonasAccess = ({ filtro = null }) => {
   const { personas } = useData();
+  const [texto, setTexto] = useState(<Load className="spinner" />);
+
+  useEffect(() => {
+    if (personas) {
+      const cantidadPersonas = personas ? Object.keys(personas).length : 0;
+      const text = `${cantidadPersonas} ${cantidadPersonas > 1 ? "activas" : cantidadPersonas === 1 ? "activa" : null}`;
+      setTexto(text);
+    }
+  }, [personas]);
+
   const TITLE = filtro ? capitalizarTexto(filtro) : "Personas";
   const COLECCION = filtro ? filtro : "personas";
-  const [modalVisible, setModalVisible] = useState(false);
+  const [formVisible, setFormVisible] = useState(false);
   const headers = columnas[COLECCION];
 
   const handleOpen = () => {
-    setModalVisible(true);
+    setFormVisible(true);
   };
 
   const handleClose = () => {
-    setModalVisible(false);
+    setFormVisible(false);
   };
 
   return (
     <>
-      <CardLogo
+      <Access
+        coleccion={personas}
         title={TITLE}
         logo={Logo}
-        onClick={() => handleOpen()}
-        onClose={() => handleClose()}
+        headers={headers}
+        text={texto}
+        filtro={filtro}
+        onClickForm={handleOpen}
       />
-
-      {modalVisible && headers.length > 0 && (
-        <Modal
-          title={TITLE}
-          coleccion={COLECCION}
-          data={personas}
-          headers={headers}
-          onClose={() => handleClose()}
-        />
-      )}
+      {formVisible && <FormPersona onClose={handleClose} />}
     </>
   );
 };

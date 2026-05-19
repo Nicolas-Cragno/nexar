@@ -141,15 +141,15 @@ export const puestosOptions = () => {
     return {
         "ADMINISTRATIVO" : { key: "ADMINISTRATIVO", "descripcion": "ADMINISTRATIVO"},
         "CHOFER" : { key: "CHOFER", "descripcion": "CHOFER (LARGA / MOVIMIENTO)"},
-        "MAESTRANZA" : { key: "MAESTRANZA", "descripcion": "PERSONAL DE MAESTRANZA"},
-        "TALLER" : { key: "TALLER", "descripcion": "TALLER (MECANICOS, ELECTRICISTAS, GOMEROS, ETC)"},
-        "TRAFICO" : {key: "TRAFICO", "descripcion" : "PERSONAL DE TRÁFICO"}
+        //"MAESTRANZA" : { key: "MAESTRANZA", "descripcion": "PERSONAL DE MAESTRANZA"},
+        //"TALLER" : { key: "TALLER", "descripcion": "TALLER (MECANICOS, ELECTRICISTAS, GOMEROS, ETC)"},
+        //"TRAFICO" : {key: "TRAFICO", "descripcion" : "PERSONAL DE TRÁFICO"}
     }
 }
 
 export const tipoEmpleadoOptions = () => {
     return {
-        "EMPLEADO" : { "key": "EMPLEADO", "descripcion" : "EMPLEADO (TC - TA - EX)"},
-        "PROVEEDOR" : { "key": "PROVEEDOR", "descripcion" : "PROVEEDOR"},
+        "EMPLEADO" : { "key": "EMPLEADO", "descripcion" : "EMPLEADO (TRANSCAN)"},
+        //"PROVEEDOR" : { "key": "PROVEEDOR", "descripcion" : "PROVEEDOR"},
     }
 }
