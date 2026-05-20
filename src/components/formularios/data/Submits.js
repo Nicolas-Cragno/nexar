@@ -3,9 +3,10 @@ import Swal from "sweetalert2";
 //------------------------------------------------------ funciones
 import {
   verificarCamposObligatorios,
-  formatearCampoFirestore, // desde el backend
   formatearCampoParaCarga,
+  formatearCampoFirestore
 } from "../../../functions/dataFunctions";
+import { submit, update, statusOptions } from "../../../functions/abmFunctions";
 
 
 export const submitTractor = async (formData, campos, loading, onGuardar, onClose, modoEdicion = false, idElemento = null) => {
@@ -196,51 +197,30 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
         // guardar elemento
         try {
         if (modoEdicion) {
-            /*
-            await updatePersona(idElemento, {
-            ...elementoAGuardar,
-            ultimaModificacion: formatearCampoFirestore(new Date()),
-            });
-            */
-
-            Swal.fire(
-            "Actualizado",
-            `Elemento ${idElemento} de /personas actualizado correctamente.`,
-            "success",
-            );
-        } else {
-            const result = await Swal.fire({
-            title: "Confirmar carga",
-            html: `
-            <pre style="text-align:left; max-height:300px; overflow:auto;">
-            ${JSON.stringify({ id: campoId, ...elementoAGuardar }, null, 2)}
-                </pre>
-    `,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Guardar",
-            cancelButtonText: "Cancelar",
-            confirmButtonColor: "#4161bd",
-            });
+           // preguntar al usuario si quiere confirmar
+            const result = await confirmDataSwal("Confirmar carga", elementoAGuardar);
 
             if (!result.isConfirmed) {
-            loading(false);
-            return;
+                loading(false);
+                return;
             }
-            /*
-            await createPersona({
-            id: campoId,
-            ...elementoAGuardar,
-            });
-            */
+            // avanzar a modificar
+            const modificacion = await update(idElemento, "personas", formData, onGuardar);
+            
+            statusOptions(modificacion);
+        } else {
+            // preguntar al usuario si quiere confirmar
+            const result = await confirmDataSwal("Confirmar carga", elementoAGuardar);
 
-            Swal.fire(
-            "Carga correcta",
-            `Elemento ${elementoAGuardar.id} de /personas creado correctamente.`,
-            "success",
-            );
-
-            if (onGuardar) await onGuardar();
+            if (!result.isConfirmed) {
+                loading(false);
+                return;
+            }
+            
+            // avanzar con la carga
+            const carga = await submit("personas", {id: campoId, ...elementoAGuardar}, onGuardar);
+            statusOptions(carga);
+            
         }
         onClose();
         } catch (error) {
@@ -257,3 +237,43 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
         loading(false);
     }
 }
+
+// swal/ficha que muestra lo que se está por cargar
+
+const confirmDataSwal = async (title, data) => {
+  const htmlCampos = Object.entries(data)
+    .map(
+      ([key, value]) => `
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          padding:8px 0;
+          border-bottom:1px solid #eee;
+        ">
+          <strong>${key.toUpperCase()}</strong>
+          <span>
+   ${formatearCampoFirestore(value)}
+</span>
+        </div>
+      `
+    )
+    .join("");
+
+  return await Swal.fire({
+    title,
+    html: `
+      <div style="
+        text-align:left;
+        max-height:350px;
+        overflow:auto;
+      ">
+        ${htmlCampos}
+      </div>
+    `,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Guardar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#4161bd",
+  });
+};

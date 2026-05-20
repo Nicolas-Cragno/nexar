@@ -23,6 +23,7 @@ const FormPersona = ({ elemento = null, onGuardar, onClose }) => {
   const [formData, setFormData] = useState({
     // información personal
     id: elemento?.id || "",
+    dni: elemento?.dni || "",
     apellido: elemento?.apellido || "",
     nombres: elemento?.nombres || "",
     nacimiento: elemento?.nacimiento || "",

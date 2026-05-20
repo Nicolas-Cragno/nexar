@@ -231,43 +231,43 @@ export const cargarSelects = (tipo, listado = []) => {
       case "personas": 
                 lista = listado.map(ps => ({
                   value: ps.id,
-                  label: `${ps.nombres}`,
+                  label: `${ps.nombres.toUpperCase()}`,
                   raw: ps
                  })); break;
       case "tractores":
         lista = listado.map(tr => ({
                   value: tr.id,
-                  label: `${tr.id} (${tr.dominio})`,
+                  label: `${tr.id} (${tr.dominio.toUpperCase()})`,
                   raw: tr
                  })); break;
                  case "furgones":
         lista = listado.map(fg => ({
                   value: fg.id,
-                  label: `${fg.id} (${fg.dominio})`,
+                  label: `${fg.id} (${fg.dominio.toUpperCase()})`,
                   raw: fg
                  })); break;
       case "empresas":
                 lista = listado.map(em => ({
                   value: em.id,
-                  label: `${em.nombre}`,
+                  label: `${em.nombre.toUpperCase()}`,
                   raw: em
                 })); break;
       case "tipoEmpleado":
                lista = Object.values(tipoEmpleadoOptions()).map((te) => ({
         value: te.key,
-        label: te.descripcion,
+        label: te.descripcion.toUpperCase(),
         raw: te,
       })); break;
       case "puestos":
                 lista= Object.values(puestosOptions()).map((ps) => ({
                   value: ps.key,
-        label: ps.descripcion,
+        label: ps.descripcion.toUpperCase(),
         raw: ps,
                 }));break;
                   case "ubicaciones":
         lista = listado.map(ub => ({
                   value: ub.id,
-                  label: `${ub.nombre}`,
+                  label: `${ub.nombre.toUpperCase()}`,
                   raw: ub
                  })); break;
       default: lista = [];

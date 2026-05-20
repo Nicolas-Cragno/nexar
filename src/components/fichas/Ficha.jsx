@@ -29,9 +29,9 @@ const Ficha = ({
   const [formEditarVisible, setFormEditarVisible] = useState(false);
   const eventosPorteria = eventos.porteria;
 
-  const auxCampos = area || coleccion || "eventos";
+  const auxCampos = area || coleccion || "personas";
 
-  const campos = fichaContent[auxCampos];
+  const campos = fichaContent[auxCampos] ?? [];
 
   const bloquePrincipal = campos.filter(
     (campo) =>

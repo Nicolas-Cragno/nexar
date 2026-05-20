@@ -23,7 +23,14 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
           }
           type={campo.dato === "number" ? "number" : "text"}
           value={value ?? ""}
-          onChange={(e) => onChange(campo.key, e.target.value)}
+          onChange={(e) =>
+            onChange(
+              campo.key,
+              campo.dato === "text"
+                ? e.target.value.toUpperCase()
+                : e.target.value,
+            )
+          }
           disabled={disabled}
         />
       )}
@@ -33,7 +40,14 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
         <textarea
           className="form-textarea"
           value={value ?? ""}
-          onChange={(e) => onChange(campo.key, e.target.value)}
+          onChange={(e) =>
+            onChange(
+              campo.key,
+              campo.dato === "text"
+                ? e.target.value.toUpperCase()
+                : e.target.value,
+            )
+          }
           disabled={disabled}
         />
       )}
