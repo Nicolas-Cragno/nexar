@@ -30,7 +30,7 @@ export const submitTractor = async (formData, campos, loading, onGuardar, onClos
 
     try {
         if (modoEdicion) {
-            const result = await confirmDataSwal("Confirmar carga", elementoAGuardar);
+            const result = await confirmDataSwal("Modificación de Tractor", elementoAGuardar);
 
             if (!result.isConfirmed) {
                 loading(false);
@@ -41,7 +41,7 @@ export const submitTractor = async (formData, campos, loading, onGuardar, onClos
 
             statusOptions(modificacion);
         } else {
-            const result = await confirmDataSwal("Confirmar carga", elementoAGuardar);
+            const result = await confirmDataSwal("Nuevo Tractor", elementoAGuardar);
 
             if (!result.isConfirmed) {
                 loading(false);
@@ -49,7 +49,7 @@ export const submitTractor = async (formData, campos, loading, onGuardar, onClos
             }
 
             // avanzar con la carga
-            const carga = await submit("tractores", { id: campoId, ...elementoAGuardar, activo: true }, onGuardar);
+            const carga = await submit("tractores", { id: campoId, ...elementoAGuardar, estado: true }, onGuardar);
             statusOptions(carga);
         }
         onClose();
@@ -86,54 +86,29 @@ export const submitFurgon = async (formData, campos, loading, onGuardar, onClose
         return acc;
     }, {});
 
-    // guardar elemento
     try {
         if (modoEdicion) {
-            /*
-            await updateFurgon(idElemento, {
-                ...elementoAGuardar,
-                ultimaModificacion: formatearCampoFirestore(new Date()),
-            });
-            */
-
-            Swal.fire(
-                "Actualizado",
-                `Elemento ${idElemento} de /furgones actualizado correctamente.`,
-                "success",
-            );
-        } else {
-            const result = await Swal.fire({
-                title: "Confirmar carga",
-                html: `
-            <pre style="text-align:left; max-height:300px; overflow:auto;">
-            ${JSON.stringify({ id: campoId, ...elementoAGuardar }, null, 2)}
-                </pre>
-    `,
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Guardar",
-                cancelButtonText: "Cancelar",
-                confirmButtonColor: "#4161bd",
-            });
+            const result = await confirmDataSwal("Modificación de Furgón", elementoAGuardar);
 
             if (!result.isConfirmed) {
                 loading(false);
                 return;
             }
-            /*
-            await createFurgon({
-                id: campoId,
-                ...elementoAGuardar,
-            });
-            */
 
-            Swal.fire(
-                "Carga correcta",
-                `Elemento ${elementoAGuardar.id} de /furgones creado correctamente.`,
-                "success",
-            );
+            const modificacion = await update(idElemento, "furgones", elementoAGuardar, onGuardar);
 
-            if (onGuardar) await onGuardar();
+            statusOptions(modificacion);
+        } else {
+            const result = await confirmDataSwal("Nuevo Furgón", elementoAGuardar);
+
+            if (!result.isConfirmed) {
+                loading(false);
+                return;
+            }
+
+            // avanzar con la carga
+            const carga = await submit("furgones", { id: campoId, ...elementoAGuardar, estado: true }, onGuardar);
+            statusOptions(carga);
         }
         onClose();
     } catch (error) {
@@ -173,7 +148,7 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
     try {
         if (modoEdicion) {
             // preguntar al usuario si quiere confirmar
-            const result = await confirmDataSwal("Confirmar carga", elementoAGuardar);
+            const result = await confirmDataSwal("Edición de Persona", elementoAGuardar);
 
             if (!result.isConfirmed) {
                 loading(false);
@@ -185,7 +160,7 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
             statusOptions(modificacion);
         } else {
             // preguntar al usuario si quiere confirmar
-            const result = await confirmDataSwal("Confirmar carga", elementoAGuardar);
+            const result = await confirmDataSwal("Ingreso de Persona", elementoAGuardar);
 
             if (!result.isConfirmed) {
                 loading(false);
@@ -193,7 +168,7 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
             }
 
             // avanzar con la carga
-            const carga = await submit("personas", { id: campoId, ...elementoAGuardar, activo: true }, onGuardar);
+            const carga = await submit("personas", { id: campoId, ...elementoAGuardar, estado: true }, onGuardar);
             statusOptions(carga);
 
         }
@@ -216,8 +191,6 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
 // swal/ficha que muestra lo que se está por cargar
 
 const confirmDataSwal = async (title, data) => {
-
-
     const htmlCampos = Object.entries(data)
         .map(
             ([key, value]) => `
@@ -229,10 +202,10 @@ const confirmDataSwal = async (title, data) => {
         ">
           <strong>${key.toUpperCase()}</strong>
           <span>
-   ${formatearCampoFirestore(value)}
-</span>
+            ${formatearCampoFirestore(value)}
+          </span>
         </div>
-      `
+        `
         )
         .join("");
 

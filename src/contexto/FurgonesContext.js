@@ -1,29 +1,34 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { createContext, useContext, useMemo } from "react";
+import { useData } from "./DataContext";
 
 const FurgonesContext = createContext();
 
 export function FurgonesProvider({ children }) {
-  const [furgones, setFurgones] = useState([]);
-  const [loadingFurgones, setLoadingFurgones] = useState(true);
+  const { furgones, empresas, loading } = useData();
 
-  useEffect(() => {
-    const ref = collection(db, "furgones");
+  const enriquecerFurgones = useMemo(() => {
+    if (loading) return [];
+    let listado = [];
 
-    const unsub = onSnapshot(ref, (snap) => {
-      setFurgones(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoadingFurgones(false);
+    listado = furgones.map((fg) => {
+      const empresa = empresas.find((em) => String(em.id) === String(fg.empresa) || String(em.cuit) === String(fg.empresa));
+      const label = `${fg.id} (${fg.dominio})`;
+
+      return {
+        ...fg,
+        label: label,
+        nombreEmpresa: empresa?.nombre || "-",
+      };
     });
 
-    return () => unsub();
-  }, []);
+    return listado
+  }, [furgones, empresas, loading])
 
   return (
-    <FurgonesContext.Provider value={{ furgones, loadingFurgones }}>
+    <FurgonesContext.Provider value={{ furgones: enriquecerFurgones, loading }}>
       {children}
     </FurgonesContext.Provider>
   );
 }
 
-export const useFurgonesData = () => useContext(FurgonesContext);
+export const useFurgones = () => useContext(FurgonesContext);

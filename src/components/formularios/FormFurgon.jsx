@@ -1,5 +1,5 @@
 //------------------------------------------------------ externos
-import { useEffect, useState } from "react";
+import { useState } from "react";
 //------------------------------------------------------ elementos
 import FormContent from "../funcionales/FormContent";
 import FormHeader from "../funcionales/FormHeader";
@@ -7,7 +7,6 @@ import TextButton from "../buttons/TextButton";
 import Loading from "../../routes/Loading";
 //------------------------------------------------------ funciones
 import { submitFurgon } from "./data/Submits";
-import { cargarSelects } from "../../functions/dataFunctions";
 import { elementos } from "./data/FormContent";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
@@ -17,9 +16,7 @@ const FormFurgon = ({ elemento = null, onGuardar, onClose }) => {
   const titulo = modoEdicion ? "Editar" : "Agregar";
   const subtitulo = "Furgon";
   const campos = elementos["furgones"];
-
-  const [loading, setLoading] = useState(true);
-  const [listas, setListas] = useState({}); // para los selects
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     // información específica
     id: elemento?.id || "",
@@ -39,23 +36,6 @@ const FormFurgon = ({ elemento = null, onGuardar, onClose }) => {
     comentarioSatelital: elemento?.comentarioSatelital || "",
     detalleSatelital: elemento?.detalleSatelital || "",
   });
-
-  useEffect(() => {
-    const cargarDatos = async () => {
-      const data = await cargarSelects(); // trae TODOS
-      setListas(data);
-    };
-
-    cargarDatos();
-    setLoading(false);
-  }, []);
-
-  const handleChange = (key, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,7 +62,6 @@ const FormFurgon = ({ elemento = null, onGuardar, onClose }) => {
           <FormContent
             elemento={elemento}
             campos={campos}
-            opciones={listas}
             data={formData}
             setData={setFormData}
           />

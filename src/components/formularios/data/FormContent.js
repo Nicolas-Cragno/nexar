@@ -132,7 +132,7 @@ export const elementos = {
         { key: "modelo", label: "Modelo", type: "principal", use: "database", dato: "number", inputType: "input", important: false },
         { key: "detalle", label: "Detalle", type: "principal", use: "database", dato: "text", inputType: "textarea", important: false },
         { key: "empresa", label: "Empresa", use: "database", type: "secondary", dato: "number", inputType: "inputOptions", optionsList: "empresasPropias", important: false },
-        { key: "comentarioSatelital", label: "Comentario (satelital)", use: "database", type: "secret", dato: "textarea", inputType: "input", important: false }, // retextido
+        //{ key: "comentarioSatelital", label: "Comentario (satelital)", use: "database", type: "secret", dato: "textarea", inputType: "input", important: false }, // retextido
 
     ],
     personas: [
