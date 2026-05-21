@@ -3,17 +3,15 @@ import { useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
 import Logo from "../../assets/logos/logoPrincipal.png";
-import CardLogoText from "../../components/cards/CardLogoText";
-import Modal from "../modales/Modal";
 import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../../components/modales/data/Columnas";
 import { capitalizarTexto } from "../../functions/dataFunctions";
-import { useData } from "../../contexto/DataContext";
+import { usePersonas } from "../../contexto/PersonasContext";
 import FormPersona from "../formularios/FormPersona";
 
 const PersonasAccess = ({ filtro = null }) => {
-  const { personas } = useData();
+  const { personas } = usePersonas();
   const [texto, setTexto] = useState(<Load className="spinner" />);
 
   useEffect(() => {

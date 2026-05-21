@@ -1,29 +1,40 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { createContext, useContext, useMemo } from "react";
+import { useData } from "./DataContext";
 
 const PersonasContext = createContext();
 
 export function PersonasProvider({ children }) {
-  const [personas, setPersonas] = useState([]);
-  const [loadingPersonas, setLoadingPersonas] = useState(true);
+  const { personas, empresas, ubicaciones, loading } = useData();
 
-  useEffect(() => {
-    const ref = collection(db, "personas");
+  const enriquecerPersonas = useMemo(() => {
+    if (loading) return []; // no enriquecer antes de finalizar carga original
+    let listado = [];
 
-    const unsub = onSnapshot(ref, (snap) => {
-      setPersonas(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoadingPersonas(false);
+    listado = personas.map((ps) => {
+      const empresa = empresas.find((em) => String(em.id) === String(ps.empresa) || String(em.cuit) === String(ps.empresa));
+      const sucursal = ubicaciones.find((ub) => String(ub.id) === String(ps.sucursal));
+      const nombreCompleto = `${ps.apellido}, ${ps.nombres}`;
+      const puestoCompleto = `${ps.puesto} (${ps.especializacion})`;
+      const sucursalCompleta = sucursal ? `${sucursal.nombre} (${ps.sucursal})` : "-";
+
+      return {
+        ...ps,
+        nombreCompleto: nombreCompleto,
+        puestoCompleto: puestoCompleto,
+        sucursalCompleta: sucursalCompleta,
+        nombreEmpresa: empresa?.nombre || "-",
+      };
     });
 
-    return () => unsub();
-  }, []);
+    return listado;
+  }, [personas, empresas, ubicaciones, loading]);
+
 
   return (
-    <PersonasContext.Provider value={{ personas, loadingPersonas }}>
+    <PersonasContext.Provider value={{ personas: enriquecerPersonas, loading }}>
       {children}
     </PersonasContext.Provider>
   );
 }
 
-export const usePersonasData = () => useContext(PersonasContext);
+export const usePersonas = () => useContext(PersonasContext);

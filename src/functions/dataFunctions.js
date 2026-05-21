@@ -1,5 +1,6 @@
 //------------------------------------------------------ externos
 import Swal from "sweetalert2";
+import { Timestamp } from "firebase/firestore";
 //------------------------------------------------------ funciones
 import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions } from "../components/formularios/data/OptionsContent";
 import { useData } from "../contexto/DataContext";
@@ -45,34 +46,56 @@ export const limpiarFecha = (fecha) => {
   return 0;
 };
 
-export const formatearCampoFirestore = (valor) => {
+export const formatearCampoFirestore = (valor, soloFecha = false) => {
+
   // de firestore al front
   if (valor === null || valor === undefined) return "-";
 
   if (typeof valor === "boolean") return valor ? "Activo" : "Inactivo";
 
-  // fechas
+  // fechas (INICIO)
   const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/; // formato 2025-08-22T08:00:00Z
   const isoRegex2 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{3}Z$/; // formato 2025-08-22T08:00:000Z (error)
-  
+
   if (typeof valor === "string" && isoRegex.test(valor)) {
     return new Date(valor).toLocaleDateString("es-AR");
   }
   if (typeof valor === "string" && isoRegex2.test(valor)) {
     // corregir y eliminar el 0 de más en 000Z (debe ser 00Z)
     const corregido = valor.replace(
-    /T(\d{2}:\d{2}):(\d{3})Z$/,
-    "T$1:00.$2Z"
+      /T(\d{2}:\d{2}):(\d{3})Z$/,
+      "T$1:00.$2Z"
     );
 
     return new Date(corregido).toLocaleDateString("es-AR");
   }
   if (typeof valor.toDate === "function") {
-    return valor.toDate().toLocaleString();
+    return soloFecha
+      ? valor.toDate().toLocaleDateString("es-AR")  // solo fecha
+      : valor.toDate().toLocaleString();             // fecha + hora
   }
   if (valor?.seconds) {
-    return new Date(valor.seconds * 1000).toLocaleString();
+    const fecha = new Date(valor.seconds * 1000);
+
+    return fecha.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   }
+  if (valor instanceof Date) {
+
+    const fechaLocal = new Date(
+      valor.getTime() + valor.getTimezoneOffset() * 60000
+    );
+
+    return fechaLocal.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+  // fechas (FIN)}
 
   // array y objetos
   if (Array.isArray(valor)) {
@@ -98,7 +121,7 @@ export const formatearCampoFirestore = (valor) => {
       return valor.toDate().toLocaleDateString("es-AR");
     }
 
-    
+
 
     //return JSON.stringify(valor);
 
@@ -121,7 +144,12 @@ export const formatearCampoParaCarga = (valor, tipo) => {
       return valor === "true" || valor === "1";
 
     case "date":
-      return new Date(valor);
+      console.log("date recibido:", valor, typeof valor);
+
+      if (typeof valor?.toDate === "function") return valor; // ya es Timestamp, no tocar
+      if (typeof valor === "string") return Timestamp.fromDate(new Date(valor + "T12:00:00"));
+      if (valor instanceof Date) return Timestamp.fromDate(valor);
+      return null;
 
     case "array":
       return Array.isArray(valor) ? valor : [valor];
@@ -130,6 +158,18 @@ export const formatearCampoParaCarga = (valor, tipo) => {
     default:
       return String(valor).toUpperCase().trim();
   }
+};
+
+// del front al firestore
+export const parsearFechaATimestamp = (valor) => {
+  if (!valor) return null;
+  if (typeof valor.toDate === "function") return valor; // ya es Timestamp, no tocar
+  if (typeof valor === "string") {
+    const fecha = new Date(valor + "T12:00:00");
+    if (isNaN(fecha.getTime())) return null; // ← fecha inválida, no explotar
+    return Timestamp.fromDate(fecha);
+  }
+  return null;
 };
 
 export const capitalizarTexto = (texto) => {
@@ -153,7 +193,7 @@ export const renderizarValor = (valor, col, style = "normal") => {
 
   // Boolean
   if (typeof valor === "boolean") {
-    return valor ? "Activo" : "Inactivo";
+    return valor ? "ACTIVO" : "INACTIVO";
   }
 
   // Array
@@ -185,11 +225,11 @@ export const renderizarValor = (valor, col, style = "normal") => {
 };
 
 export const minimizarVehiculo = (tipoVehiculo) => {
-  if(!tipoVehiculo) {
+  if (!tipoVehiculo) {
     return "";
   }
   let tipo;
-  switch(tipoVehiculo.toUpperCase()){
+  switch (tipoVehiculo.toUpperCase()) {
     case "TRACTORES": tipo = "TRACTOR"; break;
     case "FURGONES": tipo = "FURGON"; break;
     default: tipo = "VEHICULO"; break;
@@ -223,57 +263,57 @@ export const cargarOpciones = (campos, dataContext) => {
 };
 
 export const cargarSelects = (tipo, listado = []) => {
-    if (!tipo) return [];
+  if (!tipo) return [];
 
-    let lista =[];
-    
-    switch(tipo){
-      case "personas": 
-                lista = listado.map(ps => ({
-                  value: ps.id,
-                  label: `${ps.nombres.toUpperCase()}`,
-                  raw: ps
-                 })); break;
-      case "tractores":
-        lista = listado.map(tr => ({
-                  value: tr.id,
-                  label: `${tr.id} (${tr.dominio.toUpperCase()})`,
-                  raw: tr
-                 })); break;
-                 case "furgones":
-        lista = listado.map(fg => ({
-                  value: fg.id,
-                  label: `${fg.id} (${fg.dominio.toUpperCase()})`,
-                  raw: fg
-                 })); break;
-      case "empresas":
-                lista = listado.map(em => ({
-                  value: em.id,
-                  label: `${em.nombre.toUpperCase()}`,
-                  raw: em
-                })); break;
-      case "tipoEmpleado":
-               lista = Object.values(tipoEmpleadoOptions()).map((te) => ({
+  let lista = [];
+
+  switch (tipo) {
+    case "personas":
+      lista = listado.map(ps => ({
+        value: ps.id,
+        label: `${ps.nombres.toUpperCase()}`,
+        raw: ps
+      })); break;
+    case "tractores":
+      lista = listado.map(tr => ({
+        value: tr.id,
+        label: `${tr.id} (${tr.dominio.toUpperCase()})`,
+        raw: tr
+      })); break;
+    case "furgones":
+      lista = listado.map(fg => ({
+        value: fg.id,
+        label: `${fg.id} (${fg.dominio.toUpperCase()})`,
+        raw: fg
+      })); break;
+    case "empresas":
+      lista = listado.map(em => ({
+        value: em.id,
+        label: `${em.nombre.toUpperCase()}`,
+        raw: em
+      })); break;
+    case "tipoEmpleado":
+      lista = Object.values(tipoEmpleadoOptions()).map((te) => ({
         value: te.key,
         label: te.descripcion.toUpperCase(),
         raw: te,
       })); break;
-      case "puestos":
-                lista= Object.values(puestosOptions()).map((ps) => ({
-                  value: ps.key,
+    case "puestos":
+      lista = Object.values(puestosOptions()).map((ps) => ({
+        value: ps.key,
         label: ps.descripcion.toUpperCase(),
         raw: ps,
-                }));break;
-                  case "ubicaciones":
-        lista = listado.map(ub => ({
-                  value: ub.id,
-                  label: `${ub.nombre.toUpperCase()}`,
-                  raw: ub
-                 })); break;
-      default: lista = [];
-    }
+      })); break;
+    case "ubicaciones":
+      lista = listado.map(ub => ({
+        value: ub.id,
+        label: `${ub.nombre.toUpperCase()}`,
+        raw: ub
+      })); break;
+    default: lista = [];
+  }
 
-    return lista;
+  return lista;
 };
 
 export const formatearFechaInput = (valor) => {
@@ -313,9 +353,9 @@ export const buscarCampo = (coleccion, index, campo) => {
 export const idCorrelativo = (listado) => {
   if (!Array.isArray(listado)) return "01";
 
-  const ids = listado.map((item) => Number(item?.id)).filter((id)=> !isNaN(id));
+  const ids = listado.map((item) => Number(item?.id)).filter((id) => !isNaN(id));
 
-  const maxId = ids.length  > 0 ? Math.max(...ids) : 0;
+  const maxId = ids.length > 0 ? Math.max(...ids) : 0;
   const codigo = maxId + 1;
   return (codigo) < 10 ? `0${codigo}` : String(codigo);
 }
@@ -331,13 +371,13 @@ export const verificarCamposObligatorios = (campos, formData) => {
       formData[cp.key].toString().trim() !== "",
   );
 
-  if(cantObligatorios.length!==cantCompletados.length) {
+  if (cantObligatorios.length !== cantCompletados.length) {
     Swal.fire({
-        title: "Faltan datos",
-        text: "Complete los campos obligatorios.",
-        icon: "question",
-        confirmButtonText: "Entendido",
-        confirmButtonColor: "#4161bd",
+      title: "Faltan datos",
+      text: "Complete los campos obligatorios.",
+      icon: "question",
+      confirmButtonText: "Entendido",
+      confirmButtonColor: "#4161bd",
     });
 
     return false;

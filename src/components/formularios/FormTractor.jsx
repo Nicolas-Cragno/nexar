@@ -1,12 +1,11 @@
 //------------------------------------------------------ externos
-import { useEffect, useState } from "react";
+import { useState } from "react";
 //------------------------------------------------------ elementos
 import FormContent from "../funcionales/FormContent";
 import FormHeader from "../funcionales/FormHeader";
 import TextButton from "../buttons/TextButton";
 import Loading from "../../routes/Loading";
 //------------------------------------------------------ funciones
-import { cargarSelects } from "../../functions/dataFunctions";
 import { submitTractor } from "./data/Submits";
 import { elementos } from "./data/FormContent";
 //------------------------------------------------------ estilos
@@ -17,9 +16,7 @@ const FormTractor = ({ elemento = null, onGuardar, onClose }) => {
   const titulo = modoEdicion ? "Editar" : "Agregar";
   const subtitulo = "Tractor";
   const campos = elementos["tractores"];
-
-  const [loading, setLoading] = useState(true);
-  const [listas, setListas] = useState({}); //para los selects, recibe un array tipo {tractores: ..., furgones: ...}
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     // información específica
     id: elemento?.id || "",
@@ -39,16 +36,6 @@ const FormTractor = ({ elemento = null, onGuardar, onClose }) => {
     comentarioSatelital: elemento?.comentarioSatelital || "",
     detalleSatelital: elemento?.detalleSatelital || "",
   });
-
-  useEffect(() => {
-    const cargarDatos = async () => {
-      const data = await cargarSelects(); // trae TODOS los listados, ver si se puede mejorar desp
-      setListas(data);
-    };
-
-    cargarDatos();
-    setLoading(false);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,7 +62,6 @@ const FormTractor = ({ elemento = null, onGuardar, onClose }) => {
           <FormContent
             elemento={elemento}
             campos={campos}
-            opciones={listas}
             data={formData}
             setData={setFormData}
           />

@@ -2,11 +2,7 @@ import { useMemo, useState, memo } from "react";
 import "./css/Modales.css";
 import "./css/Tablas.css";
 import CloseButton from "../buttons/CloseButton";
-import TextButton from "../buttons/TextButton";
-import {
-  capitalizarTexto,
-  renderizarValor,
-} from "../../functions/dataFunctions";
+import { renderizarValor } from "../../functions/dataFunctions";
 import { fichaContent } from "../fichas/data/FichaContent";
 import Ficha from "../fichas/Ficha";
 import Loading from "../../routes/Loading";

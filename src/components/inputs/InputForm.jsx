@@ -1,5 +1,8 @@
 import Select from "react-select";
-import { formatearCampoFirestore } from "../../functions/dataFunctions";
+import {
+  formatearCampoFirestore,
+  parsearFechaATimestamp,
+} from "../../functions/dataFunctions";
 import FormList from "../funcionales/FormList";
 
 const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
@@ -30,6 +33,23 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
                 ? e.target.value.toUpperCase()
                 : e.target.value,
             )
+          }
+          disabled={disabled}
+        />
+      )}
+
+      {/* INPUT DATE */}
+      {campo.inputType === "inputDate" && (
+        <input
+          className="form-input"
+          type="date"
+          value={
+            value?.toDate
+              ? value.toDate().toISOString().split("T")[0]
+              : (value ?? "")
+          }
+          onChange={(e) =>
+            onChange(campo.key, parsearFechaATimestamp(e.target.value))
           }
           disabled={disabled}
         />
@@ -126,7 +146,9 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
       )}
 
       {/* GROUP */}
-      {campo.type === "group" && <div className="container">aaaaaaa</div>}
+      {campo.type === "group" && (
+        <div className="container">SIN CONFIGURAR</div>
+      )}
     </div>
   );
 };

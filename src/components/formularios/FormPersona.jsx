@@ -1,15 +1,13 @@
 //------------------------------------------------------ externos
-import { useEffect, useState } from "react";
+import { useState } from "react";
 //------------------------------------------------------ elementos
 import FormContent from "../funcionales/FormContent";
 import FormHeader from "../funcionales/FormHeader";
 import TextButton from "../buttons/TextButton";
 import Loading from "../../routes/Loading";
 //------------------------------------------------------ funciones
-import { cargarSelects } from "../../functions/dataFunctions";
 import { submitPersona } from "./data/Submits";
 import { elementos } from "./data/FormContent";
-import { useData } from "../../contexto/DataContext";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
 
@@ -18,7 +16,6 @@ const FormPersona = ({ elemento = null, onGuardar, onClose }) => {
   const titulo = modoEdicion ? "Editar" : "Agregar";
   const subtitulo = "Persona";
   const campos = elementos["personas"];
-  const { personas } = useData();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     // información personal

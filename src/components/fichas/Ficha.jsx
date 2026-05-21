@@ -25,11 +25,12 @@ const Ficha = ({
   const titulo = titulado ? elemento[titulado.key] : elemento["id"];
   const tituloAbajo = tituladoAbajo ? elemento[tituladoAbajo.key] : null;
   const estado = container.find((campo) => campo.type === "state");
-  const estadoSubtitulo = estado === true ? "ACTIVO" : "DADO DE BAJA";
+  const estadoSubtitulo = estado ? "ACTIVO" : "DADO DE BAJA";
   const [formEditarVisible, setFormEditarVisible] = useState(false);
   const eventosPorteria = eventos.porteria;
 
-  const auxCampos = area || coleccion || "personas";
+  const auxCampos =
+    coleccion?.toLowerCase() || area?.toLowerCase() || "personas";
 
   const campos = fichaContent[auxCampos] ?? [];
 
@@ -78,16 +79,14 @@ const Ficha = ({
           {tituladoAbajo && <span className="nombres">{tituloAbajo}</span>}{" "}
         </h1>
         <hr />
-        {/*
         <p className="status">{estadoSubtitulo}</p>
-        */}
         <div className="ficha-subheader">
           {campos.map((campo, index) => {
             const valor = elemento[campo.key];
 
             if (!valor || campo.type !== "subtitle") return null;
 
-            return <span>{formatearCampoFirestore(valor)}</span>;
+            return <span>{valor}</span>;
           })}
         </div>
 
@@ -107,7 +106,10 @@ const Ficha = ({
                     <div className="ficha-info">
                       <strong>{campo.label} : </strong>
                       <span>
-                        {formatearCampoFirestore(valor).toUpperCase()}
+                        {formatearCampoFirestore(
+                          valor,
+                          campo.soloFecha,
+                        ).toUpperCase()}
                       </span>
                     </div>
                   </div>
@@ -120,7 +122,7 @@ const Ficha = ({
         {bloqueSecundario.length > 0 && (
           <>
             <label>
-              <strong className="ficha-info-title">Información</strong>
+              <strong className="ficha-info-title">Otros datos</strong>
             </label>
             <div className="ficha-info-box">
               {campos.map((campo, index) => {
@@ -214,7 +216,12 @@ const Ficha = ({
               <div key={campo.key || index}>
                 <div className="ficha-data">
                   <strong>{campo.label} : </strong>
-                  <span>{formatearCampoFirestore(valor).toUpperCase()}</span>
+                  <span>
+                    {formatearCampoFirestore(
+                      valor,
+                      campo.soloFecha,
+                    ).toUpperCase()}
+                  </span>
                 </div>
               </div>
             );

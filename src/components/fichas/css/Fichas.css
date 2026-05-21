@@ -271,7 +271,7 @@ opacity: .5;
 .ficha-info-title{
   display: flex;
   justify-content: space-between;
-  margin-bottom: -2rem;
+  margin-bottom: -.1rem;
   margin-left: 10px;
 }
 

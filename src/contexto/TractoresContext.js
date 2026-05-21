@@ -1,29 +1,38 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { createContext, useContext, useMemo } from "react";
+import { useData } from "./DataContext";
+import { usePersonas } from "./PersonasContext";
 
 const TractoresContext = createContext();
 
 export function TractoresProvider({ children }) {
-  const [tractores, setTractores] = useState([]);
-  const [loadingTractores, setLoadingTractores] = useState(true);
+  const { tractores, empresas, loading } = useData();
+  const { personas } = usePersonas();
 
-  useEffect(() => {
-    const ref = collection(db, "tractores");
+  const enriquecerTractores = useMemo(() => {
+    if (loading) return [];
+    let listado = [];
 
-    const unsub = onSnapshot(ref, (snap) => {
-      setTractores(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-      setLoadingTractores(false);
+    listado = tractores.map((tr) => {
+      const empresa = empresas.find((em) => String(em.id) === String(tr.empresa) || String(em.cuit) === String(tr.empresa));
+      const persona = personas.find((ps) => String(tr.persona) === String(ps.id));
+      const label = `${tr.id} (${tr.dominio})`;
+
+      return {
+        ...tr,
+        label: label,
+        nombreEmpresa: empresa?.nombre || "-",
+        nombrePersona: persona?.nombreCompleto || "-"
+      };
     });
 
-    return () => unsub();
-  }, []);
+    return listado;
+  }, [tractores, empresas, personas, loading]);
 
   return (
-    <TractoresContext.Provider value={{ tractores, loadingTractores }}>
+    <TractoresContext.Provider value={{ tractores: enriquecerTractores, loading }}>
       {children}
     </TractoresContext.Provider>
   );
 }
 
-export const useTractoresData = () => useContext(TractoresContext);
+export const useTractores = () => useContext(TractoresContext);
