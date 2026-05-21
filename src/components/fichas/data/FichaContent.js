@@ -22,6 +22,8 @@ export const fichaContent = {
         { key: "modelo", label: "Modelo", type: "principal" },
         { key: "detalle", label: "Detalle", type: "principal" },
         { key: "nombreEmpresa", label: "Empresa", type: "secondary" },
+        { key: "estado", label: "Estado", type: "state" },
+
     ],
     personas: [
         { key: "apellido", label: "apellido", type: "title" },
