@@ -1,10 +1,11 @@
 import { createContext, useContext, useMemo } from "react";
 import { useData } from "./DataContext";
+import { formatearMonto } from "../functions/dataFunctions";
 
 const PersonasContext = createContext();
 
 export function PersonasProvider({ children }) {
-  const { personas, empresas, ubicaciones, loading } = useData();
+  const { personas, empresas, ubicaciones, cuentaCorriente, loading } = useData();
 
   const enriquecerPersonas = useMemo(() => {
     if (loading) return []; // no enriquecer antes de finalizar carga original
@@ -16,6 +17,8 @@ export function PersonasProvider({ children }) {
       const nombreCompleto = `${ps.apellido}, ${ps.nombres}`;
       const puestoCompleto = `${ps.puesto} (${ps.especializacion})`;
       const sucursalCompleta = sucursal ? `${sucursal.nombre} (${ps.sucursal})` : "-";
+      const ctaCorriente = cuentaCorriente.find((ct) => ct.id === ps.cuenta);
+      const labelCtaCorriente = ctaCorriente ? `$ ${formatearMonto(ctaCorriente.monto)}` : "";
 
       return {
         ...ps,
@@ -23,11 +26,12 @@ export function PersonasProvider({ children }) {
         puestoCompleto: puestoCompleto,
         sucursalCompleta: sucursalCompleta,
         nombreEmpresa: empresa?.nombre || "-",
+        cuentaCorriente: labelCtaCorriente,
       };
     });
 
     return listado;
-  }, [personas, empresas, ubicaciones, loading]);
+  }, [personas, empresas, ubicaciones, cuentaCorriente, loading]);
 
 
   return (

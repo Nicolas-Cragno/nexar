@@ -2,7 +2,7 @@
 import Swal from "sweetalert2";
 import { Timestamp } from "firebase/firestore";
 //------------------------------------------------------ funciones
-import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions } from "../components/formularios/data/OptionsContent";
+import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions, tipoCuentaCorrienteOptions } from "../components/formularios/data/OptionsContent";
 import { useData } from "../contexto/DataContext";
 
 
@@ -271,7 +271,7 @@ export const cargarSelects = (tipo, listado = []) => {
     case "personas":
       lista = listado.map(ps => ({
         value: ps.id,
-        label: `${ps.nombres.toUpperCase()}`,
+        label: `${ps.apellido.toUpperCase()}, ${ps.nombres.toUpperCase()} (${ps.id})`,
         raw: ps
       })); break;
     case "tractores":
@@ -285,6 +285,12 @@ export const cargarSelects = (tipo, listado = []) => {
         value: fg.id,
         label: `${fg.id} (${fg.dominio.toUpperCase()})`,
         raw: fg
+      })); break;
+    case "cuentas":
+      lista = listado.map(ct => ({
+        value: ct.id,
+        label: `${ct.nombre.toUpperCase()}`,
+        raw: ct
       })); break;
     case "empresas":
       lista = listado.map(em => ({
@@ -309,6 +315,12 @@ export const cargarSelects = (tipo, listado = []) => {
         value: ub.id,
         label: `${ub.nombre.toUpperCase()}`,
         raw: ub
+      })); break;
+    case "tipoCuentaCorriente":
+      lista = Object.values(tipoCuentaCorrienteOptions()).map((te) => ({
+        value: te.key,
+        label: te.descripcion.toUpperCase(),
+        raw: te,
       })); break;
     default: lista = [];
   }
@@ -412,6 +424,17 @@ export const estandarizarCampo = (campo) => {
   }
 
   return valor;
+}
+
+export const formatearMonto = (valor) => {
+  const numero = parseFloat(valor);
+  if (isNaN(numero)) return valor;
+
+  return numero.toLocaleString('es-AR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
 }
 
 /*

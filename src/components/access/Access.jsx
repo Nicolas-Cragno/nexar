@@ -40,7 +40,7 @@ const Access = ({
         onClose={() => handleClose()}
       />
 
-      {modalVisible && headers.length > 0 && (
+      {modalVisible && headers?.length > 0 && (
         <Modal
           title={title}
           coleccion={title}

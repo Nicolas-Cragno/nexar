@@ -32,9 +32,11 @@ const CardText = ({
                 {text}
               </p>
             </div>
-            <div className="col-md-2">
-              <PlusButton onClick={onClick2} />
-            </div>
+            {onClick2 && (
+              <div className="col-md-2">
+                <PlusButton onClick={onClick2} />
+              </div>
+            )}
           </div>
         </div>
       )}

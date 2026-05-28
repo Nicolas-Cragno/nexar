@@ -17,7 +17,6 @@ export const columnas = {
     { key: "detalle", label: "Detalle" },
     { key: "estado", label: "Estado", filtroEspecial: true },
   ],
-
   personas: [
     { key: "id", label: "DNI", filtroEspecial: true },
     { key: "legajo", label: "Legajo", filtroEspecial: true },
@@ -26,4 +25,17 @@ export const columnas = {
     { key: "puestoCompleto", label: "Puesto" },
     { key: "estado", label: "Estado", filtroEspecial: true },
   ],
+  empresas: [
+    { key: "id", label: "CUIT" },
+    { key: "nombre", label: "Nombre" },
+    { key: "tipo", label: "Tipo" },
+    { key: "cuentaCorriente", label: "Cta Corriente" },
+    { key: "estado", label: "Estado" }
+  ],
+  cuentaCorriente: [
+    { key: "id", label: "CUIT" },
+    { key: "nombre", label: "Nombre" },
+    { key: "monto", label: "Monto" },
+    { key: "estado", label: "Estado" }
+  ]
 };

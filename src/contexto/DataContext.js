@@ -10,15 +10,17 @@ const colecciones = [
     "furgones",
     "empresas",
     "ubicaciones",
+    "sectores",
+    "cuentaCorriente",
 ];
 
 let contador = 0;
 
-export function DataProvider({children}) {
+export function DataProvider({ children }) {
     const [data, setData] = useState({});
     const [loading, setLoading] = useState(true);
-    
-    useEffect(()=> {
+
+    useEffect(() => {
         const unsubs = [];
 
         colecciones.forEach((nombreColeccion) => {
@@ -36,11 +38,11 @@ export function DataProvider({children}) {
                         })),
                     };
 
-                    if(Object.keys(newData).length === colecciones.length){
+                    if (Object.keys(newData).length === colecciones.length) {
                         setLoading(false);
                     };
 
-                    console.log(" → " + nombreColeccion + "✓ - " + nombreColeccion.length + " registros." )
+                    console.log(" → " + nombreColeccion + "✓ - " + nombreColeccion.length + " registros.")
                     contador++;
                     return newData;
                 });
@@ -53,16 +55,15 @@ export function DataProvider({children}) {
     }, []);
 
     return (
-        <DataContext.Provider value={{...data, loading}}>
+        <DataContext.Provider value={{ ...data, loading }}>
             {children}
         </DataContext.Provider>
     )
 }
 
 console.log(
-  `[Firestore] Carga Finalizada (${contador}/${
-    colecciones.length
-  } coleccion${colecciones.length !== 1 ? "es" : ""}) ✓✓`
+    `[Firestore] Carga Finalizada (${contador}/${colecciones.length
+    } coleccion${colecciones.length !== 1 ? "es" : ""}) ✓✓`
 );
 
 export const useData = () => useContext(DataContext);

@@ -8,17 +8,17 @@ import './css/App.css';
 
 function App() {
   return (
-  <DataLayer>
-    <BrowserRouter>
-  <Routes>
-    <Route element={<Layout />}>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/movimientos" element={<Actions/>}/>
-      <Route path="/recursos" element={<Resources/>}/>
-    </Route>
-  </Routes>
-</BrowserRouter>
-  </DataLayer>
+    <DataLayer>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/movimientos" element={<Actions />} />
+            <Route path="/recursos" element={<Resources />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </DataLayer>
   );
 }
 

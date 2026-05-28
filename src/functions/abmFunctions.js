@@ -1,17 +1,18 @@
 import Swal from "sweetalert2";
 import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import { useData } from "../contexto/DataContext";
 
-const verification = async (collection,id) => {
-  const snapshot = await getDoc(
-    doc(db, collection, String(id))
-  );
+const verification = async (collection, id) => {
+    const snapshot = await getDoc(
+        doc(db, collection, String(id))
+    );
 
-  return snapshot.exists();
+    return snapshot.exists();
 };
 
 export const statusOptions = (result) => {
-    switch(result.status) {
+    switch (result.status) {
         case "success":
             Swal.fire({
                 title: "Guardado",
@@ -19,7 +20,7 @@ export const statusOptions = (result) => {
                 icon: "success",
                 confirmButtonColor: "#4161bd",
             });
-        break;
+            break;
         case "duplicado":
             Swal.fire({
                 title: "Duplicado",
@@ -27,7 +28,7 @@ export const statusOptions = (result) => {
                 icon: "warning",
                 confirmButtonColor: "#4161bd",
             });
-        break;
+            break;
         case "error":
             Swal.fire({
                 title: "Error",
@@ -36,45 +37,77 @@ export const statusOptions = (result) => {
                 confirmButtonColor: "#4161bd",
             });
             console.error(result.error);
-        break;
+            break;
         default:
             console.warn("[statusOptions] Error:", result);
-        break;
+            break;
     }
 };
 
-export const submit = async (collection, data, onGuardar=null, onError=null) => {
-    try{
+// generacion de codigo
+
+export const codeGenerator = async (area, sectores, cuentaCorriente = false) => {
+
+    const areaString = String(area).trim().toLowerCase();
+
+    const sector = sectores.find(
+        (sec) => sec.nombre.trim().toLowerCase() === areaString
+    );
+
+    if (!sector) {
+        throw new Error(`Sector inválido: ${area}`);
+    }
+
+    let parametro = "ultimo";
+
+    if (cuentaCorriente) parametro = "cuentaCorriente"
+
+    const nuevoOrden = Number(sector[parametro] || 0) + 1;
+
+    await update(sector.id, "sectores", { [parametro]: nuevoOrden });
+
+    const codigoSector = String(sector.codigo ?? sector.id).padStart(3, "0");
+
+    return {
+        id: `${codigoSector}-${String(nuevoOrden).padStart(8, "0")}`,
+        orden: nuevoOrden,
+    };
+};
+
+// ABM
+
+export const submit = async (collection, data, onGuardar = null, onError = null) => {
+    try {
         const existente = await verification(collection, String(data.id));
 
-        if(existente) return { status : "duplicado"};
+        if (existente) return { status: "duplicado" };
 
         await setDoc(doc(db, collection, String(data.id)), data);
 
-        if(onGuardar) await onGuardar(data);
-        return {status: "success", data};
-    } catch(error) {
+        if (onGuardar) await onGuardar(data);
+        return { status: "success", data };
+    } catch (error) {
         console.error("[Firestore submit error]:", error);
         if (onError) onError(error);
 
-        return {status: "error", error};
-    } 
+        return { status: "error", error };
+    }
 }
 
-export const update = async (id, collection, data, onGuardar=null, onError=null) => {
-    try{
-         await updateDoc(
-      doc(db, collection, String(id)),
-      {
-        ...data,
-        ultimaModificacion: new Date(),
-      }
-    );
+export const update = async (id, collection, data, onGuardar = null, onError = null) => {
+    try {
+        await updateDoc(
+            doc(db, collection, String(id)),
+            {
+                ...data,
+                ultimaModificacion: new Date(),
+            }
+        );
 
-    if (onGuardar) await onGuardar(data);
+        if (onGuardar) await onGuardar(data);
 
-    return true;
-    } catch(error){
+        return true;
+    } catch (error) {
         console.error("[Firestore update error]:", error);
         if (onError) onError(error);
 
@@ -82,23 +115,23 @@ export const update = async (id, collection, data, onGuardar=null, onError=null)
     }
 }
 
-export const remove = async (id, collection, data, onEliminar=null, onError=null) => {
+export const remove = async (id, collection, data, onEliminar = null, onError = null) => {
     try {
-    await deleteDoc(
-      doc(db, collection, String(id))
-    );
+        await deleteDoc(
+            doc(db, collection, String(id))
+        );
 
-    if (onEliminar) await onEliminar(id);
+        if (onEliminar) await onEliminar(id);
 
-    return true;
+        return true;
 
-  } catch (error) {
+    } catch (error) {
 
-    console.error("[Firestore delete error]:", error);
+        console.error("[Firestore delete error]:", error);
 
-    if (onError) onError(error);
+        if (onError) onError(error);
 
-    return false;
+        return false;
 
-  }
+    }
 }

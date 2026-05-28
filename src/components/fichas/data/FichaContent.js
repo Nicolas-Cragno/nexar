@@ -26,19 +26,22 @@ export const fichaContent = {
 
     ],
     personas: [
+        { key: "estado", label: "Estado", type: "state" },
+        // datos personales
         { key: "apellido", label: "apellido", type: "title" },
         { key: "nombres", label: "nombres", type: "secondtitle" },
         { key: "id", label: "DNI", type: "principal" },
-        { key: "nacimiento", label: "Nacimiento", type: "principal", soloFecha: true },
+        //{ key: "nacimiento", label: "Nacimiento", type: "principal", soloFecha: true },
         { key: "ubicacion", label: "Ubicación", type: "principal" },
+        // datos laborales
         { key: "legajo", label: "Legajo", type: "secondary" },
         { key: "nombreEmpresa", label: "Empresa", type: "secondary" },
         { key: "ingreso", label: "Ingreso", type: "secondary" },
         { key: "tipo", label: "Relación", type: "secondary" },
+        { key: "cuentaCorriente", label: "Cta Corriente", type: "secondary" },
         { key: "puestoCompleto", label: "Puesto", type: "secondary" },
         { key: "sucursalCompleta", label: "Sede", type: "secondary" },
         { key: "detalle", label: "Detalle", type: "secondary" },
-        { key: "estado", label: "Estado", type: "state" },
     ],
 }
 

@@ -108,6 +108,13 @@ export const eventos = {
                 { key: "valor", label: "Valor", type: "group", dato: "number", inputType: "input" },
             ]
         },
+    ],
+    cuentaCorriente: [
+        { key: "tipo", label: "Tipo", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "tipoCuentaCorriente", important: true },
+        { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true },
+        { key: "persona", label: "Empleado", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "cuentasCorrientes", important: true },
+        { key: "monto", label: "Monto", use: "database", type: "secondary", dato: "number", inputType: "input", important: true },
+        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false },
     ]
 }
 export const elementos = {

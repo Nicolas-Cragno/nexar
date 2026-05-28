@@ -42,7 +42,7 @@ export const vehiculosOptions = (data = []) => {
     return builderOptions(data, label)
 };
 
-export const sectoresOptions = (data=[]) => {
+export const sectoresOptions = (data = []) => {
     const label = (item) => `${item.id} - ${item.nombre}`;
     return builderOptions(data, label);
 };
@@ -57,7 +57,7 @@ export const llavesOptions = () => {
 };
 
 export const porteriaOptions = (filtro = null) => {
-    if(filtro === "llaves") {
+    if (filtro === "llaves") {
         return llavesOptions();
     }
     return [
@@ -81,7 +81,7 @@ export const satelitalOptions = () => {
 }
 
 export const tractoresOptions = (filtro = null) => {
-    if(filtro === "llaves") {
+    if (filtro === "llaves") {
         return llavesOptions();
     }
     return [
@@ -118,29 +118,36 @@ export const stockTypeOptions = () => {
         "SP": { "tipo": "SUSPENSION", "descripcion": "AMORTIGUADORES, BUJES, FUELLES Y RESORTES" },
         "TR": { "tipo": "TRANSMISION", "descripcion": "EMBRAGUE, CAJA DE CAMBIOS Y DIFERENCIAL" },
         "SV": { "tipo": "SERVICIO", "descripcion": "TAREAS DE MANTENIMIENTO, REVISIÓN, DIAGNÓSTICO O INTERVENCIÓN REALIZADAS SOBRE EL VEHÍCULO" }
-        };
+    };
 }
 
 export const unidadesOptions = () => {
     return {
-        "UN" : { "descripcion": "UNIDADES"},
-        "LT" : { "descripcion": "LITROS"},
-        "MT" : { "descripcion": "METROS"},
-        "KG" : { "descripcion": "KILOGRAMOS"},
-        "GR" : { "descripcion": "GRAMOS"},
-        "ML" : { "descripcion": "METROS LINEALES"},
-        "CM" : { "descripcion": "CENTIMETROS"},
-        "MM" : { "descripcion": "MILIMETROS"},
-        "RL" : { "descripcion": "ROLLOS"},
-        "M3" : { "descripcion": "METROS CUBICOS"},
-        "TN" : { "descripcion": "TONELADAS"}
+        "UN": { "descripcion": "UNIDADES" },
+        "LT": { "descripcion": "LITROS" },
+        "MT": { "descripcion": "METROS" },
+        "KG": { "descripcion": "KILOGRAMOS" },
+        "GR": { "descripcion": "GRAMOS" },
+        "ML": { "descripcion": "METROS LINEALES" },
+        "CM": { "descripcion": "CENTIMETROS" },
+        "MM": { "descripcion": "MILIMETROS" },
+        "RL": { "descripcion": "ROLLOS" },
+        "M3": { "descripcion": "METROS CUBICOS" },
+        "TN": { "descripcion": "TONELADAS" }
+    }
+}
+
+export const tipoCuentaCorrienteOptions = () => {
+    return {
+        "COBRO": { key: "COBRO", "descripcion": "COBRO (INGRESO DE DINERO A CAJA)" },
+        "PAGO": { key: "PAGO", "descripcion": " PAGO (ANTICIPOS, PAGOS, ETC)" }
     }
 }
 
 export const puestosOptions = () => {
     return {
-        "ADMINISTRATIVO" : { key: "ADMINISTRATIVO", "descripcion": "ADMINISTRATIVO"},
-        "CHOFER" : { key: "CHOFER", "descripcion": "CHOFER (LARGA / MOVIMIENTO)"},
+        "ADMINISTRATIVO": { key: "ADMINISTRATIVO", "descripcion": "ADMINISTRATIVO" },
+        "CHOFER": { key: "CHOFER", "descripcion": "CHOFER (LARGA / MOVIMIENTO)" },
         //"MAESTRANZA" : { key: "MAESTRANZA", "descripcion": "PERSONAL DE MAESTRANZA"},
         //"TALLER" : { key: "TALLER", "descripcion": "TALLER (MECANICOS, ELECTRICISTAS, GOMEROS, ETC)"},
         //"TRAFICO" : {key: "TRAFICO", "descripcion" : "PERSONAL DE TRÁFICO"}
@@ -149,7 +156,7 @@ export const puestosOptions = () => {
 
 export const tipoEmpleadoOptions = () => {
     return {
-        "EMPLEADO" : { "key": "EMPLEADO", "descripcion" : "EMPLEADO (TRANSCAN)"},
+        "EMPLEADO": { "key": "EMPLEADO", "descripcion": "EMPLEADO (TRANSCAN)" },
         //"PROVEEDOR" : { "key": "PROVEEDOR", "descripcion" : "PROVEEDOR"},
     }
 }

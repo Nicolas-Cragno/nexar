@@ -22,13 +22,29 @@ const FormContent = ({
   };
 
   // info para selects
-  const { personas, tractores, furgones, empresas, ubicaciones } = useData();
+  const {
+    personas,
+    tractores,
+    furgones,
+    empresas,
+    cuentaCorriente,
+    ubicaciones,
+  } = useData();
 
   const listarOpciones = (col) => {
     let listado;
     switch (col) {
       case "personas":
         listado = cargarSelects("personas", personas);
+        break;
+      case "administrativos":
+        const listadoFiltrado = personas.filter(
+          (ps) => ps.puesto === "ADMINISTRATIVO",
+        );
+        listado = cargarSelects("personas", listadoFiltrado);
+        break;
+      case "cuentasCorrientes":
+        listado = cargarSelects("cuentas", cuentaCorriente);
         break;
       case "tractores":
         listado = tractores;
@@ -47,6 +63,9 @@ const FormContent = ({
         break;
       case "ubicaciones":
         listado = cargarSelects("ubicaciones", ubicaciones);
+        break;
+      case "tipoCuentaCorriente":
+        listado = cargarSelects("tipoCuentaCorriente");
         break;
       default:
         listado = [];
