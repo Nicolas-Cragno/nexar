@@ -1,6 +1,6 @@
 //------------------------------------------------------ externos
 import Swal from "sweetalert2";
-import { increment } from "firebase/firestore";
+import { increment, serverTimestamp } from "firebase/firestore";
 //------------------------------------------------------ funciones
 import {
     verificarCamposObligatorios,
@@ -230,7 +230,7 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
         }
 
         const carga = async () => {
-            const cargaMovimiento = await submit("movimientos", { id: identificador, ...elementoAGuardar });
+            const cargaMovimiento = await submit("movimientos", { id: identificador, fecha: serverTimestamp(), ...elementoAGuardar });
             const cargaCuentaSuma = await update(cuentaSuma, "cuentaCorriente", { monto: increment(elementoAGuardar.monto) });
             const cargaCuentaResta = await update(cuentaResta, "cuentaCorriente", { monto: increment(-elementoAGuardar.monto) });
 

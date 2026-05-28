@@ -2,6 +2,7 @@ import { PersonasProvider } from "./PersonasContext";
 import { FurgonesProvider } from "./FurgonesContext";
 import { TractoresProvider } from "./TractoresContext";
 import { EmpresasProvider } from "./EmpresasContext";
+import { MovimientosProvider } from "./MovimientosContext";
 import { DataProvider } from "./DataContext";
 
 
@@ -12,7 +13,9 @@ const DataLayer = ({ children }) => {
                 <PersonasProvider>
                     <TractoresProvider>
                         <FurgonesProvider>
-                            {children}
+                            <MovimientosProvider>
+                                {children}
+                            </MovimientosProvider>
                         </FurgonesProvider>
                     </TractoresProvider>
                 </PersonasProvider>

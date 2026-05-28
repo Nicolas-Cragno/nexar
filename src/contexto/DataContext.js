@@ -11,6 +11,7 @@ const colecciones = [
     "empresas",
     "ubicaciones",
     "sectores",
+    "movimientos",
     "cuentaCorriente",
 ];
 

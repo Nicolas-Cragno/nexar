@@ -7,22 +7,13 @@ import Logo from "../../assets/logos/logoPrincipal.png";
 import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../../components/modales/data/Columnas";
-import { useData } from "../../contexto/DataContext";
+import { useMovimientos } from "../../contexto/MovimientosContext";
 
 const CuentasAccess = () => {
-  const { cuentaCorriente, loading } = useData();
-  const [texto, setTexto] = useState(<Load className="spinner" />);
-
-  useEffect(() => {
-    let txt = "";
-    const empresa = cuentaCorriente?.find((em) => em.id === "33719349949");
-    txt = empresa ? `$ ${empresa.monto || 0}` : "";
-
-    setTexto(txt);
-  }, [cuentaCorriente, loading]);
+  const { movimientos } = useMovimientos();
 
   const TITLE = "CUENTA CORRIENTE";
-  const COLECCION = "cuentaCorriente";
+  const COLECCION = "movimientos";
   const headers = columnas[COLECCION];
   const [formVisible, setFormVisible] = useState(false);
 
@@ -37,11 +28,11 @@ const CuentasAccess = () => {
   return (
     <>
       <Access
-        coleccion={cuentaCorriente}
+        coleccion={movimientos}
         title={TITLE}
         logo={Logo}
         headers={headers}
-        text={texto}
+        text={"REGISTROS"}
         onClickForm={handleOpen}
       />
       {formVisible && <FormMovimientoCuenta onClose={handleClose} />}

@@ -37,5 +37,13 @@ export const columnas = {
     { key: "nombre", label: "Nombre" },
     { key: "monto", label: "Monto" },
     { key: "estado", label: "Estado" }
+  ],
+  movimientos: [
+    { key: "id", label: "N° Movimiento", filtroEspecial: true },
+    { key: "fecha", label: "Fecha & hora", filtroEspecial: true },
+    { key: "personaCompleta", label: "Persona / empleado", filtroEspecial: true },
+    { key: "operadorCompleto", label: "Operador", filtroEspecial: true },
+    { key: "tipo", label: "TIPO", filtroEspecial: true },
+    { key: "montoCompleto", label: "Monto" }
   ]
 };
