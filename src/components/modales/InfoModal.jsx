@@ -1,6 +1,7 @@
 import "./css/InfoModal.css";
 import { useData } from "../../contexto/DataContext";
 import { useEffect, useState } from "react";
+import { formatearMonto } from "../../functions/dataFunctions";
 
 const InfoModal = ({ cuit = "33719349949" }) => {
   const { empresas, cuentaCorriente } = useData();
@@ -13,11 +14,14 @@ const InfoModal = ({ cuit = "33719349949" }) => {
   useEffect(() => {
     const empresaData = empresas?.find((em) => em.id === cuit);
     const cuentaData = cuentaCorriente?.find((ct) => ct.id === cuit);
+    const montoFull = cuentaData?.monto
+      ? formatearMonto(cuentaData.monto)
+      : formatearMonto(0);
     setTitle(cuentaData?.nombre);
     setPersonas(empresaData?.personas);
     setTractores(empresaData?.tractores);
     setFurgones(empresaData?.furgones);
-    setCuenta(cuentaData?.monto);
+    setCuenta(montoFull);
   }, [empresas, cuentaCorriente, cuit]);
 
   return (
