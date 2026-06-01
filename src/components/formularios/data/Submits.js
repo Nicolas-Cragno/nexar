@@ -158,7 +158,7 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
                 return;
             }
             // avanzar a modificar
-            const modificacion = await update(idElemento, "personas", elementoAGuardar, onGuardar);
+            const modificacion = await update(idElemento, "personas", { ...elementoAGuardar, ultimaModificacion: serverTimestamp() }, onGuardar);
 
             statusOptions(modificacion);
         } else {
@@ -171,7 +171,7 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
             }
 
             // avanzar con la carga
-            const carga = await submit("personas", { id: campoId, ...elementoAGuardar, estado: true }, onGuardar);
+            const carga = await submit("personas", { id: campoId, ...elementoAGuardar, estado: true, alta: serverTimestamp() }, onGuardar);
             statusOptions(carga);
 
         }
@@ -239,6 +239,66 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
             if (cargaCuentaResta) console.log("[Cuenta aportante] Movimiento de cuenta corriente registrado.");
 
             if (cargaMovimiento && cargaCuentaResta && cargaCuentaSuma) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        const resultadoCarga = await carga();
+
+
+        statusOptions(resultadoCarga);
+        if (onGuardar) onGuardar();
+
+        onClose();
+    } catch (error) {
+        console.error("[Error] al intentar guardar", error);
+
+        Swal.fire({
+            title: "Error",
+            text: "No hemos podido procesar la solicitud.",
+            icon: "error",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: "#4161bd",
+        });
+    } finally {
+        loading(false);
+    }
+}
+
+export const submitViaje = async (formData, campos, sectores, loading, onGuardar, onClose) => {
+    const CUIT_TRANSCAN = "33719349949";
+    const verificacion = verificarCamposObligatorios(campos, formData);
+    if (!verificacion) return;
+    loading(true); // ahora si empieza a cargar ...
+
+    // guardar elemento
+    try {
+        const { id: identificador } = await codeGenerator(formData.area, sectores, true);
+
+        const elementoAGuardar = campos.reduce((acc, cp) => {
+            if (cp.use !== "database") return acc;
+
+            let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
+
+            acc[cp.key] = valor;
+            return acc;
+        }, {});
+
+        const result = await confirmDataSwal("Viaje", elementoAGuardar);
+
+
+        if (!result.isConfirmed) {
+            loading(false);
+            return;
+        }
+
+        const carga = async () => {
+            const cargaViaje = await submit("viajes", { id: identificador, fecha: serverTimestamp(), ...elementoAGuardar });
+            if (cargaViaje) console.log("[Viaje] registrado.");
+
+            if (cargaViaje) {
                 return true;
             } else {
                 return false;

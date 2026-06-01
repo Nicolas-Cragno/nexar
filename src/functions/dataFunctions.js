@@ -77,23 +77,35 @@ export const formatearCampoFirestore = (valor, soloFecha = false) => {
   if (valor?.seconds) {
     const fecha = new Date(valor.seconds * 1000);
 
-    return fecha.toLocaleDateString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+    return soloFecha
+      ? fecha.toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+      : fecha.toLocaleString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
   }
+
   if (valor instanceof Date) {
-
-    const fechaLocal = new Date(
-      valor.getTime() + valor.getTimezoneOffset() * 60000
-    );
-
-    return fechaLocal.toLocaleDateString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
+    return soloFecha
+      ? valor.toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+      : valor.toLocaleString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
   }
   // fechas (FIN)}
 
@@ -274,6 +286,7 @@ export const cargarSelects = (tipo, listado = []) => {
         label: `${ps.apellido.toUpperCase()}, ${ps.nombres.toUpperCase()} (${ps.id})`,
         raw: ps
       })); break;
+
     case "tractores":
       lista = listado.map(tr => ({
         value: tr.id,

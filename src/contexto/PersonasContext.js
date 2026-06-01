@@ -19,6 +19,8 @@ export function PersonasProvider({ children }) {
       const sucursalCompleta = sucursal ? `${sucursal.nombre} (${ps.sucursal})` : "-";
       const ctaCorriente = cuentaCorriente.find((ct) => ct.id === ps.cuenta);
       const labelCtaCorriente = ctaCorriente ? `$ ${formatearMonto(ctaCorriente.monto)}` : "";
+      const labelEstado = ps.estado ? `ACTIVO DESDE ${ps.alta}` : ps.baja ? `DE BAJA DESDE ${ps.baja}` : "";
+
 
       return {
         ...ps,
@@ -27,6 +29,7 @@ export function PersonasProvider({ children }) {
         sucursalCompleta: sucursalCompleta,
         nombreEmpresa: empresa?.nombre || "-",
         cuentaCorriente: labelCtaCorriente,
+        estadoAlta: labelEstado || ""
       };
     });
 

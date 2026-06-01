@@ -699,7 +699,7 @@ opacity: .5;
   min-width: 100%;
   max-width: 100%;
   min-height: 20vh;
-  max-height: 20vh;
+  max-height: 40vh;
   overflow: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* IE y Edge */
@@ -887,6 +887,29 @@ padding-top: 1rem;}
   background-color: #0056b3;
 }
 
+/*  tramos */
+.form-list-tramos {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.form-list-tramos-left{
+  border-style: solid;
+  border-width: 1px;
+  border-color: #ddd;
+  border-radius: .5rem;
+  padding: 15px;
+}
+.form-list-tramos-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-list-tramos-right {
+  max-height: 600px;
+  overflow-y: auto;
+}
 /* Celulares 
 @media (max-width: 640px) {
   .form-content {

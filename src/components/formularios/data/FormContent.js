@@ -115,6 +115,32 @@ export const eventos = {
         { key: "persona", label: "Empleado", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "cuentasCorrientes", important: true },
         { key: "monto", label: "Monto", use: "database", type: "secondary", dato: "number", inputType: "input", important: true },
         { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false },
+    ],
+    viajes: [
+        { key: "persona", label: "Chofer", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "choferes", important: true },
+        { key: "tractor", label: "Tractor", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "tractores", important: true },
+        { key: "furgon", label: "Carga / Furgón", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "furgones", important: false },
+        { key: "cliente", label: "Cliente", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "clientes", important: false },
+        {
+            key: "tramos", label: "Tramos", type: "groupTramos", use: "database", dato: "array", addButton: true, items: [
+                //{ key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
+                { key: "lugarSalida", label: "Origen", inputType: "input" },
+                //{ key: "fechaLlegada", label: "Fecha", inputType: "inputDate" },
+                { key: "lugarLlegada", label: "Destino", inputType: "input" },
+                { key: "detalle", label: "Detalle", inputType: "input" },
+            ]
+        },
+    ],
+    cargas: [
+        { key: "viaje", label: "Viaje", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "viajes", important: true },
+        {
+            key: "destinos", label: "Destinos", type: "groupComplete", use: "database", dato: "array", addButton: true, items: [
+                //{ key: "fecha", label: "Salida", inputType: "inputDate" },
+                { key: "cliente", label: "Cargado en", inputType: "input" },
+                { key: "carga", label: "Carga", inputType: "input" },
+                { key: "detalle", label: "Detalle", inputType: "input" },
+            ]
+        },
     ]
 }
 export const elementos = {
@@ -145,6 +171,7 @@ export const elementos = {
     personas: [
         // datos personales
         { key: "dni", isId: true, label: "DNI", type: "principal", use: "database", dato: "number", inputType: "input", important: true, notChange: true },
+        { key: "cuit", label: "CUIT / CUIL", type: "principal", use: "database", dato: "number", inputType: "input", important: false },
         { key: "apellido", label: "Apellido", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "nombres", label: "Nombres", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "nacimiento", label: "Nacimiento", type: "principal", use: "database", dato: "date", inputType: "inputDate", important: false },

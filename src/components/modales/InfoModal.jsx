@@ -17,6 +17,7 @@ const InfoModal = ({ cuit = "33719349949" }) => {
     const montoFull = cuentaData?.monto
       ? formatearMonto(cuentaData.monto)
       : formatearMonto(0);
+
     setTitle(cuentaData?.nombre);
     setPersonas(empresaData?.personas);
     setTractores(empresaData?.tractores);

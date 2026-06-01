@@ -45,5 +45,14 @@ export const columnas = {
     { key: "operadorCompleto", label: "Operador", filtroEspecial: true },
     { key: "tipo", label: "TIPO", filtroEspecial: true },
     { key: "montoCompleto", label: "Monto" }
+  ],
+  viajes: [
+    { key: "id", label: "N° Viaje", filtroEspecial: true },
+    { key: "fecha", label: "Fecha & hora", filtroEspecial: true },
+    { key: "personaCompleta", label: "Chofer", filtroEspecial: true },
+    { key: "tractorCompleto", label: "Tractor", filtroEspecial: true },
+    { key: "furgonCompleto", label: "Carga / Furgon", filtroEspecial: true },
+    { key: "clienteCompleto", label: "Cliente", filtroEspecial: true },
+    { key: "detalle", label: "Detalle" },
   ]
 };

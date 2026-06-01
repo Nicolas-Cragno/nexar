@@ -13,6 +13,7 @@ const colecciones = [
     "sectores",
     "movimientos",
     "cuentaCorriente",
+    "viajes",
 ];
 
 let contador = 0;

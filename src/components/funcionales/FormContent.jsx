@@ -2,10 +2,16 @@ import InputForm from "../inputs/InputForm";
 import FormList from "./FormList";
 
 import { useData } from "../../contexto/DataContext";
+import { useTractores } from "../../contexto/TractoresContext";
+import { useFurgones } from "../../contexto/FurgonesContext";
 import { cargarSelects } from "../../functions/dataFunctions";
+import FormListGroup from "./FormListGroup";
+import FormListTramos from "./FormListTramos";
+import { usePersonas } from "../../contexto/PersonasContext";
+
 const FormContent = ({
   elemento,
-  campos,
+  campos = [],
   //opciones,
   data,
   setData,
@@ -22,14 +28,10 @@ const FormContent = ({
   };
 
   // info para selects
-  const {
-    personas,
-    tractores,
-    furgones,
-    empresas,
-    cuentaCorriente,
-    ubicaciones,
-  } = useData();
+  const { empresas, cuentaCorriente, ubicaciones } = useData();
+  const { personas } = usePersonas();
+  const { tractores } = useTractores();
+  const { furgones } = useFurgones();
 
   const listarOpciones = (col) => {
     let listado;
@@ -37,20 +39,26 @@ const FormContent = ({
       case "personas":
         listado = cargarSelects("personas", personas);
         break;
-      case "administrativos":
-        const listadoFiltrado = personas.filter(
-          (ps) => ps.puesto === "ADMINISTRATIVO",
+      case "choferes":
+        const personasChoferes = (personas || []).filter(
+          (ps) => ps?.puesto === "CHOFER",
         );
-        listado = cargarSelects("personas", listadoFiltrado);
+        listado = cargarSelects("personas", personasChoferes);
+        break;
+      case "administrativos":
+        const personasAdm = (personas || []).filter(
+          (ps) => ps?.puesto === "ADMINISTRATIVO",
+        );
+        listado = cargarSelects("personas", personasAdm);
         break;
       case "cuentasCorrientes":
         listado = cargarSelects("cuentas", cuentaCorriente);
         break;
       case "tractores":
-        listado = tractores;
+        listado = cargarSelects("tractores", tractores);
         break;
       case "furgones":
-        listado = furgones;
+        listado = cargarSelects("furgones", furgones);
         break;
       case "empresasPropias":
         listado = cargarSelects("empresas", empresas);
@@ -76,7 +84,9 @@ const FormContent = ({
 
   const bloquePrincipal = campos.filter((cp) => cp.type === "principal");
   const bloqueSecondary = campos.filter((cp) => cp.type === "secondary");
-  const bloqueComplete = campos.filter((cp) => cp.type === "group"); // ej: para cargar listas de repuestos
+  const bloqueGroup = campos.filter((cp) => cp.type === "group"); // ej: para cargar listas de repuestos
+  const bloqueComplete = campos.filter((cp) => cp.type === "groupComplete");
+  const bloqueTramos = campos.filter((cp) => cp.type === "groupTramos"); // especial para viajes
   const bloqueSecret = campos.filter((cp) => cp.type === "secret");
 
   return (
@@ -117,8 +127,8 @@ const FormContent = ({
           </div>
         </div>
       )}
-      {bloqueComplete.length > 0 && (
-        <div className="doble-form-right">
+      {bloqueGroup.length > 0 && (
+        <div className={"doble-form-right"}>
           <label>
             <strong className="form-info-title">Registrar</strong>
           </label>
@@ -133,6 +143,41 @@ const FormContent = ({
           </div>
         </div>
       )}
+      {bloqueComplete.map((campo) => (
+        <div className={"doble-form-right"}>
+          <label>
+            <strong className="form-info-title">Registrar</strong>
+            <div className="form-info-box">
+              <FormListGroup
+                key={campo.key}
+                title={campo.label}
+                items={campo.items}
+                value={data[campo.key] || []}
+                onChange={(nuevoListado) =>
+                  handleChange(campo.key, nuevoListado)
+                }
+              />
+            </div>
+          </label>
+        </div>
+      ))}
+      {bloqueTramos.map((campo) => (
+        <div className={"doble-form-right"}>
+          <label>
+            <strong className="form-info-title">Tramos del viaje</strong>
+            <div className="form-info-box">
+              <FormListTramos
+                key={campo.key}
+                items={campo.items}
+                value={data[campo.key] || []}
+                onChange={(nuevoListado) =>
+                  handleChange(campo.key, nuevoListado)
+                }
+              />
+            </div>
+          </label>
+        </div>
+      ))}
     </>
   );
 };
