@@ -949,6 +949,43 @@ padding-top: 1rem;}
   min-height: 250px;
   max-height: 400px;
 }
+
+.adelanto-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adelanto-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+
+  padding: 10px;
+}
+
+.adelanto-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.adelanto-monto {
+  font-size: 1rem;
+}
+
+.adelanto-fecha {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.form-list-total {
+  margin-top: 10px;
+  text-align: right;
+}
 /* Celulares 
 @media (max-width: 640px) {
   .form-content {

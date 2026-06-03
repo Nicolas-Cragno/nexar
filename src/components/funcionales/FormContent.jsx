@@ -1,6 +1,6 @@
 import InputForm from "../inputs/InputForm";
 import FormList from "./FormList";
-
+import FormToDo from "./FormToDo";
 import { useData } from "../../contexto/DataContext";
 import { useTractores } from "../../contexto/TractoresContext";
 import { useFurgones } from "../../contexto/FurgonesContext";
@@ -102,6 +102,7 @@ const FormContent = ({
   const bloqueSecondary = campos.filter((cp) => cp.type === "secondary");
   const bloqueGroup = campos.filter((cp) => cp.type === "group"); // ej: para cargar listas de repuestos
   const bloqueComplete = campos.filter((cp) => cp.type === "groupComplete");
+  const bloqueToDo = campos.filter((cp) => cp.type === "toDo");
   const bloqueTramos = campos.filter((cp) => cp.type === "groupTramos"); // especial para viajes
   const bloqueSecret = campos.filter((cp) => cp.type === "secret");
 
@@ -120,9 +121,7 @@ const FormContent = ({
                 onChange={handleChange}
                 opciones={listarOpciones(campo.optionsList)}
                 modoEdicion={modoEdicion}
-                disabled={
-                  readOnly && campo.key !== "detalle" && campo.key !== "viaje"
-                }
+                disabled={readOnly && !campo.neverDisabled}
               />
             ))}
           </div>
@@ -141,9 +140,7 @@ const FormContent = ({
                 onChange={handleChange}
                 opciones={listarOpciones(campo.optionsList)}
                 modoEdicion={modoEdicion}
-                disabled={
-                  readOnly && campo.key !== "detalle" && campo.key !== "viaje"
-                }
+                disabled={readOnly && !campo.neverDisabled}
               />
             ))}
           </div>
@@ -196,6 +193,23 @@ const FormContent = ({
                   handleChange(campo.key, nuevoListado)
                 }
                 opciones={cargarSelects("provincias")} // se manda solo esta lista
+              />
+            </div>
+          </label>
+        </div>
+      ))}
+      {bloqueToDo.map((campo) => (
+        <div className={"doble-form-right"} key={campo.key}>
+          <label>
+            <strong className="form-info-title">{campo.label}</strong>
+
+            <div className="form-info-box">
+              <FormToDo
+                value={data[campo.key] || []}
+                onChange={(nuevoListado) =>
+                  handleChange(campo.key, nuevoListado)
+                }
+                dato={campo.dato}
               />
             </div>
           </label>

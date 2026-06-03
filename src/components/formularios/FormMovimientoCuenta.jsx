@@ -1,5 +1,5 @@
 //------------------------------------------------------ externos
-import { useState } from "react";
+import { useState, useEffect } from "react";
 //------------------------------------------------------ elementos
 import FormContent from "../funcionales/FormContent";
 import FormHeader from "../funcionales/FormHeader";
@@ -9,23 +9,75 @@ import Loading from "../../routes/Loading";
 import { submitMovimientoCuenta } from "./data/Submits";
 import { eventos } from "./data/FormContent";
 import { useData } from "../../contexto/DataContext";
+import { useViajes } from "../../contexto/ViajesContext";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
 
-const FormMovimientoCuenta = ({ elemento = null, onGuardar, onClose }) => {
+const FormMovimientoCuenta = ({
+  elemento = null,
+  onGuardar,
+  onClose,
+  desdeViaje = false,
+}) => {
   const titulo = "Movimiento";
   const subtitulo = "Cuenta Corriente";
   const campos = eventos["cuentaCorriente"];
+
   const [loading, setLoading] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
+
   const [formData, setFormData] = useState({
     area: "ADMINISTRACION",
-    tipo: elemento?.tipo || "",
-    operador: elemento?.operador || "",
-    persona: elemento?.persona || "",
-    detalle: elemento?.detalle || "",
-    monto: elemento?.monto || 0,
+    viaje: "",
+    tipo: "",
+    operador: "",
+    persona: "",
+    detalle: "",
+    monto: 0,
   });
+
   const { sectores } = useData();
+  const { viajes } = useViajes();
+
+  useEffect(() => {
+    if (!desdeViaje || !elemento) return;
+
+    setFormData({
+      area: "ADMINISTRACION",
+      viaje: elemento?.id,
+      tipo: "PAGO",
+      operador: elemento?.operador,
+      persona: elemento?.persona,
+      tractor: elemento?.tractor,
+      detalle: `ADELANTO VIAJE ${elemento?.id}`,
+      monto: elemento?.monto || 0,
+    });
+
+    setReadOnly(true);
+  }, [elemento, desdeViaje]);
+
+  useEffect(() => {
+    if (desdeViaje) return;
+
+    if (!formData.viaje) {
+      setReadOnly(false);
+      return;
+    }
+
+    const viajeSeleccionado = viajes.find((vj) => vj.id === formData.viaje);
+
+    if (!viajeSeleccionado) {
+      setReadOnly(false);
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      persona: viajeSeleccionado.persona,
+    }));
+
+    setReadOnly(true);
+  }, [formData.viaje, viajes, desdeViaje]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +107,10 @@ const FormMovimientoCuenta = ({ elemento = null, onGuardar, onClose }) => {
             campos={campos}
             data={formData}
             setData={setFormData}
+            readOnly={readOnly}
+            desdeViaje={desdeViaje}
           />
+
           <div className="form-buttons">
             <TextButton
               text={"Guardar"}

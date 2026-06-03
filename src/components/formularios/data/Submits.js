@@ -309,27 +309,28 @@ export const submitViaje = async (formData, campos, contadores, ubicaciones, loa
 
 
         if (!result.isConfirmed) {
-            loading(false);
-            return;
+            return null;
         }
 
-        const carga = async () => {
-            const cargaViaje = await submit("viajes", { id: identificador, fecha: serverTimestamp(), estado: true, ...elementoAGuardar });
-
-            if (cargaViaje) {
-                return true;
-            } else {
-                return false;
-            }
+        const nuevoViaje = {
+            id: identificador,
+            fecha: serverTimestamp(),
+            estado: true,
+            ...elementoAGuardar,
         };
 
-        const resultadoCarga = await carga();
-
+        const resultadoCarga = await submit(
+            "viajes",
+            nuevoViaje
+        );
 
         statusOptions(resultadoCarga);
+
+        if (!resultadoCarga) return null;
+
         if (onGuardar) onGuardar();
 
-        onClose();
+        return nuevoViaje;
     } catch (error) {
         console.error("[Error] al intentar guardar", error);
 
@@ -340,6 +341,8 @@ export const submitViaje = async (formData, campos, contadores, ubicaciones, loa
             confirmButtonText: "Entendido",
             confirmButtonColor: "#4161bd",
         });
+
+        return null;
     } finally {
         loading(false);
     }

@@ -110,17 +110,19 @@ export const eventos = {
         },
     ],
     cuentaCorriente: [
-        { key: "tipo", label: "Tipo", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "tipoCuentaCorriente", important: true },
-        { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true },
+        { key: "viaje", label: "Viaje", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "viajesActivos", important: false },
+        { key: "tipo", label: "Tipo", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "tipoCuentaCorriente", important: true, neverDisabled: true },
+        { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true, neverDisabled: true },
         { key: "persona", label: "Empleado", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "cuentasCorrientes", important: true },
-        { key: "monto", label: "Monto", use: "database", type: "secondary", dato: "number", inputType: "input", important: true },
-        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false },
+        { key: "monto", label: "Monto", use: "database", type: "secondary", dato: "number", inputType: "input", important: true, neverDisabled: true },
+        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false, neverDisabled: true },
     ],
     viajes: [
         { key: "persona", label: "Chofer", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "choferes", important: true },
         { key: "tractor", label: "Tractor", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "tractores", important: true },
         { key: "furgon", label: "Carga / Furgón", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "furgones", important: false },
         { key: "cliente", label: "Cliente", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "clientes", important: false },
+        { key: "adelanto", label: "AdelantoS", type: "toDo", dato: "number", inputType: "input" },
         {
             key: "tramos", label: "Tramos", type: "groupTramos", use: "database", dato: "array", addButton: true, items: [
                 //{ key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
@@ -138,7 +140,7 @@ export const eventos = {
         { key: "persona", label: "Chofer", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "choferes", important: true },
         { key: "tractor", label: "Tractor", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "tractores", important: true },
         { key: "furgon", label: "Carga / Furgón", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "furgones", important: false },
-        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false }
+        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false, neverDisabled: true }
     ],
     cargas: [
         { key: "viaje", label: "Viaje", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "viajes", important: true },
