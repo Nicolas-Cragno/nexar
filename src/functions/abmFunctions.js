@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, increment } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useData } from "../contexto/DataContext";
 
@@ -44,10 +44,9 @@ export const statusOptions = (result) => {
     }
 };
 
-// generacion de codigo
+// generacion de codigo por area
 
 export const codeGenerator = async (area, sectores, cuentaCorriente = false) => {
-
     const areaString = String(area).trim().toLowerCase();
 
     const sector = sectores.find(
@@ -70,6 +69,28 @@ export const codeGenerator = async (area, sectores, cuentaCorriente = false) => 
 
     return {
         id: `${codigoSector}-${String(nuevoOrden).padStart(8, "0")}`,
+        orden: nuevoOrden,
+    };
+};
+
+// generacion de codigo por sucursal (para viajes)
+
+export const codeTravel = async (ubicaciones, contadores, contador = "viajes", sucursal = "DON TORCUATO") => {
+
+    const sucursalUb = ubicaciones.find((ub) => ub.nombre?.toLowerCase() === sucursal.toLowerCase());
+
+    const contadorColeccion = contadores.find(
+        ct => ct.nombre === contador
+    );
+
+    const nuevoOrden = (contadorColeccion?.ultimo ?? 0) + 1;
+
+    await update(contador, "contadores", { ultimo: increment(1) });
+
+    const codigoSucursal = String(sucursalUb.codigo ?? sucursalUb.id).padStart(3, "0");
+
+    return {
+        id: `${codigoSucursal}-${String(nuevoOrden).padStart(8, "0")}`,
         orden: nuevoOrden,
     };
 };

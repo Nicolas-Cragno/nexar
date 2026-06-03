@@ -2,8 +2,9 @@
 import Swal from "sweetalert2";
 import { Timestamp } from "firebase/firestore";
 //------------------------------------------------------ funciones
-import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions, tipoCuentaCorrienteOptions } from "../components/formularios/data/OptionsContent";
+import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions, tipoCuentaCorrienteOptions, provinciasOptions, localidadesOptions, viajesOptions } from "../components/formularios/data/OptionsContent";
 import { useData } from "../contexto/DataContext";
+//------------------------------------------------------ 
 
 
 export const convertirFecha = (fecha) => {
@@ -280,6 +281,13 @@ export const cargarSelects = (tipo, listado = []) => {
   let lista = [];
 
   switch (tipo) {
+    case "viajes":
+      lista = listado.map(vj => ({
+        value: vj.id,
+        label: vj.label,
+        raw: vj
+      }));
+      break;
     case "personas":
       lista = listado.map(ps => ({
         value: ps.id,
@@ -335,6 +343,11 @@ export const cargarSelects = (tipo, listado = []) => {
         label: te.descripcion.toUpperCase(),
         raw: te,
       })); break;
+    case "localidades":
+      lista = localidadesOptions; break;
+    case "provincias":
+      lista = provinciasOptions; break;
+
     default: lista = [];
   }
 

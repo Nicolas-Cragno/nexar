@@ -888,7 +888,7 @@ padding-top: 1rem;}
 }
 
 /*  tramos */
-.form-list-tramos {
+.form-list-tramos-rl {  /* right & left */
   display: flex;
   gap: 20px;
   width: 100%;
@@ -909,6 +909,45 @@ padding-top: 1rem;}
 .form-list-tramos-right {
   max-height: 600px;
   overflow-y: auto;
+}
+
+.form-list-tramos-tb { /* top & bottom */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.form-list-tramos-top {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+
+  border: 1px solid #ddd;
+  border-radius: .5rem;
+  padding: 15px;
+}
+
+.form-list-tramos-top .form-info {
+  flex: 1;
+  min-width: 220px;
+  margin: 0;
+}
+
+.form-list-tramos-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.form-list-tramos-bottom {
+  width: 100%;
+}
+
+.form-list-tramos-bottom .form-box {
+  margin-top: 0;
+  min-height: 250px;
+  max-height: 400px;
 }
 /* Celulares 
 @media (max-width: 640px) {

@@ -22,7 +22,7 @@ export function ViajesProvider({ children }) {
             const tractor = tractores.find((tr) => String(vj.tractor) === String(tr.id));
             const furgon = furgones.find((fg) => String(fg.furgon) === String(fg.id));
             const personaLabel = persona?.nombreCompleto;
-            const label = `${vj.id} ${personaLabel} (${vj.tractor} ${vj.furgon ? " / " + vj.furgon : ""})`;
+            const label = `${vj.id} | ${personaLabel} (TR: ${vj.tractor}${vj.furgon ? " / FG: " + vj.furgon : ""})`;
 
             return {
                 ...vj,

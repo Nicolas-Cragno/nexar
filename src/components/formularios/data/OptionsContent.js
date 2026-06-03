@@ -1,4 +1,5 @@
-
+import localidades from "../../../functions/data/localidades.json";
+import provincias from "../../../functions/data/provincias.json";
 
 const builderOptions = (data = [], label) => {
     if (!Array.isArray(data)) return [];
@@ -46,6 +47,19 @@ export const sectoresOptions = (data = []) => {
     const label = (item) => `${item.id} - ${item.nombre}`;
     return builderOptions(data, label);
 };
+
+export const localidadesOptions = localidades.map(lc => ({
+    value: lc.key,
+    label: `${lc.nombre} (${lc.ubicacion}, ${lc.provincia})`,
+    raw: lc
+}));
+
+export const provinciasOptions = provincias.map(pv => ({
+    value: pv.key,
+    label: pv.nombre,
+    shortLabel: pv.label,
+    raw: pv
+}));
 
 // Tipos
 

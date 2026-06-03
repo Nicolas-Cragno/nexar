@@ -18,10 +18,11 @@ const FormListTramos = ({
 }) => {
   const [nuevoRegistro, setNuevoRegistro] = useState({});
 
-  const handleCampoChange = (key, valor) => {
+  const handleCampoChange = (key, valor, label = null) => {
     setNuevoRegistro((prev) => ({
       ...prev,
       [key]: valor,
+      [`${key}Label`]: label,
     }));
   };
 
@@ -56,8 +57,8 @@ const FormListTramos = ({
   };
 
   return (
-    <div className="form-list-tramos">
-      <div className="form-list-tramos-left">
+    <div className="form-list-tramos-tb">
+      <div className="form-list-tramos-top">
         {items.map((item) => (
           <InputForm
             key={item.key}
@@ -76,7 +77,7 @@ const FormListTramos = ({
         />
       </div>
 
-      <div className="form-list-tramos-right">
+      <div className="form-list-tramos-bottom">
         {value.length > 0 && (
           <ul className="form-box">
             {value.map((registro, index) => (
@@ -84,9 +85,9 @@ const FormListTramos = ({
                 key={index}
                 order={index + 1}
                 dateInit={registro.fechaSalida}
-                placeInit={registro.lugarSalida}
+                placeInit={registro.lugarSalidaLabel}
                 dateEnd={registro.fechaLlegada}
-                placeEnd={registro.lugarLlegada}
+                placeEnd={registro.lugarLlegadaLabel}
                 coments={registro.detalle}
                 onClick={() => handleEliminar(index)}
               />

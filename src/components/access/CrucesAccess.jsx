@@ -5,18 +5,18 @@ import Logo from "../../assets/logos/logoPrincipal.png";
 import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../../components/modales/data/Columnas";
-import { useViajes } from "../../contexto/ViajesContext";
-import FormViaje from "../formularios/FormViaje";
+import { useCruces } from "../../contexto/CrucesContext";
+import FormCruce from "../formularios/FormCruce";
 
-const ViajesAccess = ({ filtro = null }) => {
-  const { viajes } = useViajes();
+const CrucesAccess = ({ filtro = null }) => {
+  const { cruces } = useCruces();
   //const [texto, setTexto] = useState(<Load className="spinner" />);
 
-  const TITLE = "VIAJES";
-  const COLECCION = "viajes";
+  const TITLE = "CRUCES DE BARCAZA";
+  const COLECCION = "cruces";
   const [formVisible, setFormVisible] = useState(false);
   const headers = columnas[COLECCION];
-  const texto = "Registro de Viajes";
+  const texto = "Registro de Cruces";
 
   const handleOpen = () => {
     setFormVisible(true);
@@ -29,7 +29,7 @@ const ViajesAccess = ({ filtro = null }) => {
   return (
     <>
       <Access
-        coleccion={viajes}
+        coleccion={cruces}
         title={TITLE}
         logo={Logo}
         headers={headers}
@@ -37,9 +37,9 @@ const ViajesAccess = ({ filtro = null }) => {
         filtro={filtro}
         onClickForm={handleOpen}
       />
-      {formVisible && <FormViaje onClose={handleClose} />}
+      {formVisible && <FormCruce onClose={handleClose} />}
     </>
   );
 };
 
-export default ViajesAccess;
+export default CrucesAccess;

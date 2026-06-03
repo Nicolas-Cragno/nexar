@@ -124,12 +124,21 @@ export const eventos = {
         {
             key: "tramos", label: "Tramos", type: "groupTramos", use: "database", dato: "array", addButton: true, items: [
                 //{ key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
-                { key: "lugarSalida", label: "Origen", inputType: "input" },
+                { key: "lugarSalida", label: "Origen", inputType: "inputOptions", optionsList: "provincias" },
                 //{ key: "fechaLlegada", label: "Fecha", inputType: "inputDate" },
-                { key: "lugarLlegada", label: "Destino", inputType: "input" },
+                { key: "lugarLlegada", label: "Destino", inputType: "inputOptions", optionsList: "provincias" },
                 { key: "detalle", label: "Detalle", inputType: "input" },
             ]
         },
+        { key: "detalle", label: "Detalle", use: "database", type: "principal", dato: "text", inputType: "textarea", important: false },
+
+    ],
+    cruces: [
+        { key: "viaje", label: "Viaje", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "viajesActivos", important: true },
+        { key: "persona", label: "Chofer", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "choferes", important: true },
+        { key: "tractor", label: "Tractor", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "tractores", important: true },
+        { key: "furgon", label: "Carga / Furgón", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "furgones", important: false },
+        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false }
     ],
     cargas: [
         { key: "viaje", label: "Viaje", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "viajes", important: true },
@@ -171,7 +180,7 @@ export const elementos = {
     personas: [
         // datos personales
         { key: "dni", isId: true, label: "DNI", type: "principal", use: "database", dato: "number", inputType: "input", important: true, notChange: true },
-        { key: "cuit", label: "CUIT / CUIL", type: "principal", use: "database", dato: "number", inputType: "input", important: false },
+        { key: "cuit", label: "CUIT / CUIL", type: "principal", use: "database", dato: "number", inputType: "input", important: true, notChange: true },
         { key: "apellido", label: "Apellido", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "nombres", label: "Nombres", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "nacimiento", label: "Nacimiento", type: "principal", use: "database", dato: "date", inputType: "inputDate", important: false },

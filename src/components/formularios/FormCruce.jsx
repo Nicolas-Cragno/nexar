@@ -1,36 +1,59 @@
 //------------------------------------------------------ externos
-import { useState } from "react";
+import { useState, useEffect } from "react";
 //------------------------------------------------------ elementos
 import FormContent from "../funcionales/FormContent";
 import FormHeader from "../funcionales/FormHeader";
 import TextButton from "../buttons/TextButton";
 import Loading from "../../routes/Loading";
 //------------------------------------------------------ funciones
-import { submitViaje } from "./data/Submits";
+import { submitCruce } from "./data/Submits";
 import { eventos } from "./data/FormContent";
 import { useData } from "../../contexto/DataContext";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
+import { useViajes } from "../../contexto/ViajesContext";
 
-const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
-  const titulo = "Registro";
-  const subtitulo = "Viaje";
-  const campos = eventos["viajes"];
+const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
+  const titulo = "Solicitud";
+  const subtitulo = "Cruce de barcaza";
+  const campos = eventos["cruces"];
   const [loading, setLoading] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
   const [formData, setFormData] = useState({
     area: "TRAFICO",
-    tipo: elemento?.tipo || "",
-    operador: elemento?.operador || "",
+    viaje: elemento?.viaje || "",
     persona: elemento?.persona || "",
+    tractor: elemento?.tractor || "",
+    furgon: elemento?.furgon || "",
     detalle: elemento?.detalle || "",
-    monto: elemento?.monto || 0,
   });
   const { contadores, ubicaciones } = useData();
+  const { viajes } = useViajes();
+
+  useEffect(() => {
+    if (!formData.viaje) {
+      setReadOnly(false);
+      return;
+    }
+    const viajeSeleccionado = viajes.find((vj) => vj.id === formData.viaje);
+
+    if (!viajeSeleccionado) {
+      setReadOnly(false);
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      persona: viajeSeleccionado.persona,
+      tractor: viajeSeleccionado.tractor,
+      furgon: viajeSeleccionado.furgon,
+    }));
+    setReadOnly(true);
+  }, [formData.viaje, viajes]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await submitViaje(
+    await submitCruce(
       formData,
       campos,
       contadores,
@@ -38,28 +61,26 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       setLoading,
       onGuardar,
       onClose,
-      false,
-      elemento?.id,
     );
   };
 
   return (
-    <div className="doble-form">
+    <div className="form">
       {loading ? (
         <Loading />
       ) : (
-        <div className="doble-form-content">
+        <div className="form-content">
           <FormHeader title={titulo} subTitle={subtitulo} onClose={onClose} />
 
-          <div className="doble-form-modal">
-            <FormContent
-              elemento={elemento}
-              campos={campos}
-              data={formData}
-              setData={setFormData}
-              isDouble={true}
-            />
-          </div>
+          <FormContent
+            elemento={elemento}
+            campos={campos}
+            data={formData}
+            setData={setFormData}
+            isDouble={true}
+            readOnly={readOnly}
+          />
+
           <div className="form-buttons">
             <TextButton
               text={"Guardar"}
@@ -73,4 +94,4 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   );
 };
 
-export default FormViaje;
+export default FormCruce;

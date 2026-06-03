@@ -5,8 +5,15 @@ import {
 } from "../../functions/dataFunctions";
 import FormList from "../funcionales/FormList";
 
-const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
-  const disabled = modoEdicion && campo.isId && campo.notChange;
+const InputForm = ({
+  campo,
+  value,
+  onChange,
+  opciones,
+  modoEdicion,
+  disabled = false,
+}) => {
+  const isDisabled = disabled || (modoEdicion && campo.isId && campo.notChange);
 
   return (
     <div className="form-info">
@@ -34,7 +41,7 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
                 : e.target.value,
             )
           }
-          disabled={disabled}
+          disabled={isDisabled}
         />
       )}
 
@@ -51,7 +58,7 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
           onChange={(e) =>
             onChange(campo.key, parsearFechaATimestamp(e.target.value))
           }
-          disabled={disabled}
+          disabled={isDisabled}
         />
       )}
 
@@ -68,7 +75,7 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
                 : e.target.value,
             )
           }
-          disabled={disabled}
+          disabled={isDisabled}
         />
       )}
 
@@ -83,10 +90,13 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
               (opt) => opt.value === formatearCampoFirestore(value),
             ) || null
           }
-          onChange={(opt) => onChange(campo.key, opt ? opt.value : "")}
+          onChange={(opt) =>
+            onChange(campo.key, opt ? opt.value : "", opt ? opt.label : null)
+          }
           isClearable
           placeholder="Seleccionar..."
           noOptionsMessage={() => "Sin opciones"}
+          isDisabled={isDisabled}
         />
       )}
       {/* MULTI SELECT (multiOptions) */}
@@ -104,6 +114,7 @@ const InputForm = ({ campo, value, onChange, opciones, modoEdicion }) => {
           }
           placeholder="Seleccionar..."
           noOptionsMessage={() => "Sin opciones"}
+          isDisabled={isDisabled}
         />
       )}
 

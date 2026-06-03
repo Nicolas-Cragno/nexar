@@ -14,6 +14,8 @@ const colecciones = [
     "movimientos",
     "cuentaCorriente",
     "viajes",
+    "cruces", // para cruces de barcaza
+    "contadores", // para viajes y ordenes de cruces en principio
 ];
 
 let contador = 0;

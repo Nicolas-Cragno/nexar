@@ -5,6 +5,7 @@ import { useData } from "../../contexto/DataContext";
 import { useTractores } from "../../contexto/TractoresContext";
 import { useFurgones } from "../../contexto/FurgonesContext";
 import { cargarSelects } from "../../functions/dataFunctions";
+import { useViajes } from "../../contexto/ViajesContext";
 import FormListGroup from "./FormListGroup";
 import FormListTramos from "./FormListTramos";
 import { usePersonas } from "../../contexto/PersonasContext";
@@ -17,6 +18,7 @@ const FormContent = ({
   setData,
   listado,
   isDouble = false,
+  readOnly = false,
 }) => {
   const modoEdicion = !!elemento;
 
@@ -29,6 +31,7 @@ const FormContent = ({
 
   // info para selects
   const { empresas, cuentaCorriente, ubicaciones } = useData();
+  const { viajes } = useViajes();
   const { personas } = usePersonas();
   const { tractores } = useTractores();
   const { furgones } = useFurgones();
@@ -36,6 +39,13 @@ const FormContent = ({
   const listarOpciones = (col) => {
     let listado;
     switch (col) {
+      case "viajes":
+        listado = cargarSelects("viajes", viajes);
+        break;
+      case "viajesActivos":
+        const viajesTrue = (viajes || []).filter((vj) => vj.estado);
+        listado = cargarSelects("viajes", viajesTrue);
+        break;
       case "personas":
         listado = cargarSelects("personas", personas);
         break;
@@ -75,6 +85,12 @@ const FormContent = ({
       case "tipoCuentaCorriente":
         listado = cargarSelects("tipoCuentaCorriente");
         break;
+      case "localidades":
+        listado = cargarSelects("localidades");
+        break;
+      case "provincias":
+        listado = cargarSelects("provincias");
+        break;
       default:
         listado = [];
         break;
@@ -104,6 +120,9 @@ const FormContent = ({
                 onChange={handleChange}
                 opciones={listarOpciones(campo.optionsList)}
                 modoEdicion={modoEdicion}
+                disabled={
+                  readOnly && campo.key !== "detalle" && campo.key !== "viaje"
+                }
               />
             ))}
           </div>
@@ -122,6 +141,9 @@ const FormContent = ({
                 onChange={handleChange}
                 opciones={listarOpciones(campo.optionsList)}
                 modoEdicion={modoEdicion}
+                disabled={
+                  readOnly && campo.key !== "detalle" && campo.key !== "viaje"
+                }
               />
             ))}
           </div>
@@ -173,6 +195,7 @@ const FormContent = ({
                 onChange={(nuevoListado) =>
                   handleChange(campo.key, nuevoListado)
                 }
+                opciones={cargarSelects("provincias")} // se manda solo esta lista
               />
             </div>
           </label>
