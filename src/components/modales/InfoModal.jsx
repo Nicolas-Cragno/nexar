@@ -48,7 +48,9 @@ const InfoModal = ({ cuit = "33719349949" }) => {
 
           <div className="info-item">
             <span>Cuenta corriente</span>
-            <strong>${cuenta}</strong>
+            <strong className={`money ${cuenta > 0 ? "positive" : "negative"}`}>
+              {cuenta} AR$
+            </strong>
           </div>
         </div>
       </div>

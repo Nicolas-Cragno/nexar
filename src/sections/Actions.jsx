@@ -1,6 +1,6 @@
 import CuentasAccess from "../components/access/CuentasAccess";
 import ViajesAccess from "../components/access/ViajesAccess";
-import CrucesAccess from "../components/access/CrucesAccess";
+//import CrucesAccess from "../components/access/CrucesAccess";
 
 const Actions = () => {
   return (
@@ -8,7 +8,9 @@ const Actions = () => {
       <div className="sections-options-group">
         <CuentasAccess />
         <ViajesAccess />
+        {/*
         <CrucesAccess />
+        */}
       </div>
     </section>
   );

@@ -36,3 +36,14 @@ code {
     transform: rotate(360deg);
   }
 }
+
+.money {
+  font-style: italic;
+}
+
+.money.positive {
+  color: #77dd77;
+}
+.money.negative {
+  color: #ff6961;
+}
