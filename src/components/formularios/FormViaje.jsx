@@ -15,6 +15,12 @@ import {
 } from "./data/Submits";
 import { eventos } from "./data/FormContent";
 import { useData } from "../../contexto/DataContext";
+import { useViajes } from "../../contexto/ViajesContext";
+import { usePersonas } from "../../contexto/PersonasContext";
+import { useTractores } from "../../contexto/TractoresContext";
+import { useFurgones } from "../../contexto/FurgonesContext";
+import { generarDocumentos } from "../../functions/docFunctions";
+import imgPlantilla from "../../functions/docs/hojaRuta.png";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
 
@@ -37,6 +43,9 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   });
   const { contadores, ubicaciones, sectores, cuentaCorriente } = useData();
   const [nuevoViaje, setNuevoViaje] = useState(null);
+  const { tractores } = useTractores();
+  const { furgones } = useFurgones();
+  const { personas } = usePersonas();
 
   const handleCloseFormMovimientoCuenta = () => {
     setFormMovimientoCuentaVisible(false);
@@ -108,10 +117,38 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         onGuardar,
         onClose,
       );
+      
+      //const impresion = generarDocumentos("pdf", viajeCreado, imgPlantilla);
+      const handleImprimir = async () => {
+        const persona= personas.find((ps) => ps.id === viajeCreado.persona);
+        const tractor = tractores.find((tr) => tr.id === viajeCreado.tractor);
+        const furgon = furgones.find((fg) => fg.id === viajeCreado.furgon);
+        
+        const viajeEnriquecido = {
+          ...viajeCreado,
+          personaCompleta : persona?.label,
+          tractorCompleto : tractor?.label,
+          furgonCompleto : furgon?.label,
+        }
+
+        try {
+          // 2. Le pasas la variable importada, NO un string manual
+          await generarDocumentos("pdf", viajeEnriquecido, imgPlantilla);
+          console.log("PDF generado correctamente");
+        } catch (error) {
+          console.error("Falló la creación del PDF:", error);
+        }
+      };
+
+      await handleImprimir();
+      
     } else {
       onClose();
     }
+
   };
+
+
 
   return (
     <>
