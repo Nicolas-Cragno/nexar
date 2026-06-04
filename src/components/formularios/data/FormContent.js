@@ -122,9 +122,8 @@ export const eventos = {
         { key: "tractor", label: "Tractor", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "tractores", important: true },
         { key: "furgon", label: "Carga / Furgón", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "furgones", important: false },
         { key: "cliente", label: "Cliente", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "clientes", important: false },
-        { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true, neverDisabled: true },
-        { key: "adelanto", label: "Adelanto", use: "database", type: "noVisual", dato: "number" },
-        { key: "adelantos", label: "Adelantos", type: "toDo" },
+        { key: "operador", label: "Operador", type: "secondary", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true, neverDisabled: true },
+        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false },
         {
             key: "tramos", label: "Tramos", type: "groupTramos", use: "database", dato: "array", addButton: true, items: [
                 //{ key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
@@ -134,7 +133,8 @@ export const eventos = {
                 { key: "detalle", label: "Detalle", inputType: "input" },
             ]
         },
-        { key: "detalle", label: "Detalle", use: "database", type: "principal", dato: "text", inputType: "textarea", important: false },
+        { key: "adelanto", label: "Adelanto", use: "database", type: "noVisual", dato: "number" },
+        { key: "adelantos", label: "Adelantos", type: "toDo" },
 
     ],
     cruces: [
