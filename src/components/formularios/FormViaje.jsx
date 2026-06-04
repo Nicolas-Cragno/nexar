@@ -8,7 +8,11 @@ import FormHeader from "../funcionales/FormHeader";
 import TextButton from "../buttons/TextButton";
 import Loading from "../../routes/Loading";
 //------------------------------------------------------ funciones
-import { submitViaje } from "./data/Submits";
+import {
+  submitCruce,
+  submitMovimientoCuenta,
+  submitViaje,
+} from "./data/Submits";
 import { eventos } from "./data/FormContent";
 import { useData } from "../../contexto/DataContext";
 //------------------------------------------------------ estilos
@@ -26,10 +30,12 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
     tipo: elemento?.tipo || "",
     operador: elemento?.operador || "",
     persona: elemento?.persona || "",
+    adelanto: 0, // total de adelantos (para submit y crear evento de mov de cuenta)
+    adelantos: [], // listado de adelantos que se reinicia a cero
     detalle: elemento?.detalle || "",
     monto: elemento?.monto || 0,
   });
-  const { contadores, ubicaciones } = useData();
+  const { contadores, ubicaciones, sectores, cuentaCorriente } = useData();
   const [nuevoViaje, setNuevoViaje] = useState(null);
 
   const handleCloseFormMovimientoCuenta = () => {
@@ -55,9 +61,31 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
 
     setNuevoViaje(viajeCreado);
 
-    const adelanto = await Swal.fire({
+    // registrar evento de movimiento de cuenta (por adelantos)
+
+    if (viajeCreado.movimiento) {
+      const cuentaPersona = cuentaCorriente.find(
+        (cc) => String(cc.dni) === String(viajeCreado.persona),
+      );
+
+      await submitMovimientoCuenta(
+        {
+          viaje: viajeCreado.id,
+          tipo: "PAGO",
+          operador: viajeCreado.operador,
+          persona: cuentaPersona.id,
+          monto: viajeCreado.adelanto,
+        },
+        eventos.cuentaCorriente,
+        sectores,
+        setLoading,
+      );
+    }
+
+    // generar cruce de barcaza (opcional)
+    const cruce = await Swal.fire({
       title: "Viaje registrado",
-      text: "¿Desea registrar un adelanto para este viaje?",
+      text: "¿Desea generar cruce de barcaza?",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Sí",
@@ -65,8 +93,21 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       confirmButtonColor: "#4161bd",
     });
 
-    if (adelanto.isConfirmed) {
-      setFormMovimientoCuentaVisible(true);
+    if (cruce.isConfirmed) {
+      await submitCruce(
+        {
+          viaje: viajeCreado.id,
+          persona: viajeCreado.persona,
+          tractor: viajeCreado.tractor,
+          furgon: viajeCreado.furgon,
+        },
+        eventos.cruces,
+        contadores,
+        ubicaciones,
+        setLoading,
+        onGuardar,
+        onClose,
+      );
     } else {
       onClose();
     }

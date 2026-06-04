@@ -14,6 +14,7 @@ const FormToDo = ({ value = [], onChange, title = "Adelantos" }) => {
     };
 
     onChange([...value, nuevoRegistro]);
+
     setNuevoMonto("");
   };
 

@@ -205,11 +205,19 @@ const FormContent = ({
 
             <div className="form-info-box">
               <FormToDo
-                value={data[campo.key] || []}
-                onChange={(nuevoListado) =>
-                  handleChange(campo.key, nuevoListado)
-                }
-                dato={campo.dato}
+                value={data.adelantos || []}
+                onChange={(nuevoListado) => {
+                  const total = nuevoListado.reduce(
+                    (acc, item) => acc + Number(item.monto || 0),
+                    0,
+                  );
+
+                  setData((prev) => ({
+                    ...prev,
+                    adelantos: nuevoListado,
+                    adelanto: total,
+                  }));
+                }}
               />
             </div>
           </label>

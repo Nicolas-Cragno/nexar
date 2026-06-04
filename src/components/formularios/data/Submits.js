@@ -219,7 +219,7 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
 
     // guardar elemento
     try {
-        const { id: identificador } = await codeGenerator(formData.area, sectores, true);
+        const { id: identificador } = await codeGenerator((formData.area || "ADMINISTRACION"), sectores, true);
 
         const elementoAGuardar = campos.reduce((acc, cp) => {
             if (cp.use !== "database") return acc;
@@ -270,7 +270,7 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
         statusOptions(resultadoCarga);
         if (onGuardar) onGuardar();
 
-        onClose();
+        if (onClose) onClose();
     } catch (error) {
         console.error("[Error] al intentar guardar", error);
 
@@ -316,6 +316,7 @@ export const submitViaje = async (formData, campos, contadores, ubicaciones, loa
             id: identificador,
             fecha: serverTimestamp(),
             estado: true,
+            movimiento: elementoAGuardar.adelanto > 0,
             ...elementoAGuardar,
         };
 

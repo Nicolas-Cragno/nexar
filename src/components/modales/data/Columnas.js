@@ -41,6 +41,7 @@ export const columnas = {
   movimientos: [
     { key: "id", label: "N° Movimiento", filtroEspecial: true },
     { key: "fecha", label: "Fecha & hora", filtroEspecial: true },
+    { key: "viaje", label: "N° Viaje", filtroEspecial: true },
     { key: "personaCompleta", label: "Persona / empleado", filtroEspecial: true },
     { key: "operadorCompleto", label: "Operador", filtroEspecial: true },
     { key: "tipo", label: "TIPO", filtroEspecial: true },
