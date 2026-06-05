@@ -117,19 +117,30 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         onGuardar,
         onClose,
       );
-      
+
       //const impresion = generarDocumentos("pdf", viajeCreado, imgPlantilla);
       const handleImprimir = async () => {
-        const persona= personas.find((ps) => ps.id === viajeCreado.persona);
-        const tractor = tractores.find((tr) => tr.id === viajeCreado.tractor);
-        const furgon = furgones.find((fg) => fg.id === viajeCreado.furgon);
-        
+        const persona = personas.find((ps) => String(ps.dni) === String(viajeCreado.persona));
+        const tractor = tractores.find((tr) => String(tr.id) === String(viajeCreado.tractor));
+
+        const idFurgon1 = viajeCreado.furgon?.[0];
+        const idFurgon2 = viajeCreado.furgon?.[1];
+
+        const furgon1 = idFurgon1 ? furgones.find((fg) => String(fg.id) === String(idFurgon1)) : null;
+        const furgon2 = idFurgon2 ? furgones.find((fg) => String(fg.id) === String(idFurgon2)) : null;
         const viajeEnriquecido = {
           ...viajeCreado,
-          personaCompleta : persona?.label,
-          tractorCompleto : tractor?.label,
-          furgonCompleto : furgon?.label,
+          personaCompleta: persona?.nombreCompleto ?? "null o undefinded >:(",
+          tractorCompleto: tractor?.label ?? "null o undefinded >:(",
+
+          furgonCompleto: [
+            furgon1?.label ?? "null o undefinded >:(",
+            furgon2?.label ?? "null o undefinded >:("
+          ],
         }
+
+        debugger;
+        console.log("viaje enriquecido", viajeEnriquecido);
 
         try {
           // 2. Le pasas la variable importada, NO un string manual
@@ -141,7 +152,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       };
 
       await handleImprimir();
-      
+
     } else {
       onClose();
     }

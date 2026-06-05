@@ -153,9 +153,11 @@ let carga = {
 };
 */
 
+import provincias from "./data/provincias.json";
+
 const normalizarDatosPdf = (viaje) => {
   // 1. Asegurar furgones (Mínimo 2 posiciones vacías)
-  const furgones = ["", ""];// = Array.isArray(viaje.furgonCompleto) ? viaje.furgonCompleto : [viaje.furgonCompleto];
+  const furgones = ["", ""]; // = Array.isArray(viaje.furgonCompleto) ? viaje.furgonCompleto : [viaje.furgonCompleto];
   const furgonFinal = [furgones[0] || "", furgones[1] || ""];
 
   const fechaHora = new Date();
@@ -163,20 +165,33 @@ const normalizarDatosPdf = (viaje) => {
   // 2. Normalizar Tramos -> Recorridos (Obligatorio 4 posiciones)
   const recorridos = Array.from({ length: 4 }, (_, i) => {
     const tramo = viaje.tramos && viaje.tramos[i] ? viaje.tramos[i] : null;
-    return {
-      localidadOrigen: tramo?.lugarSalida || "",
 
-      fechaCarga: fechaHora.toLocaleDateString("es-ES"), // A rellenar si lo agregas al form
-      horaCarga: fechaHora.toLocaleTimeString("es-ES", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-      ,
-      localidadDestino: tramo?.lugarLlegada || "",
-      fechaDescarga: "",
-      horaDescarga: "",
-    };
+    if (tramo !== null) {
+      
+      const provinciaOrigen = provincias.find(
+        (loc) => String(loc.key) === String(tramo?.lugarSalida),
+      );
+      const provinciaDestino = provincias.find(
+        (loc) => String(loc.key) === String(tramo?.lugarLlegada),
+      );
+
+      debugger;
+
+      return {
+        localidadOrigen: provinciaOrigen || {},
+
+        fechaCarga: fechaHora.toLocaleDateString("es-ES"),
+        horaCarga: fechaHora.toLocaleTimeString("es-ES", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }),
+
+        localidadDestino: provinciaDestino || {},
+        fechaDescarga: "",
+        horaDescarga: "",
+      };
+    }
   });
 
   // 3. Normalizar Clientes (Obligatorio 4 posiciones)
@@ -204,7 +219,6 @@ const normalizarDatosPdf = (viaje) => {
 
   // 5. Normalizar Ordenes de Cruce (Obligatorio 4 posiciones)
   const ordenesDeCruce = Array.from({ length: 4 }, (_, i) => {
-
     // Si hay una orden de cruce cargada, la ponemos en la primera posición
     if (i === 0 && viaje.ordenesDeCruce > 0) {
       return {
@@ -212,9 +226,10 @@ const normalizarDatosPdf = (viaje) => {
         numero: viaje.id,
       };
     }
-    return { fecha: "", numero: ""};
+    return { fecha: "", numero: "" };
   });
 
+  debugger;
   // Retornamos el objeto con el nombre de variables exacto que lee el PDF
   return {
     numeroViaje: viaje.id || "",
@@ -256,6 +271,8 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
 
     //210mm x 297mm
 
+    debugger;
+
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -283,37 +300,43 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
     doc.text(`${carga.furgon[0]}`, 150.5, 52.7);
     doc.text(`${carga.furgon[1]}`, 150.5, 61);
 
-    doc.text(`${carga.recorridos[0].localidadOrigen}`, 15, 85.5);
+    doc.text(`${carga.recorridos[0].localidadOrigen.nombre}`, 15, 85.5);
     doc.text(`${carga.recorridos[0].fechaCarga}`, 61.3, 85.5);
     doc.text(`${carga.recorridos[0].horaCarga}`, 83, 85.5);
 
-    doc.text(`${carga.recorridos[0].localidadDestino}`, 100, 85.5);
+    doc.text(`${carga.recorridos[0].localidadDestino.nombre}`, 100, 85.5);
     doc.text(`${carga.recorridos[0].fechaDescarga}`, 168.7, 85.5);
     doc.text(`${carga.recorridos[0].horaDescarga}`, 190, 85.5);
 
-    doc.text(`${carga.recorridos[1].localidadOrigen}`, 15, 94.3);
-    doc.text(`${carga.recorridos[1].fechaCarga}`, 61.3, 94.3);
-    doc.text(`${carga.recorridos[1].horaCarga}`, 83, 94.3);
+    if(carga.recorridos[1] !== undefined){
+      doc.text(`${carga.recorridos[1].localidadOrigen.nombre}`, 15, 94.3);
+      doc.text(`${carga.recorridos[1].fechaCarga}`, 61.3, 94.3);
+      doc.text(`${carga.recorridos[1].horaCarga}`, 83, 94.3);
+      
+      doc.text(`${carga.recorridos[1].localidadDestino.nombre}`, 100, 94.3);
+      doc.text(`${carga.recorridos[1].fechaDescarga}`, 168.7, 94.3);
+      doc.text(`${carga.recorridos[1].horaDescarga}`, 190, 94.3);
+    }
 
-    doc.text(`${carga.recorridos[1].localidadDestino}`, 100, 94.3);
-    doc.text(`${carga.recorridos[1].fechaDescarga}`, 168.7, 94.3);
-    doc.text(`${carga.recorridos[1].horaDescarga}`, 190, 94.3);
+    if(carga.recorridos[2] !== undefined){
+      doc.text(`${carga.recorridos[2].localidadOrigen.nombre}`, 15, 101.5);
+      doc.text(`${carga.recorridos[2].fechaCarga}`, 61.3, 101.5);
+      doc.text(`${carga.recorridos[2].horaCarga}`, 83, 101.5); 
+      
+      doc.text(`${carga.recorridos[2].localidadDestino.nombre}`, 100, 101.5);
+      doc.text(`${carga.recorridos[2].fechaDescarga}`, 168.7, 101.5);
+      doc.text(`${carga.recorridos[2].horaDescarga}`, 190, 101.5);
+    }
 
-    doc.text(`${carga.recorridos[2].localidadOrigen}`, 15, 101.5);
-    doc.text(`${carga.recorridos[2].fechaCarga}`, 61.3, 101.5);
-    doc.text(`${carga.recorridos[2].horaCarga}`, 83, 101.5);
-
-    doc.text(`${carga.recorridos[2].localidadDestino}`, 100, 101.5);
-    doc.text(`${carga.recorridos[2].fechaDescarga}`, 168.7, 101.5);
-    doc.text(`${carga.recorridos[2].horaDescarga}`, 190, 101.5);
-
-    doc.text(`${carga.recorridos[3].localidadOrigen}`, 15, 109.3);
-    doc.text(`${carga.recorridos[3].fechaCarga}`, 61.3, 109.3);
-    doc.text(`${carga.recorridos[3].horaCarga}`, 83, 109.3);
-
-    doc.text(`${carga.recorridos[3].localidadDestino}`, 100, 109.3);
-    doc.text(`${carga.recorridos[3].fechaDescarga}`, 168.7, 109.3);
-    doc.text(`${carga.recorridos[3].horaDescarga}`, 190, 109.3);
+    if(carga.recorridos[3] !== undefined){ 
+      doc.text(`${carga.recorridos[3].localidadOrigen.nombre}`, 15, 109.3);
+      doc.text(`${carga.recorridos[3].fechaCarga}`, 61.3, 109.3);
+      doc.text(`${carga.recorridos[3].horaCarga}`, 83, 109.3);
+      
+      doc.text(`${carga.recorridos[3].localidadDestino.nombre}`, 100, 109.3);
+      doc.text(`${carga.recorridos[3].fechaDescarga}`, 168.7, 109.3);
+      doc.text(`${carga.recorridos[3].horaDescarga}`, 190, 109.3);
+    }
 
     doc.text(`${carga.clientes[0].nombre}`, 40, 120.7);
     doc.text(`${carga.clientes[0].contenidoFurgon}`, 95, 120.7);
