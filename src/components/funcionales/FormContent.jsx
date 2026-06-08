@@ -71,7 +71,16 @@ const FormContent = ({
         listado = cargarSelects("furgones", furgones);
         break;
       case "empresasPropias":
-        listado = cargarSelects("empresas", empresas);
+        listado = cargarSelects(
+          "empresas",
+          empresas.filter((em) => em.tipo === "propia"),
+        );
+        break;
+      case "clientes":
+        listado = cargarSelects(
+          "empresas",
+          empresas.filter((em) => em.tipo === "cliente"),
+        );
         break;
       case "tipoEmpleados":
         listado = cargarSelects("tipoEmpleado");

@@ -302,6 +302,7 @@ export const cargarSelects = (tipo, listado = []) => {
         raw: tr
       })); break;
     case "furgones":
+      console.log("furgones para select: ", listado);
       lista = listado.map(fg => ({
         value: fg.id,
         label: `${fg.id} (${fg.dominio.toUpperCase()})`,
@@ -314,6 +315,12 @@ export const cargarSelects = (tipo, listado = []) => {
         raw: ct
       })); break;
     case "empresas":
+      lista = listado.map(em => ({
+        value: em.id,
+        label: `${em.nombre.toUpperCase()}`,
+        raw: em
+      })); break;
+    case "clientes":
       lista = listado.map(em => ({
         value: em.id,
         label: `${em.nombre.toUpperCase()}`,

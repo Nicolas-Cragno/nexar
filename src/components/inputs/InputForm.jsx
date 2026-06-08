@@ -105,12 +105,22 @@ const InputForm = ({
           isMulti
           className="form-input"
           classNamePrefix="react-select"
-          options={opciones[campo.optionsList] || []}
-          value={(opciones[campo.optionsList] || []).filter((opt) =>
+          options={opciones || []}
+          value={(opciones || []).filter((opt) =>
             (value || []).includes(opt.value),
           )}
+          isOptionDisabled={(option) =>
+            campo.limitOptions &&
+            (value || []).length >= campo.limitOptions &&
+            !(value || []).includes(option.value)
+          }
           onChange={(opts) =>
-            onChange(campo.key, opts ? opts.map((o) => o.value) : [])
+            onChange(
+              campo.key,
+              (opts || [])
+                .slice(0, campo.limitOptions || Infinity)
+                .map((o) => o.value),
+            )
           }
           placeholder="Seleccionar..."
           noOptionsMessage={() => "Sin opciones"}
