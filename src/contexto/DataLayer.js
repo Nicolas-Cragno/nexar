@@ -16,11 +16,11 @@ const DataLayer = ({ children }) => {
                     <TractoresProvider>
                         <FurgonesProvider>
                             <MovimientosProvider>
-                                <ViajesProvider>
-                                    <CrucesProvider>
+                                <CrucesProvider>
+                                    <ViajesProvider>
                                         {children}
-                                    </CrucesProvider>
-                                </ViajesProvider>
+                                    </ViajesProvider>
+                                </CrucesProvider>
                             </MovimientosProvider>
                         </FurgonesProvider>
                     </TractoresProvider>

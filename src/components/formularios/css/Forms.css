@@ -88,6 +88,7 @@
   box-sizing: border-box;
   max-height: 60vh;
   min-height: 60vh;
+  scrollbar-width: none;
 }
 
 .form-null{
@@ -305,6 +306,7 @@ border-radius:6px;
   justify-content: space-between;
   align-items: end;
   flex-wrap: wrap;
+  scrollbar-width: thin;
 }
 
 .form-title {
@@ -659,7 +661,7 @@ opacity: .5;
   border-style: solid;
   border-width: 0.1rem;
   border-color: #888; 
-
+  
 }
 
 .form-info-box2{
@@ -738,6 +740,7 @@ padding-top: 1rem;}
   justify-content: right;
   gap: 1rem;
   flex-wrap: wrap;
+  scrollbar-width: thin;
 }
 
 .form-buttons button {
@@ -760,6 +763,7 @@ padding-top: 1rem;}
 .chequeos-list {
   display: flex;
   flex-wrap: wrap;
+  scrollbar-width: thin;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
@@ -787,6 +791,7 @@ padding-top: 1rem;}
   border-color: #999;
   display: flex;
   flex-wrap: wrap;
+  scrollbar-width: thin;
   gap: 0.5rem;
   max-height: max-content;
   /* overflow-y: auto; SCROLL*/
@@ -906,10 +911,6 @@ padding-top: 1rem;}
   min-width: 0;
 }
 
-.form-list-tramos-right {
-  max-height: 600px;
-  overflow-y: auto;
-}
 
 .form-list-tramos-tb { /* top & bottom */
   display: flex;
@@ -923,10 +924,11 @@ padding-top: 1rem;}
   gap: 15px;
   align-items: flex-end;
   flex-wrap: wrap;
-
+  scrollbar-width: thin;
   border: 1px solid #ddd;
   border-radius: .5rem;
   padding: 15px;
+  scrollbar-width: thin;
 }
 
 .form-list-tramos-top .form-info {

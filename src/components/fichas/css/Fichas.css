@@ -589,6 +589,84 @@ opacity: .5;
   background-color: #0056b3;
 }
 
+/* tramos */
+
+.ficha-tramos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: thin;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.ficha-tramo {
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 5px;
+}
+
+.ficha-tramo-header {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.ficha-tramo-fechas {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.ficha-tramo-fechas > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.ficha-tramo-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #777;
+}
+
+.ficha-tramo-detalle {
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  color: #444;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* adelantos */
+
+.obj-info-body{
+  display: flex;
+  justify-content: space-between;
+}
+
+.obj-info-fecha{
+  color: #000;
+}
+
+.obj-info-monto{
+  font-style: italic;
+  color: #0056b3;
+}
+
+.obj-info-footer{
+  display: flex;
+  justify-content: right;
+  font-size: smaller;
+  font-weight: bolder;
+  opacity: .8;
+}
+
+.obj-info-id {
+  font-weight: bolder;
+}
+
 /* Celulares 
 @media (max-width: 640px) {
   .ficha-content {

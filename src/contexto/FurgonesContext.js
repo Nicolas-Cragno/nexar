@@ -17,7 +17,7 @@ export function FurgonesProvider({ children }) {
       return {
         ...fg,
         label: label,
-        nombreEmpresa: empresa?.nombre || "-",
+        nombreEmpresa: empresa?.label || "-",
       };
     });
 

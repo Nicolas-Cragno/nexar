@@ -8,8 +8,7 @@ import { useViajes } from "./ViajesContext";
 const CrucesContext = createContext();
 
 export function CrucesProvider({ children }) {
-    const { cruces, empresas, loading } = useData();
-    const { viajes } = useViajes();
+    const { cruces, empresas, viajes, loading } = useData();
     const { tractores } = useTractores();
     const { furgones } = useFurgones();
     const { personas } = usePersonas();
@@ -23,14 +22,16 @@ export function CrucesProvider({ children }) {
             const persona = personas.find((ps) => String(cr.persona) === String(ps.id));
             const tractor = tractores.find((tr) => String(cr.tractor) === String(tr.id));
             const furgon = furgones.find((fg) => String(fg.furgon) === String(fg.id));
-            const personaLabel = persona?.nombreCompleto;
+            //const personaLabel = persona?.nombreCompleto;
+            const cruceLabel = "";
 
             return {
                 ...cr,
                 viajeCompleto: viaje?.label || "-",
-                personaCompleta: personaLabel || "-",
+                personaCompleta: persona?.label || "-",
                 tractorCompleto: tractor?.label || "-",
-                furgonCompleto: furgon?.label || "-"
+                furgonCompleto: furgon?.label || "-",
+                label: cruceLabel
             };
         });
 

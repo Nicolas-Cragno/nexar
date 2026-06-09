@@ -7,7 +7,7 @@ import { useFurgones } from "./FurgonesContext";
 const ViajesContext = createContext();
 
 export function ViajesProvider({ children }) {
-    const { viajes, empresas, loading } = useData();
+    const { viajes, empresas, cruces, movimientos, loading } = useData();
     const { tractores } = useTractores();
     const { furgones } = useFurgones();
     const { personas } = usePersonas();
@@ -17,25 +17,42 @@ export function ViajesProvider({ children }) {
         let listado = [];
 
         listado = viajes.map((vj) => {
-            const cliente = empresas.find((em) => String(em.id) === String(vj.empresa) || String(em.cuit) === String(vj.empresa));
             const persona = personas.find((ps) => String(vj.persona) === String(ps.id));
             const tractor = tractores.find((tr) => String(vj.tractor) === String(tr.id));
-            const furgon = furgones.find((fg) => String(fg.furgon) === String(fg.id));
             const personaLabel = persona?.nombreCompleto;
             const label = `${vj.id} | ${personaLabel} (TR: ${vj.tractor}${vj.furgon ? " / FG: " + vj.furgon : ""})`;
+            const adelantos = movimientos.filter((mv) => String(mv.viaje) === String(vj.id));
+            const cruceBarcaza = cruces.filter((cc) => String(cc.viaje) === String(vj.id));
+            // arrays
+            const clientes = empresas.filter((em) =>
+                (vj.cliente || []).some(
+                    (id) =>
+                        String(id) === String(em.id) ||
+                        String(id) === String(em.cuit)
+                )
+            );
+            const furgon = furgones.filter((fg) =>
+                vj.furgon?.some((id) => String(id) === String(fg.id))
+            );
+            const clientesLabel =
+                clientes.map((c) => c.label).join(", ") || "-";
 
+            const furgonesLabel =
+                furgon.map((f) => f.label).join(", ") || "-";
             return {
                 ...vj,
                 label: label,
-                personaCompleta: personaLabel || "-",
+                personaCompleta: persona?.label,
                 tractorCompleto: tractor?.label || "-",
-                furgonCompleto: furgon?.label || "-",
-                clienteCompleto: cliente?.label || "-"
+                furgonCompleto: furgonesLabel,
+                clienteCompleto: clientesLabel,
+                adelantosRegistrados: adelantos || [],
+                crucesRegistrados: cruceBarcaza || []
             };
         });
 
         return listado;
-    }, [viajes, tractores, furgones, empresas, personas, loading]);
+    }, [viajes, cruces, movimientos, tractores, furgones, empresas, personas, loading]);
 
     return (
         <ViajesContext.Provider value={{ viajes: enriquecerViajes, loading }}>

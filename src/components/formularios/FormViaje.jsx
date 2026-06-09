@@ -36,8 +36,12 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
     tipo: elemento?.tipo || "",
     operador: elemento?.operador || "",
     persona: elemento?.persona || "",
+    tractor: elemento?.tractor || "",
+    furgon: elemento?.furgon || [],
+    cliente: elemento?.cliente || [],
     adelanto: 0, // total de adelantos (para submit y crear evento de mov de cuenta)
     adelantos: [], // listado de adelantos que se reinicia a cero
+    tramos: elemento?.tramos || [],
     detalle: elemento?.detalle || "",
     monto: elemento?.monto || 0,
   });
@@ -120,26 +124,32 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
 
       //const impresion = generarDocumentos("pdf", viajeCreado, imgPlantilla);
       const handleImprimir = async () => {
-        const persona = personas.find((ps) => String(ps.dni) === String(viajeCreado.persona));
-        const tractor = tractores.find((tr) => String(tr.id) === String(viajeCreado.tractor));
+        const persona = personas.find(
+          (ps) => String(ps.dni) === String(viajeCreado.persona),
+        );
+        const tractor = tractores.find(
+          (tr) => String(tr.id) === String(viajeCreado.tractor),
+        );
 
         const idFurgon1 = viajeCreado.furgon?.[0];
         const idFurgon2 = viajeCreado.furgon?.[1];
 
-        const furgon1 = idFurgon1 ? furgones.find((fg) => String(fg.id) === String(idFurgon1)) : null;
-        const furgon2 = idFurgon2 ? furgones.find((fg) => String(fg.id) === String(idFurgon2)) : null;
+        const furgon1 = idFurgon1
+          ? furgones.find((fg) => String(fg.id) === String(idFurgon1))
+          : null;
+        const furgon2 = idFurgon2
+          ? furgones.find((fg) => String(fg.id) === String(idFurgon2))
+          : null;
         const viajeEnriquecido = {
           ...viajeCreado,
           personaCompleta: persona?.nombreCompleto ?? "null o undefinded >:(",
           tractorCompleto: tractor?.label ?? "null o undefinded >:(",
 
-          
-
           furgonCompleto: [
             furgon1?.label ?? "null o undefinded >:(",
-            furgon2?.label ?? "null o undefinded >:("
+            furgon2?.label ?? "null o undefinded >:(",
           ],
-        }
+        };
 
         debugger;
         console.log("viaje enriquecido", viajeEnriquecido);
@@ -154,14 +164,10 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       };
 
       await handleImprimir();
-
     } else {
       onClose();
     }
-
   };
-
-
 
   return (
     <>
@@ -170,7 +176,11 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           <Loading />
         ) : (
           <div className="doble-form-content">
-            <FormHeader title={titulo} subTitle={subtitulo} onClose={onClose} />
+            <FormHeader
+              title={titulo}
+              subTitle={`${subtitulo} ${elemento?.id}`}
+              onClose={onClose}
+            />
 
             <div className="doble-form-modal">
               <FormContent

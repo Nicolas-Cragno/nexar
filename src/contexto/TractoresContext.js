@@ -23,7 +23,7 @@ export function TractoresProvider({ children }) {
         label: label,
         nombreEmpresa: empresa?.nombre || "-",
         nombreSatelital: empresaSatelital?.nombre || "-",
-        nombrePersona: persona?.nombreCompleto || "-"
+        nombrePersona: persona?.label
       };
     });
 

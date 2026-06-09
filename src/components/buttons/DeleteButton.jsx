@@ -1,8 +1,8 @@
 import "./css/Buttons.css";
 
-const DeleteButton = ({ onClose }) => {
+const DeleteButton = ({ onClose, mini = false }) => {
   return (
-    <button className="delete-button" onClick={onClose}>
+    <button className={`delete-button ${mini ? "mini" : ""}`} onClick={onClose}>
       ✕
     </button>
   );

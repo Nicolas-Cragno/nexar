@@ -5,7 +5,10 @@ import TextButton from "../buttons/TextButton.jsx";
 import CloseButton from "../buttons/CloseButton";
 import FormGestor from "../formularios/FormGestor.jsx";
 //------------------------------------------------------ funciones
-import { formatearCampoFirestore } from "../../functions/dataFunctions";
+import {
+  formatearCampoFirestore,
+  formatearMonto,
+} from "../../functions/dataFunctions";
 import { eventos } from "../formularios/data/FormContent.js";
 import { fichaContent } from "./data/FichaContent.js";
 //------------------------------------------------------ estilos
@@ -28,6 +31,7 @@ const Ficha = ({
   const estadoSubtitulo = estado ? "ACTIVO" : "DADO DE BAJA";
   const [formEditarVisible, setFormEditarVisible] = useState(false);
   const eventosPorteria = eventos.porteria;
+  const eventosViaje = eventos.viajes;
 
   const auxCampos =
     coleccion?.toLowerCase() || area?.toLowerCase() || "personas";
@@ -193,6 +197,102 @@ const Ficha = ({
                     </span>
                   );
                 })}
+            </div>
+          </>
+        )}
+
+        {elemento.tramos?.length > 0 && (
+          <>
+            <label>
+              <strong className="ficha-info-title">Tramos</strong>
+            </label>
+
+            <div className="ficha-info-box ficha-tramos">
+              {elemento.tramos.map((tramo, index) => (
+                <div key={index} className="ficha-tramo">
+                  <div className="ficha-tramo-header">
+                    <strong>
+                      {tramo.lugarSalidaLabel} → {tramo.lugarLlegadaLabel}
+                    </strong>
+                  </div>
+
+                  <div className="ficha-tramo-fechas">
+                    <div>
+                      <span className="ficha-tramo-label">Inicio</span>
+                      <span>
+                        {tramo.fechaSalida
+                          ? formatearCampoFirestore(tramo.fechaSalida, true)
+                          : "-"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="ficha-tramo-label">Fin</span>
+                      <span>
+                        {tramo.fechaLlegada
+                          ? formatearCampoFirestore(tramo.fechaLlegada, true)
+                          : "-"}
+                      </span>
+                    </div>
+                  </div>
+                  {tramo.detalle && (
+                    <div className="ficha-tramo-detalle">{tramo.detalle}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {elemento.adelantosRegistrados?.length > 0 && (
+          <>
+            <label>
+              <strong className="ficha-info-title">Adelantos</strong>
+            </label>
+
+            <div className="ficha-info-box">
+              {elemento.adelantosRegistrados.map((adelanto, index) => (
+                <div key={adelanto.id || index} className="ficha-info">
+                  <div className="obj-info-body">
+                    <strong className="obj-info-fecha">
+                      {adelanto.fecha && (
+                        <span>
+                          {formatearCampoFirestore(adelanto.fecha, true)}
+                        </span>
+                      )}
+                    </strong>
+                    <span className="obj-info-monto">
+                      ${formatearMonto(adelanto.monto)}
+                    </span>
+                  </div>
+                  <div className="obj-info-footer">{adelanto.operador}</div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {elemento.crucesRegistrados?.length > 0 && (
+          <>
+            <label>
+              <strong className="ficha-info-title">Cruces de barcaza</strong>
+            </label>
+
+            <div className="ficha-info-box">
+              {elemento.crucesRegistrados.map((cruce, index) => (
+                <div key={cruce.id || index} className="ficha-info">
+                  <div className="obj-info-body">
+                    <strong className="obj-info-fecha">
+                      {cruce.fecha && (
+                        <span>
+                          {formatearCampoFirestore(cruce.fecha, true)}
+                        </span>
+                      )}
+                    </strong>
+                    <span className="obj-info-id">{cruce.id}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </>
         )}

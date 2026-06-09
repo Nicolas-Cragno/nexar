@@ -14,10 +14,12 @@ export function EmpresasProvider({ children }) {
         listado = empresas.map((em) => {
             const ctaCorriente = cuentaCorriente.find((ct) => ct.id === em.id);
             const labelCtaCorriente = ctaCorriente ? `$ ${formatearMonto(ctaCorriente.monto)}` : "";
+            const empresaLabel = `${em.nombre} (${em.id})`
 
             return {
                 ...em,
                 cuentaCorriente: labelCtaCorriente,
+                label: empresaLabel
             };
         });
 

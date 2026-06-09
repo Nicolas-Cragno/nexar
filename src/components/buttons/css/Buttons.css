@@ -48,6 +48,17 @@
   cursor: pointer;
 }
 
+.mini {
+  font-size: .65rem !important;
+  margin: -10px;
+}
+
+.mini:hover{
+  background-color: #f56574;
+  font-weight: bolder;
+  opacity: .54;
+}
+
 .plus-button{
    background: none;
   border: solid;

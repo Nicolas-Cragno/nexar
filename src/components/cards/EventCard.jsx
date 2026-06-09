@@ -15,8 +15,6 @@ const EventCard = ({
   return (
     <div className="event-card-wrapper">
       <div className="event-card">
-        <div className="event-card-order">{order}</div>
-
         <div className="event-card-content">
           <div className="event-card-content">
             <span className="event-card-item">

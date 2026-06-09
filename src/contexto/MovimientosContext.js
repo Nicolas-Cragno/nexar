@@ -17,11 +17,13 @@ export function MovimientosProvider({ children }) {
             const persona = cuentaCorriente.find((ps) => String(ps.id) === String(mv.persona));
             const operador = personas.find((ps) => String(ps.id) === String(mv.operador));
             const monto = formatearMonto(mv.monto);
+            const movimientoLabel = `${mv.id} ($${monto} | ${persona?.label})`;
             return {
                 ...mv,
-                personaCompleta: `${persona?.nombre} (${mv.persona})`,
-                operadorCompleto: `${operador?.nombreCompleto} (${mv.operador})`,
-                montoCompleto: `$ ${monto}`
+                personaCompleta: persona?.label || "",
+                operadorCompleto: operador?.label || "",
+                montoCompleto: `$ ${monto}`,
+                label: movimientoLabel
             };
         }).sort((a, b) => {
             const fechaA = a.fecha?.toDate?.() || 0;
