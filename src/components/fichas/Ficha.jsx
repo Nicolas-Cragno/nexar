@@ -3,7 +3,7 @@ import { memo, useState } from "react";
 //------------------------------------------------------ elementos
 import TextButton from "../buttons/TextButton.jsx";
 import CloseButton from "../buttons/CloseButton";
-import FormPersona from "../formularios/FormPersona.jsx";
+import FormGestor from "../formularios/FormGestor.jsx";
 //------------------------------------------------------ funciones
 import { formatearCampoFirestore } from "../../functions/dataFunctions";
 import { eventos } from "../formularios/data/FormContent.js";
@@ -197,9 +197,10 @@ const Ficha = ({
           </>
         )}
 
-        {formEditarVisible && coleccion !== "personas" && (
-          <FormPersona
+        {formEditarVisible && (
+          <FormGestor
             elemento={elemento}
+            tipo={coleccion}
             coleccion={coleccion}
             onGuardar={handleClose}
             onClose={handleClose}

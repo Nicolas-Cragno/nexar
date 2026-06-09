@@ -20,6 +20,7 @@ const FormFurgon = ({ elemento = null, onGuardar, onClose }) => {
   const [formData, setFormData] = useState({
     // información específica
     id: elemento?.id || "",
+    tipo: elemento?.tipo || "",
     chasis: elemento?.chasis || "",
     dominio: elemento?.dominio || "",
     marca: elemento?.marca || "",

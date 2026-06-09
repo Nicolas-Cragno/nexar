@@ -82,6 +82,12 @@ const FormContent = ({
           empresas.filter((em) => em.tipo === "cliente"),
         );
         break;
+      case "proveedores":
+        listado = cargarSelects(
+          "empresas",
+          empresas.filter((em) => em.tipo === "proveedor"),
+        );
+        break;
       case "tipoEmpleados":
         listado = cargarSelects("tipoEmpleado");
         break;
@@ -99,6 +105,9 @@ const FormContent = ({
         break;
       case "provincias":
         listado = cargarSelects("provincias");
+        break;
+      case "tipoFurgones":
+        listado = cargarSelects("tipoFurgones");
         break;
       default:
         listado = [];

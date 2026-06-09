@@ -1,0 +1,4 @@
+[ 
+    { "id": "30517424303", "cuit": 30517424303, "razonSocial" : "SCANIA ARGENTINA S.A.U.", "nombre": "SCANIA", "ubicacion" : "TORTUGUITAS, BUENOS AIRES", "tipo" : "proveedor" },
+    { "id": "30525514885", "cuit": 30525514885, "razonSocial" : "MICHELIN ARGENTINA S.A.I.C. Y F.", "nombre": "MICHELIN", "ubicacion" : "CIUDAD AUTÓNOMA DE BUENOS AIRES", "tipo" : "proveedor" }
+]

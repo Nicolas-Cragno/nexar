@@ -43,6 +43,7 @@ const Access = ({
       {modalVisible && headers?.length > 0 && (
         <Modal
           title={title}
+          tipo={coleccion}
           coleccion={title}
           data={coleccion}
           headers={headers}

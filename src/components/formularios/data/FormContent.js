@@ -160,19 +160,20 @@ export const elementos = {
     tractores: [
         { key: "interno", isId: true, label: "Interno", type: "principal", use: "database", dato: "text", inputType: "input", important: true, notChange: true }, // se envía como identificador
         { key: "dominio", label: "Dominio", use: "database", type: "principal", dato: "text", inputType: "input", important: true },
-        { key: "chasis", label: "Chasis", use: "database", type: "principal", dato: "number", inputType: "input", important: false },
+        { key: "chasis", label: "Chasis", use: "database", type: "principal", dato: "text", inputType: "input", important: false },
         { key: "motor", label: "Motor", use: "database", type: "principal", dato: "number", inputType: "input", important: false },
         { key: "marca", label: "Marca", use: "database", type: "principal", dato: "text", inputType: "input", important: false },
         { key: "modelo", label: "Modelo", use: "database", type: "principal", dato: "number", inputType: "input", important: false },
         { key: "detalle", label: "Detalle", use: "database", type: "principal", dato: "text", inputType: "textarea", important: false },
         { key: "empresa", label: "Empresa", use: "database", type: "secondary", dato: "number", inputType: "inputOptions", optionsList: "empresasPropias", important: false },
-        //{ key: "satelital", label: "Satelital", type: "secondary", use: "database", dato: "number", inputType: "inputOptions", optionsList: "empresasProveedoras", important: false },
-        //{ key: "persona", label: "Persona asignada / dueño", use: "database", type: "secondary", inputType: "inputOptions", optionsList: "choferes", dato: "number", important: false },
+        { key: "satelital", label: "Satelital", type: "secondary", use: "database", dato: "number", inputType: "inputOptions", optionsList: "proveedores", important: false },
+        { key: "persona", label: "Persona asignada / dueño", use: "database", type: "secondary", inputType: "inputOptions", optionsList: "choferes", dato: "number", important: false },
         //{ key: "detalleSatelital", label: "Detalle (satelital)", use: "database", type: "secret", inputType: "textarea", dato: "text", important: false }, // retextido
         //{ key: "comentarioSatelital", label: "Comentario (satelital)", use: "database", type: "secret", inputType: "textarea", dato: "text", important: false }, // retextido
     ],
     furgones: [
         { key: "interno", isId: true, label: "Interno", type: "principal", use: "database", dato: "number", inputType: "input", important: true, notChange: true }, // se envía como identificador
+        { key: "tipo", label: "Tipo", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "tipoFurgones", important: true },
         { key: "dominio", label: "Dominio", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "marca", label: "Marca", type: "principal", use: "database", dato: "text", inputType: "input", important: false },
         { key: "modelo", label: "Modelo", type: "principal", use: "database", dato: "number", inputType: "input", important: false },
