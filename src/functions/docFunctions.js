@@ -157,7 +157,7 @@ import provincias from "./data/provincias.json";
 
 const normalizarDatosPdf = (viaje) => {
   // 1. Asegurar furgones (Mínimo 2 posiciones vacías)
-  const furgones = ["", ""]; // = Array.isArray(viaje.furgonCompleto) ? viaje.furgonCompleto : [viaje.furgonCompleto];
+  const furgones = Array.isArray(viaje.furgonCompleto) ? [viaje.furgonCompleto] : [viaje.furgonCompleto];
   const furgonFinal = [furgones[0] || "", furgones[1] || ""];
 
   const fechaHora = new Date();
@@ -296,9 +296,12 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
     doc.text(`${carga.numeroViaje}`, 170, 29.5);
     doc.text(`${carga.fechaSalida}`, 170, 35.7);
     doc.text(`${carga.chofer}`, 15, 55.5);
-    doc.text(`${carga.tractor}`, 85, 55.5);
-    doc.text(`${carga.furgon[0]}`, 150.5, 52.7);
-    doc.text(`${carga.furgon[1]}`, 150.5, 61);
+    doc.text(`${carga.tractor}`, 85, 55.5); 
+    if(carga.furgon[0] !== undefined && carga.furgon[0] !== null);
+      doc.text(`${carga.furgon[0]}`, 150.5, 52.7);
+    if(carga.furgon[1] !== undefined && carga.furgon[1] !== null);
+      doc.text(`${carga.furgon[1]}`, 150.5, 61);
+
 
     doc.text(`${carga.recorridos[0].localidadOrigen.nombre}`, 15, 85.5);
     doc.text(`${carga.recorridos[0].fechaCarga}`, 61.3, 85.5);

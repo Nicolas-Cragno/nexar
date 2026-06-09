@@ -133,6 +133,8 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           personaCompleta: persona?.nombreCompleto ?? "null o undefinded >:(",
           tractorCompleto: tractor?.label ?? "null o undefinded >:(",
 
+          
+
           furgonCompleto: [
             furgon1?.label ?? "null o undefinded >:(",
             furgon2?.label ?? "null o undefinded >:("
