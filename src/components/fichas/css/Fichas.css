@@ -658,7 +658,7 @@ opacity: .5;
 .obj-info-footer{
   display: flex;
   justify-content: right;
-  font-size: smaller;
+  font-size: x-small;
   font-weight: bolder;
   opacity: .8;
 }

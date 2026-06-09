@@ -3,11 +3,15 @@ import { useData } from "./DataContext";
 import { usePersonas } from "./PersonasContext";
 import { useTractores } from "./TractoresContext";
 import { useFurgones } from "./FurgonesContext";
+import { useEmpresas } from "./EmpresasContext";
+import { useMovimientos } from "./MovimientosContext";
 
 const ViajesContext = createContext();
 
 export function ViajesProvider({ children }) {
-    const { viajes, empresas, cruces, movimientos, loading } = useData();
+    const { viajes, cruces, loading } = useData();
+    const { movimientos } = useMovimientos();
+    const { empresas } = useEmpresas();
     const { tractores } = useTractores();
     const { furgones } = useFurgones();
     const { personas } = usePersonas();
