@@ -14,6 +14,7 @@ export function TractoresProvider({ children }) {
 
     listado = tractores.map((tr) => {
       const empresa = empresas.find((em) => String(em.id) === String(tr.empresa) || String(em.cuit) === String(tr.empresa));
+      const empresaSatelital = empresas.find((em) => String(em.id) === String(tr.satelital) || String(em.cuit) === String(tr.satelital));
       const persona = personas.find((ps) => String(tr.persona) === String(ps.id));
       const label = `${tr.id} (${tr.dominio})`;
 
@@ -21,6 +22,7 @@ export function TractoresProvider({ children }) {
         ...tr,
         label: label,
         nombreEmpresa: empresa?.nombre || "-",
+        nombreSatelital: empresaSatelital?.nombre || "-",
         nombrePersona: persona?.nombreCompleto || "-"
       };
     });

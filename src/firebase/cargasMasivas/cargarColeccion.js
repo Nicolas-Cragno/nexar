@@ -41,7 +41,7 @@ const args = process.argv.slice(2);
 
 if (args.length < 2) {
   console.log(
-    "Uso: node migrarColeccion.js <archivoJSON> <coleccion> [campoId]"
+    "Uso: node cargarColeccion.js <archivoJSON> <coleccion> [campoId]"
   );
 } else {
   const [archivoJSON, coleccion, campoId] = args;

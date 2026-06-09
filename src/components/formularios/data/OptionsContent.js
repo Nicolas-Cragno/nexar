@@ -114,6 +114,15 @@ export const furgonesOptions = () => {
     ];
 }
 
+export const typeFurgonesOptions = () => {
+    return [
+        { value: "BITREN-D-PLAYO", label: "BITREN DELANTERO (PLAYO)" },
+        { value: "BITREN-T-PLAYO", label: "BITREN TRASERO (PLAYO)" },
+        { value: "BITREN-D-SEMI", label: "BITREN DELANTERO (SEMI)" },
+        { value: "BITREN-T-SEMI", label: "BITREN TRASERO (SEMI)" },
+    ];
+}
+
 export const stockTypeOptions = () => {
     return {
         "AC": { "tipo": "ACCESORIO", "descripcion": "COMPONENTES ADICIONALES O DECORATIVOS DEL VEHÍCULO" },

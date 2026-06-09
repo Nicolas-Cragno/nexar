@@ -8,8 +8,8 @@ export const fichaContent = {
         { key: "chasis", label: "Chasis", type: "principal" },
         { key: "detalle", label: "Detalle", type: "principal" },
         { key: "nombreEmpresa", label: "Empresa", type: "secondary" },
-        //{ key: "nombreResponsable", label: "A cargo", type: "secondary" },
-        //{ key: "nombreSatelital", label: "Satelital", type: "secondary" },
+        { key: "nombrePersona", label: "A cargo", type: "secondary" },
+        { key: "nombreSatelital", label: "Satelital", type: "secondary" },
         //{ key: "detalleSatelital", label: "Detalle (satelital)", type: "secret" }, // restringido
         //{ key: "comentarioSatelital", label: "Comentario (satelital)", type: "secret" }, // restringido
         { key: "estado", label: "Estado", type: "state" },
@@ -18,6 +18,7 @@ export const fichaContent = {
     furgones: [
         { key: "id", label: "Interno", type: "title" },
         { key: "dominio", label: "Dominio", type: "principal" },
+        { key: "tipo", label: "Tipo", type: "principal" },
         { key: "marca", label: "Marca", type: "principal" },
         { key: "modelo", label: "Modelo", type: "principal" },
         { key: "detalle", label: "Detalle", type: "principal" },
@@ -32,7 +33,7 @@ export const fichaContent = {
         { key: "nombres", label: "nombres", type: "secondtitle" },
         { key: "id", label: "DNI", type: "principal" },
         { key: "cuit", label: "CUIT / CUIL", type: "principal" },
-        //{ key: "nacimiento", label: "Nacimiento", type: "principal", soloFecha: true },
+        { key: "nacimiento", label: "Nacimiento", type: "principal", soloFecha: true },
         { key: "ubicacion", label: "Ubicación", type: "principal" },
         // datos laborales
         { key: "legajo", label: "Legajo", type: "secondary" },

@@ -21,10 +21,12 @@ const FormPersona = ({ elemento = null, onGuardar, onClose }) => {
     // información personal
     id: elemento?.id || "",
     dni: elemento?.dni || "",
+    cuit: elemento?.cuit || "",
     apellido: elemento?.apellido || "",
     nombres: elemento?.nombres || "",
     nacimiento: elemento?.nacimiento || "",
     ubicacion: elemento?.ubicacion || "",
+    detalle: elemento?.detalle || "",
     // información laboral
     legajo: elemento?.legajo || "",
     empresa: elemento?.empresa || "",
@@ -34,7 +36,6 @@ const FormPersona = ({ elemento = null, onGuardar, onClose }) => {
     sucursal: elemento?.sucursal || "",
     ingreso: elemento?.ingreso || "",
     // detalles y comentarios
-    detalle: elemento?.detalle || "",
     comentario: elemento?.comentario || "",
     alerta: elemento?.alerta || "",
   });
