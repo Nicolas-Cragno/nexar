@@ -1,5 +1,5 @@
 //------------------------------------------------------ externos
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 //------------------------------------------------------ elementos
 import TextButton from "../buttons/TextButton.jsx";
 import CloseButton from "../buttons/CloseButton";
@@ -11,6 +11,8 @@ import {
 } from "../../functions/dataFunctions";
 import { eventos } from "../formularios/data/FormContent.js";
 import { fichaContent } from "./data/FichaContent.js";
+import { submitFinViaje } from "../formularios/data/Submits.js";
+import { getSubmitFunction } from "../formularios/data/SubmitGestor.js";
 //------------------------------------------------------ estilos
 import "./css/Fichas.css";
 
@@ -28,8 +30,10 @@ const Ficha = ({
   const titulo = titulado ? elemento[titulado.key] : elemento["id"];
   const tituloAbajo = tituladoAbajo ? elemento[tituladoAbajo.key] : null;
   const estado = container.find((campo) => campo.type === "state");
+  const estadoLabel = elemento.estadoLabel || false;
   const estadoSubtitulo = estado ? "ACTIVO" : "DADO DE BAJA";
   const [formEditarVisible, setFormEditarVisible] = useState(false);
+  const [modalStateVisible, setModalStateVisible] = useState(false);
   const eventosPorteria = eventos.porteria;
   const eventosViaje = eventos.viajes;
 
@@ -38,6 +42,7 @@ const Ficha = ({
 
   const campos = fichaContent[auxCampos] ?? [];
 
+  const stateButton = campos.find((cp) => cp.type === "stateButton");
   const bloquePrincipal = campos.filter(
     (campo) =>
       campo.type === "principal" &&
@@ -62,6 +67,21 @@ const Ficha = ({
       elemento[campo.key] !== "",
   );
 
+  // gestion para dar de alta o baja un viaje
+  const handleStateClick = async (st) => {
+    if (!stateButton?.submitType) return;
+    if (!st) return;
+
+    const submitFc = getSubmitFunction(stateButton.submitType);
+
+    if (!submitFc) {
+      console.error(`No existe la acción ${stateButton.submitType}`);
+      return;
+    }
+
+    await submitFc(elemento.id, false, onClose);
+  };
+
   if (!elemento || typeof elemento !== "object") {
     console.log("[Error] Ficha espera recibir un objeto elemento");
     return null;
@@ -83,7 +103,10 @@ const Ficha = ({
           {tituladoAbajo && <span className="nombres">{tituloAbajo}</span>}{" "}
         </h1>
         <hr />
-        <p className="status">{estadoSubtitulo}</p>
+
+        <p className="status" onClick={() => handleStateClick(elemento.estado)}>
+          {estadoLabel || estadoSubtitulo}
+        </p>
         <div className="ficha-subheader">
           {campos.map((campo, index) => {
             const valor = elemento[campo.key];

@@ -407,6 +407,55 @@ export const submitCruce = async (formData, campos, contadores, ubicaciones, loa
     }
 }
 
+// estados
+
+export const submitFinViaje = async (
+    id,
+    state = false,
+    callback = null
+) => {
+    const result = await Swal.fire({
+        title: id,
+        text: "¿Desea finalizar el viaje?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, finalizar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#4161bd",
+    });
+
+    if (!result.isConfirmed) return false;
+
+    try {
+        const resultado = await update(id, "viajes", {
+            estado: state,
+            fechaFin: serverTimestamp(),
+        });
+
+        statusOptions({
+            status: resultado ? "success" : "error"
+        });
+
+        if (resultado && callback) {
+            await callback();
+        }
+
+        return resultado;
+    } catch (error) {
+        console.error("[Error] al modificar estado", error);
+
+        Swal.fire({
+            title: "Error",
+            text: "No hemos podido procesar la solicitud.",
+            icon: "error",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: "#4161bd",
+        });
+
+        return false;
+    }
+};
+
 // swal/ficha que muestra lo que se está por cargar
 
 const confirmDataSwal = async (title, data) => {

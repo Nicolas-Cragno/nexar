@@ -46,7 +46,9 @@ export const fichaContent = {
         { key: "detalle", label: "Detalle", type: "secondary" },
     ],
     viajes: [
-        { key: "fecha", label: "Fecha", type: "principal", soloFecha: true },
+        { key: "fecha", label: "Fecha de inicio", type: "principal", soloFecha: true },
+        { key: "fechaFin", label: "Fecha finalización", type: "principal", soloFecha: true },
+        { key: "estadoLabel", label: "Estado", type: "stateButton", submitType: "submitFinViaje" },
         { key: "personaCompleta", label: "Chofer", type: "principal" },
         { key: "tractorCompleto", label: "Tractor", type: "principal" },
         { key: "furgonCompleto", label: "Carga/Furgon", type: "principal" },
