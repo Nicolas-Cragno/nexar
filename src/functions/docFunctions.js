@@ -153,12 +153,14 @@ let carga = {
 };
 */
 
+import { elementos } from "../components/formularios/data/FormContent";
 import provincias from "./data/provincias.json";
 
 const normalizarDatosPdf = (viaje) => {
   // 1. Asegurar furgones (Mínimo 2 posiciones vacías)
-  const furgones = Array.isArray(viaje.furgonCompleto) ? [viaje.furgonCompleto] : [viaje.furgonCompleto];
+  const furgones = Array.isArray(viaje.furgonCompleto) ? viaje.furgonCompleto : [viaje.furgonCompleto];
   const furgonFinal = [furgones[0] || "", furgones[1] || ""];
+
 
   const fechaHora = new Date();
 
@@ -198,6 +200,7 @@ const normalizarDatosPdf = (viaje) => {
   const clientesOriginales = Array.isArray(viaje.cliente)
     ? viaje.cliente
     : [viaje.cliente];
+
   const clientes = Array.from({ length: 4 }, (_, i) => ({
     nombre: clientesOriginales[i] || "",
     contenidoFurgon: "",
@@ -230,11 +233,24 @@ const normalizarDatosPdf = (viaje) => {
   });
 
   debugger;
+
   // Retornamos el objeto con el nombre de variables exacto que lee el PDF
+  let aux = viaje.personaCompleta.split(' ');
+  let dni = "fallo >:(";
+  let nombre = "";
+  for (let x = 0; x < aux.length; x++) {
+    const element = aux[x];
+    if (x === (aux.length-1)) {
+      dni = element;
+    } else {
+      nombre += element + " ";
+    }
+  }
+
   return {
     numeroViaje: viaje.id || "",
     fechaSalida: fechaHora.toLocaleDateString("es-ES"), // Podrías formatear viaje.fecha aquí
-    chofer: viaje.personaCompleta || "",
+    chofer: [nombre, dni],
     tractor: viaje.tractorCompleto || "",
     furgon: furgonFinal,
     recorridos,
@@ -295,7 +311,8 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
 
     doc.text(`${carga.numeroViaje}`, 170, 29.5);
     doc.text(`${carga.fechaSalida}`, 170, 35.7);
-    doc.text(`${carga.chofer}`, 15, 55.5);
+    doc.text(`${carga.chofer[0]}`, 15, 55.5);
+    doc.text(`${carga.chofer[1]}`, 15, 61);
     doc.text(`${carga.tractor}`, 85, 55.5); 
     if(carga.furgon[0] !== undefined && carga.furgon[0] !== null);
       doc.text(`${carga.furgon[0]}`, 150.5, 52.7);
