@@ -8,6 +8,7 @@ import TextButton from "../buttons/TextButton";
 import TripCard from "../cards/TripCard";
 //------------------------------------------------------ estilos
 import "../formularios/css/Forms.css";
+import { formatearCampoParaCarga } from "../../functions/dataFunctions";
 
 const FormListTramos = ({
   items = [],
@@ -26,26 +27,40 @@ const FormListTramos = ({
     }));
   };
 
+  const handleModificarTramo = (index, campo, valor) => {
+    const nuevosTramos = [...value];
+
+    nuevosTramos[index] = {
+      ...nuevosTramos[index],
+      [campo]: formatearCampoParaCarga(valor, "date"),
+    };
+    console.log("TRAMOS:", nuevosTramos);
+    onChange(nuevosTramos);
+  };
+
   const handleAgregar = () => {
-    const fechaSalida = new Date();
+    const ahora = new Date();
 
     const nuevoTramo = {
       ...nuevoRegistro,
-      fechaSalida,
+      fechaSalida: ahora,
+      fechaLlegada: ahora,
     };
 
     let nuevosTramos = [...value];
 
     // cerrar tramo anterior por defecto con fecha de inicio del nuevo tramo
+    /*
     if (nuevosTramos.length > 0) {
       const ultimoIndex = nuevosTramos.length - 1;
-
+      
       nuevosTramos[ultimoIndex] = {
         ...nuevosTramos[ultimoIndex],
         fechaLlegada: fechaSalida,
         lugarLlegada: nuevoRegistro.lugarSalida,
       };
     }
+    */
 
     onChange([...nuevosTramos, nuevoTramo]);
 
@@ -90,6 +105,9 @@ const FormListTramos = ({
                 placeEnd={registro.lugarLlegadaLabel}
                 coments={registro.detalle}
                 onClick={() => handleEliminar(index)}
+                onChange={(campo, valor) =>
+                  handleModificarTramo(index, campo, valor)
+                }
               />
             ))}
           </ul>

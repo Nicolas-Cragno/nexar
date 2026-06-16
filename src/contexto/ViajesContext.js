@@ -46,7 +46,7 @@ export function ViajesProvider({ children }) {
             };
         });
 
-        return listado;
+        return listado.sort((a, b) => b.fecha - a.fecha);
     }, [viajes, cruces, movimientos, tractores, furgones, empresas, personas, loading]);
 
     return (

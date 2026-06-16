@@ -122,19 +122,19 @@ export const eventos = {
         { key: "tractor", label: "Tractor", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "tractores", important: true },
         { key: "furgon", label: "Carga / Furgón", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "furgones", important: false },
         { key: "cliente", label: "Cliente", type: "principal", use: "database", dato: "array", inputType: "multiOptions", optionsList: "clientes", important: false },
-        { key: "operador", label: "Operador", type: "secondary", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true, neverDisabled: true },
-        { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false },
+        { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true, neverDisabled: true },
+        { key: "detalle", label: "Detalle", use: "database", type: "principal", dato: "text", inputType: "textarea", important: false },
         {
             key: "tramos", label: "Tramos", type: "groupTramos", use: "database", dato: "array", addButton: true, items: [
-                //{ key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
+                { key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
                 { key: "lugarSalida", label: "Origen", inputType: "inputOptions", optionsList: "provincias" },
-                //{ key: "fechaLlegada", label: "Fecha", inputType: "inputDate" },
+                { key: "fechaLlegada", label: "Fecha", inputType: "inputDate" },
                 { key: "lugarLlegada", label: "Destino", inputType: "inputOptions", optionsList: "provincias" },
                 { key: "detalle", label: "Detalle", inputType: "input" },
             ]
         },
         { key: "adelanto", label: "Adelanto", use: "database", type: "noVisual", dato: "number" },
-        { key: "adelantos", label: "Adelantos", type: "toDo" },
+        { key: "adelantos", label: "Adelantos", type: "toDo" }
 
     ],
     cruces: [
