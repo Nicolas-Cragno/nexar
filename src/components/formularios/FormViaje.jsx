@@ -23,6 +23,9 @@ import { generarDocumentos } from "../../functions/docFunctions";
 import imgPlantilla from "../../functions/docs/hojaRuta.png";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
+import { useEmpresas } from "../../contexto/EmpresasContext";
+import { useMovimientos } from "../../contexto/MovimientosContext";
+import { useCruces } from "../../contexto/CrucesContext";
 
 const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const titulo = "Registro";
@@ -50,6 +53,10 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const { tractores } = useTractores();
   const { furgones } = useFurgones();
   const { personas } = usePersonas();
+  const { empresas } = useEmpresas();
+  const { movimientos } = useMovimientos();
+  const { crucesBarcaza } = useCruces();
+  
 
   const handleCloseFormMovimientoCuenta = () => {
     setFormMovimientoCuentaVisible(false);
@@ -131,6 +138,26 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           (tr) => String(tr.id) === String(viajeCreado.tractor),
         );
 
+        const clientesAsignados = empresas.filter((em) => 
+          (viajeCreado.cliente || []).some((idGuardado) => String(idGuardado) === String(em.id))
+        );
+
+        const anticiposAsignados = movimientos?.filter((mv) =>
+          String(mv.viaje) === String(viajeCreado.id)
+        );
+
+        if(viajeCreado.adelanto !== undefined){
+          anticiposAsignados.push(viajeCreado.adelanto);
+        }
+
+        /*
+        const crucesBarcazaAsignados = crucesBarcaza.filter((cb)=>
+          String(cb.viaje) === String(viajeCreado.id)
+        );
+        */
+
+        const nombresClientes = clientesAsignados.map(c => c.label);
+
         const idFurgon1 = viajeCreado.furgon?.[0];
         const idFurgon2 = viajeCreado.furgon?.[1];
 
@@ -149,6 +176,11 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
             furgon1?.label ?? "null o undefinded >:(",
             furgon2?.label ?? "null o undefinded >:("
           ],
+
+          anticiposCompletos: anticiposAsignados,
+          //crucesBarcazaCompletos: crucesBarcazaAsignados,
+
+          clientesCompletos: nombresClientes
         };
 
         debugger;

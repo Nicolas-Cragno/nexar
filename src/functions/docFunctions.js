@@ -158,9 +158,10 @@ import provincias from "./data/provincias.json";
 
 const normalizarDatosPdf = (viaje) => {
   // 1. Asegurar furgones (Mínimo 2 posiciones vacías)
-  const furgones = Array.isArray(viaje.furgonCompleto) ? viaje.furgonCompleto : [viaje.furgonCompleto];
+  const furgones = Array.isArray(viaje.furgonCompleto)
+    ? viaje.furgonCompleto
+    : [viaje.furgonCompleto];
   const furgonFinal = [furgones[0] || "", furgones[1] || ""];
-
 
   const fechaHora = new Date();
 
@@ -169,7 +170,6 @@ const normalizarDatosPdf = (viaje) => {
     const tramo = viaje.tramos && viaje.tramos[i] ? viaje.tramos[i] : null;
 
     if (tramo !== null) {
-      
       const provinciaOrigen = provincias.find(
         (loc) => String(loc.key) === String(tramo?.lugarSalida),
       );
@@ -196,17 +196,53 @@ const normalizarDatosPdf = (viaje) => {
     }
   });
 
+  const clientesOriginales = Array.isArray(viaje.clientesCompletos)
+    ? viaje.clientesCompletos
+    : [];
+
+  const clientes = Array.from(
+    { length: 4 },
+    (_, i) => clientesOriginales[i] ?? "",
+  );
+
+  /*
   // 3. Normalizar Clientes (Obligatorio 4 posiciones)
-  const clientesOriginales = Array.isArray(viaje.cliente)
-    ? viaje.cliente
-    : [viaje.cliente];
+  const clientesOriginales = Array.isArray(viaje.clienteCompleto)
+    ? viaje.clienteCompleto
+    : [viaje.clienteCompleto];
 
   const clientes = Array.from({ length: 4 }, (_, i) => ({
     nombre: clientesOriginales[i] || "",
     contenidoFurgon: "",
     observaciones: "",
   }));
+*/
 
+  const anticiposOriginales = Array.isArray(viaje.anticiposCompletos)
+    ? viaje.anticiposCompletos
+    : [];
+
+  const anticipos = Array.from({ length: 5 }, (_, i) => {
+
+    const anticipo = anticiposOriginales[i];
+
+    if (anticipo) {
+
+      const fechaAnticipo = anticipo.fecha?.toDate
+        ? anticipo.fecha.toDate()
+        : new Date();
+
+      return {
+        fecha: fechaAnticipo.toLocaleDateString("es-ES"),
+        numero: anticipo.id ?? "",
+        importe: anticipo.montoCompleto ?? "",
+      };
+    }
+
+    return { fecha: "", numero: "", importe: "" };
+  });
+
+  /*
   // 4. Normalizar Anticipos (Obligatorio 5 posiciones)
   const anticipos = Array.from({ length: 5 }, (_, i) => {
     // Si hay un adelanto cargado, lo ponemos en la primera posición
@@ -219,7 +255,9 @@ const normalizarDatosPdf = (viaje) => {
     }
     return { fecha: "", numero: "", importe: "" };
   });
-
+  */
+  
+  
   // 5. Normalizar Ordenes de Cruce (Obligatorio 4 posiciones)
   const ordenesDeCruce = Array.from({ length: 4 }, (_, i) => {
     // Si hay una orden de cruce cargada, la ponemos en la primera posición
@@ -235,12 +273,12 @@ const normalizarDatosPdf = (viaje) => {
   debugger;
 
   // Retornamos el objeto con el nombre de variables exacto que lee el PDF
-  let aux = viaje.personaCompleta.split(' ');
+  let auxPersona = viaje.personaCompleta.split(" ");
   let dni = "fallo >:(";
   let nombre = "";
-  for (let x = 0; x < aux.length; x++) {
-    const element = aux[x];
-    if (x === (aux.length-1)) {
+  for (let x = 0; x < auxPersona.length; x++) {
+    const element = auxPersona[x];
+    if (x === auxPersona.length - 1) {
       dni = element;
     } else {
       nombre += element + " ";
@@ -313,12 +351,11 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
     doc.text(`${carga.fechaSalida}`, 170, 35.7);
     doc.text(`${carga.chofer[0]}`, 15, 55.5);
     doc.text(`${carga.chofer[1]}`, 15, 61);
-    doc.text(`${carga.tractor}`, 85, 55.5); 
-    if(carga.furgon[0] !== undefined && carga.furgon[0] !== null);
-      doc.text(`${carga.furgon[0]}`, 150.5, 52.7);
-    if(carga.furgon[1] !== undefined && carga.furgon[1] !== null);
-      doc.text(`${carga.furgon[1]}`, 150.5, 61);
-
+    doc.text(`${carga.tractor}`, 85, 55.5);
+    if (carga.furgon[0] !== undefined && carga.furgon[0] !== null);
+    doc.text(`${carga.furgon[0]}`, 150.5, 52.7);
+    if (carga.furgon[1] !== undefined && carga.furgon[1] !== null);
+    doc.text(`${carga.furgon[1]}`, 150.5, 61);
 
     doc.text(`${carga.recorridos[0].localidadOrigen.nombre}`, 15, 85.5);
     doc.text(`${carga.recorridos[0].fechaCarga}`, 61.3, 85.5);
@@ -328,51 +365,63 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
     doc.text(`${carga.recorridos[0].fechaDescarga}`, 168.7, 85.5);
     doc.text(`${carga.recorridos[0].horaDescarga}`, 190, 85.5);
 
-    if(carga.recorridos[1] !== undefined){
+    if (carga.recorridos[1] !== undefined) {
       doc.text(`${carga.recorridos[1].localidadOrigen.nombre}`, 15, 94.3);
       doc.text(`${carga.recorridos[1].fechaCarga}`, 61.3, 94.3);
       doc.text(`${carga.recorridos[1].horaCarga}`, 83, 94.3);
-      
+
       doc.text(`${carga.recorridos[1].localidadDestino.nombre}`, 100, 94.3);
       doc.text(`${carga.recorridos[1].fechaDescarga}`, 168.7, 94.3);
       doc.text(`${carga.recorridos[1].horaDescarga}`, 190, 94.3);
     }
 
-    if(carga.recorridos[2] !== undefined){
+    if (carga.recorridos[2] !== undefined) {
       doc.text(`${carga.recorridos[2].localidadOrigen.nombre}`, 15, 101.5);
       doc.text(`${carga.recorridos[2].fechaCarga}`, 61.3, 101.5);
-      doc.text(`${carga.recorridos[2].horaCarga}`, 83, 101.5); 
-      
+      doc.text(`${carga.recorridos[2].horaCarga}`, 83, 101.5);
+
       doc.text(`${carga.recorridos[2].localidadDestino.nombre}`, 100, 101.5);
       doc.text(`${carga.recorridos[2].fechaDescarga}`, 168.7, 101.5);
       doc.text(`${carga.recorridos[2].horaDescarga}`, 190, 101.5);
     }
 
-    if(carga.recorridos[3] !== undefined){ 
+    if (carga.recorridos[3] !== undefined) {
       doc.text(`${carga.recorridos[3].localidadOrigen.nombre}`, 15, 109.3);
       doc.text(`${carga.recorridos[3].fechaCarga}`, 61.3, 109.3);
       doc.text(`${carga.recorridos[3].horaCarga}`, 83, 109.3);
-      
+
       doc.text(`${carga.recorridos[3].localidadDestino.nombre}`, 100, 109.3);
       doc.text(`${carga.recorridos[3].fechaDescarga}`, 168.7, 109.3);
       doc.text(`${carga.recorridos[3].horaDescarga}`, 190, 109.3);
     }
 
-    doc.text(`${carga.clientes[0].nombre}`, 40, 120.7);
-    doc.text(`${carga.clientes[0].contenidoFurgon}`, 95, 120.7);
-    doc.text(`${carga.clientes[0].observaciones}`, 40, 130.2);
+    if (carga.clientes[0] !== undefined) {
+      doc.text(`${carga.clientes[0]}`, 31, 120.7);
+      //doc.text(`${carga.clientes[0].nombre}`, 95, 120.7);
+      //doc.text(`${carga.clientes[0].contenidoFurgon}`, 95, 120.7);
+      //doc.text(`${carga.clientes[0].observaciones}`, 40, 130.2);
+    }
 
-    doc.text(`${carga.clientes[1].nombre}`, 40, 142);
-    doc.text(`${carga.clientes[1].contenidoFurgon}`, 95, 142);
-    doc.text(`${carga.clientes[1].observaciones}`, 40, 150.6);
+    if (carga.clientes[1] !== undefined) {
+      doc.text(`${carga.clientes[1]}`, 31, 142);
+      //doc.text(`${carga.clientes[1].nombre}`, 40, 142);
+      //doc.text(`${carga.clientes[1].contenidoFurgon}`, 95, 142);
+      //doc.text(`${carga.clientes[1].observaciones}`, 40, 150.6);
+    }
 
-    doc.text(`${carga.clientes[2].nombre}`, 40, 162);
-    doc.text(`${carga.clientes[2].contenidoFurgon}`, 95, 162);
-    doc.text(`${carga.clientes[2].observaciones}`, 40, 170.8);
+    if (carga.clientes[2] !== undefined) {
+      doc.text(`${carga.clientes[2]}`, 31, 162);
+      //doc.text(`${carga.clientes[2].nombre}`, 40, 162);
+      //doc.text(`${carga.clientes[2].contenidoFurgon}`, 95, 162);
+      //doc.text(`${carga.clientes[2].observaciones}`, 40, 170.8);
+    }
 
-    doc.text(`${carga.clientes[3].nombre}`, 40, 184);
-    doc.text(`${carga.clientes[3].contenidoFurgon}`, 95, 184);
-    doc.text(`${carga.clientes[3].observaciones}`, 40, 193);
+    if (carga.clientes[3] !== undefined) {
+      doc.text(`${carga.clientes[3]}`, 31, 184);
+      //doc.text(`${carga.clientes[3].nombre}`, 40, 184);
+      //doc.text(`${carga.clientes[3].contenidoFurgon}`, 95, 184);
+      //doc.text(`${carga.clientes[3].observaciones}`, 40, 193);
+    }
 
     doc.setFontSize(8);
     doc.text(`${carga.anticipos[0].fecha}`, 15, 227);
