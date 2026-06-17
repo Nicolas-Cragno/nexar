@@ -35,7 +35,7 @@ export function CrucesProvider({ children }) {
             };
         });
 
-        return listado;
+        return listado.sort((a, b) => b.fecha - a.fecha);
     }, [cruces, viajes, tractores, furgones, empresas, personas, loading]);
 
     return (

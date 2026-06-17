@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
 import FormMovimientoCuenta from "../formularios/FormMovimientoCuenta";
-import Logo from "../../assets/logos/logoPrincipal.png";
+import Logo from "../../assets/logos/LOGO_BANK.png";
 import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../../components/modales/data/Columnas";

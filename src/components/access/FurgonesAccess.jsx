@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
-import Logo from "../../assets/logos/logoPrincipal.png";
+import Logo from "../../assets/logos/LOGO_CONTAINER.png";
 import FormFurgon from "../formularios/FormFurgon";
 import Access from "./Access";
 //------------------------------------------------------ funciones

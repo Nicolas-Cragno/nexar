@@ -57,6 +57,25 @@
   box-sizing: border-box;
 }
 
+.form-label{
+  font-size: x-small;
+  margin-right: 12px;
+}
+
+.form-input-small,
+.form-select-small,
+.form-textarea-small {
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /*
+  padding: 0.4rem 0.6rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  */
+}
+
 /* DOBLE FORM INICIO */
 .doble-form {
   position: fixed;

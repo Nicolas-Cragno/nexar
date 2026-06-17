@@ -73,8 +73,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       setLoading,
       onGuardar,
       onClose,
-      false,
-      elemento?.id,
+      elemento,
     );
 
     if (!viajeCreado) return;
@@ -174,7 +173,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
 
           furgonCompleto: [
             furgon1?.label ?? "null o undefinded >:(",
-            furgon2?.label ?? "null o undefinded >:("
+            furgon2?.label ?? "null o undefinded >:(",
           ],
 
           anticiposCompletos: anticiposAsignados,

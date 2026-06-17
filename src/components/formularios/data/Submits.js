@@ -286,52 +286,92 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
     }
 }
 
-export const submitViaje = async (formData, campos, contadores, ubicaciones, loading, onGuardar, onClose) => {
+export const submitViaje = async (formData, campos, contadores, ubicaciones, loading, onGuardar, onClose, elemento = null) => {
     const CUIT_TRANSCAN = "33719349949";
+    const modoEdicion = elemento;
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return;
     loading(true); // ahora si empieza a cargar ...
 
     // guardar elemento
     try {
-        const { id: identificador } = await codeTravel(ubicaciones, contadores);
+        if (modoEdicion) {
+            const elementoAGuardar = campos.reduce((acc, cp) => {
+                if (cp.use !== "database") return acc;
 
-        const elementoAGuardar = campos.reduce((acc, cp) => {
-            if (cp.use !== "database") return acc;
+                let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
 
-            let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
+                acc[cp.key] = valor;
+                return acc;
+            }, {});
 
-            acc[cp.key] = valor;
-            return acc;
-        }, {});
-
-        const result = await confirmDataSwal("Viaje", elementoAGuardar);
+            const result = await confirmDataSwal("Viaje", elementoAGuardar);
 
 
-        if (!result.isConfirmed) {
-            return null;
+            if (!result.isConfirmed) {
+                return null;
+            }
+
+            const viajeEditado = {
+                ultimaModificacion: serverTimestamp(),
+                ...elementoAGuardar,
+            };
+
+            const resultadoCarga = await update(elemento.id,
+                "viajes",
+                viajeEditado
+            );
+
+            statusOptions(resultadoCarga);
+
+
+            if (!resultadoCarga) return null;
+
+            if (onGuardar) onGuardar();
+
+
+            return viajeEditado;
+        } else {
+
+            const { id: identificador } = await codeTravel(ubicaciones, contadores);
+
+            const elementoAGuardar = campos.reduce((acc, cp) => {
+                if (cp.use !== "database") return acc;
+
+                let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
+
+                acc[cp.key] = valor;
+                return acc;
+            }, {});
+
+            const result = await confirmDataSwal("Viaje", elementoAGuardar);
+
+
+            if (!result.isConfirmed) {
+                return null;
+            }
+
+            const nuevoViaje = {
+                id: identificador,
+                fecha: serverTimestamp(),
+                estado: true,
+                movimiento: elementoAGuardar.adelanto > 0,
+                ...elementoAGuardar,
+            };
+
+            const resultadoCarga = await submit(
+                "viajes",
+                nuevoViaje
+            );
+
+            statusOptions(resultadoCarga);
+
+            if (!resultadoCarga) return null;
+
+            if (onGuardar) onGuardar();
+
+            return nuevoViaje;
         }
-
-        const nuevoViaje = {
-            id: identificador,
-            fecha: serverTimestamp(),
-            estado: true,
-            movimiento: elementoAGuardar.adelanto > 0,
-            ...elementoAGuardar,
-        };
-
-        const resultadoCarga = await submit(
-            "viajes",
-            nuevoViaje
-        );
-
-        statusOptions(resultadoCarga);
-
-        if (!resultadoCarga) return null;
-
-        if (onGuardar) onGuardar();
-
-        return nuevoViaje;
     } catch (error) {
         console.error("[Error] al intentar guardar", error);
 

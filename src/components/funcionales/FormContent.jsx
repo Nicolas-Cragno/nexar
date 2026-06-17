@@ -216,31 +216,32 @@ const FormContent = ({
           </label>
         </div>
       ))}
-      {bloqueToDo.map((campo) => (
-        <div className={"doble-form-right"} key={campo.key}>
-          <label>
-            <strong className="form-info-title">{campo.label}</strong>
+      {!modoEdicion &&
+        bloqueToDo.map((campo) => (
+          <div className={"doble-form-right"} key={campo.key}>
+            <label>
+              <strong className="form-info-title">{campo.label}</strong>
 
-            <div className="form-info-box">
-              <FormToDo
-                value={data.adelantos || []}
-                onChange={(nuevoListado) => {
-                  const total = nuevoListado.reduce(
-                    (acc, item) => acc + Number(item.monto || 0),
-                    0,
-                  );
+              <div className="form-info-box">
+                <FormToDo
+                  value={data.adelantos || []}
+                  onChange={(nuevoListado) => {
+                    const total = nuevoListado.reduce(
+                      (acc, item) => acc + Number(item.monto || 0),
+                      0,
+                    );
 
-                  setData((prev) => ({
-                    ...prev,
-                    adelantos: nuevoListado,
-                    adelanto: total,
-                  }));
-                }}
-              />
-            </div>
-          </label>
-        </div>
-      ))}
+                    setData((prev) => ({
+                      ...prev,
+                      adelantos: nuevoListado,
+                      adelanto: total,
+                    }));
+                  }}
+                />
+              </div>
+            </label>
+          </div>
+        ))}
     </>
   );
 };

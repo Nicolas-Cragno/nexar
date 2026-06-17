@@ -366,15 +366,27 @@ export const formatearFechaInput = (valor) => {
 
   let fecha;
 
-  if (valor._seconds !== undefined) {
+  // Timestamp Firestore
+  if (typeof valor?.toDate === "function") {
+    fecha = valor.toDate();
+  }
+  // Objeto serializado de Firestore
+  else if (valor.seconds !== undefined) {
+    fecha = new Date(valor.seconds * 1000);
+  }
+  // Compatibilidad con _seconds
+  else if (valor._seconds !== undefined) {
     fecha = new Date(valor._seconds * 1000);
   }
+  // String
   else if (typeof valor === "string") {
     fecha = new Date(valor);
   }
+  // Date
   else if (valor instanceof Date) {
     fecha = valor;
-  } else {
+  }
+  else {
     return "";
   }
 
