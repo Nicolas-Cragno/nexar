@@ -2,7 +2,7 @@
 import Swal from "sweetalert2";
 import { Timestamp } from "firebase/firestore";
 //------------------------------------------------------ funciones
-import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions, tipoCuentaCorrienteOptions, provinciasOptions, localidadesOptions, viajesOptions, typeFurgonesOptions } from "../components/formularios/data/OptionsContent";
+import { stockTypeOptions, unidadesOptions, puestosOptions, tipoEmpleadoOptions, personasOptions, tipoCuentaCorrienteOptions, provinciasOptions, localidadesOptions, viajesOptions, typeFurgonesOptions, tipoEmpresasOptions } from "../components/formularios/data/OptionsContent";
 import { useData } from "../contexto/DataContext";
 //------------------------------------------------------ 
 
@@ -328,6 +328,12 @@ export const cargarSelects = (tipo, listado = []) => {
       })); break;
     case "tipoEmpleado":
       lista = Object.values(tipoEmpleadoOptions()).map((te) => ({
+        value: te.key,
+        label: te.descripcion.toUpperCase(),
+        raw: te,
+      })); break;
+    case "tipoEmpresa":
+      lista = Object.values(tipoEmpresasOptions()).map((te) => ({
         value: te.key,
         label: te.descripcion.toUpperCase(),
         raw: te,

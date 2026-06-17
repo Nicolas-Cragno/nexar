@@ -91,6 +91,9 @@ const FormContent = ({
       case "tipoEmpleados":
         listado = cargarSelects("tipoEmpleado");
         break;
+      case "tipoEmpresas":
+        listado = cargarSelects("tipoEmpresa");
+        break;
       case "puestos":
         listado = cargarSelects("puestos");
         break;

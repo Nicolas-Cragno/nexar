@@ -1,6 +1,7 @@
 import PersonasAccess from "../components/access/PersonasAccess";
 import TractoresAccess from "../components/access/TractoresAccess";
 import FurgonesAccess from "../components/access/FurgonesAccess";
+import EmpresasAccess from "../components/access/EmpresasAccess";
 import "./css/sections.css";
 
 const Resources = () => {
@@ -10,6 +11,7 @@ const Resources = () => {
         <PersonasAccess />
         <TractoresAccess />
         <FurgonesAccess />
+        <EmpresasAccess filtro={"clientes"} />
       </div>
     </section>
   );

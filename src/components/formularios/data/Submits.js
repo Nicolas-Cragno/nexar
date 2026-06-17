@@ -209,7 +209,65 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
         loading(false);
     }
 }
+export const submitEmpresa = async (formData, campos, loading, onGuardar, onClose, modoEdicion = false, idElemento = null) => {
+    const verificacion = verificarCamposObligatorios(campos, formData);
+    if (!verificacion) return;
 
+    loading(true); // ahora si empieza a cargar ...
+
+    let campoId;
+
+    const elementoAGuardar = campos.reduce((acc, cp) => {
+        if (cp.use !== "database") return acc; // solo se guardan los campos que tengan el "use" = "database" en elementos["tractores"]
+        if (cp.isId) campoId = formData[cp.key];
+
+        // let valor = formData[cp.key];
+        let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
+
+        acc[cp.key] = valor;
+        return acc;
+    }, {});
+
+    try {
+        if (modoEdicion) {
+            const result = await confirmDataSwal("Modificación de empresa", elementoAGuardar);
+
+            if (!result.isConfirmed) {
+                loading(false);
+                return;
+            }
+
+            const modificacion = await update(idElemento, "empresas", elementoAGuardar, onGuardar);
+
+            statusOptions(modificacion);
+        } else {
+            const result = await confirmDataSwal("Nueva empresa", elementoAGuardar);
+
+            if (!result.isConfirmed) {
+                loading(false);
+                return;
+            }
+
+            // avanzar con la carga
+            const carga = await submit("empresas", { id: campoId, ...elementoAGuardar }, onGuardar);
+
+            statusOptions(carga);
+        }
+        onClose();
+    } catch (error) {
+        console.error("[Error] al intentar guardar", error);
+
+        Swal.fire({
+            title: "Error",
+            text: "No hemos podido procesar la solicitud.",
+            icon: "error",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: "#4161bd",
+        });
+    } finally {
+        loading(false);
+    }
+}
 // eventos
 export const submitMovimientoCuenta = async (formData, campos, sectores, loading, onGuardar, onClose) => {
     const CUIT_TRANSCAN = "33719349949";

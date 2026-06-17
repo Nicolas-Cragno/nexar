@@ -179,7 +179,14 @@ export const puestosOptions = () => {
 
 export const tipoEmpleadoOptions = () => {
     return {
-        "EMPLEADO": { "key": "EMPLEADO", "descripcion": "EMPLEADO (TRANSCAN)" },
+        "EMPLEADO": { "key": "EMPLEADO", "descripcion": "EMPLEADO (TCC - TC - EX - TA)" },
         //"PROVEEDOR" : { "key": "PROVEEDOR", "descripcion" : "PROVEEDOR"},
+    }
+}
+
+export const tipoEmpresasOptions = () => {
+    return {
+        "cliente": { "key": "cliente", "descripcion": "CLIENTE" },
+        "proveedor": { "key": "proveedor", "descripcion": "PROVEEDOR" },
     }
 }
