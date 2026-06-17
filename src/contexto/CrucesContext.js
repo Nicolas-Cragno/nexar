@@ -23,7 +23,7 @@ export function CrucesProvider({ children }) {
             const tractor = tractores.find((tr) => String(cr.tractor) === String(tr.id));
             const furgon = furgones.find((fg) => String(fg.furgon) === String(fg.id));
             //const personaLabel = persona?.nombreCompleto;
-            const cruceLabel = "";
+            const cruceLabel = `${cr.viaje} ${cr.fecha}`;
 
             return {
                 ...cr,
