@@ -46,8 +46,9 @@ export function DataProvider({ children }) {
                         setLoading(false);
                     };
 
-                    console.log(" → " + nombreColeccion + "✓ - " + nombreColeccion.length + " registros.")
-                    contador++;
+                    console.log(
+                        ` → ${nombreColeccion} ✓ - ${snapshot.docs.length} registros.`
+                    ); contador++;
                     return newData;
                 });
             });

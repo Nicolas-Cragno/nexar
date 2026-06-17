@@ -3,22 +3,28 @@ import Layout from "../components/layout/Layout";
 import Resources from "../sections/Resources";
 import Actions from "../sections/Actions";
 import Dashboard from "../sections/Dashboard";
-import DataLayer from "../contexto/DataLayer";
+import Loading from "./Loading";
+import { useData } from "../contexto/DataContext";
 import './css/App.css';
 
 function App() {
+  const { loading } = useData();
+
+  if (loading) {
+    return <Loading />
+  }
+
+
   return (
-    <DataLayer>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/movimientos" element={<Actions />} />
-            <Route path="/recursos" element={<Resources />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </DataLayer>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/movimientos" element={<Actions />} />
+          <Route path="/recursos" element={<Resources />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
