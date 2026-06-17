@@ -45,6 +45,20 @@ export const fichaContent = {
         { key: "sucursalCompleta", label: "Sede", type: "secondary" },
         { key: "detalle", label: "Detalle", type: "secondary" },
     ],
+    clientes: [
+        { key: "id", label: "CUIT", type: "principal" },
+        { key: "nombre", label: "Nombre", type: "principal" },
+        { key: "razonSocial", label: "Razon Social", type: "principal" },
+        { key: "tipo", label: "Tipo", type: "principal" },
+        { key: "ubicacion", label: "Ubicacion", type: "principal" }
+    ],
+    proveedores: [
+        { key: "id", label: "CUIT", type: "principal" },
+        { key: "nombre", label: "Nombre", type: "principal" },
+        { key: "razonSocial", label: "Razon Social", type: "principal" },
+        { key: "tipo", label: "Tipo", type: "principal" },
+        { key: "ubicacion", label: "Ubicacion", type: "principal" }
+    ],
     viajes: [
         { key: "fecha", label: "Fecha de inicio", type: "principal", soloFecha: true },
         { key: "fechaFin", label: "Fecha finalización", type: "principal", soloFecha: true },
@@ -57,6 +71,7 @@ export const fichaContent = {
         //{ key: "adelantosRegistrados", label: "Adelantos", type: "secondary" }, se renderiza directo en Ficha.jsx
         //{ key: "crucesRegistrados", label: "Cruces de barcaza", type: "secondary" }, se renderiza directo en Ficha.jsx
     ]
+
 }
 
 

@@ -4,6 +4,7 @@ import "./css/Tablas.css";
 import CloseButton from "../buttons/CloseButton";
 import { renderizarValor } from "../../functions/dataFunctions";
 import { fichaContent } from "../fichas/data/FichaContent";
+import ModalHeader from "../funcionales/ModalHeader";
 import Ficha from "../fichas/Ficha";
 import Loading from "../../routes/Loading";
 import FormGestor from "../formularios/FormGestor";
@@ -18,6 +19,7 @@ const Modal = ({
   filtroSector,
   reload = null,
   onClose,
+  editable = true,
 }) => {
   console.log(`----------- Render Modal ${title}`);
   const [textoFiltro, setTextoFiltro] = useState("");
@@ -74,6 +76,7 @@ const Modal = ({
   return (
     <div className="modal">
       <div className="modal-content-2">
+        {/*
         <CloseButton onClose={onClose} />
         <div className="modal-header">
           <h1 className="modal-title">{title}</h1>
@@ -103,6 +106,16 @@ const Modal = ({
             )}
           </div>
         </div>
+        */}
+        <ModalHeader
+          title={title}
+          textoFiltro={textoFiltro}
+          setTextoFiltro={setTextoFiltro}
+          columnasFiltroEspecial={columnasFiltroEspecial}
+          filtrosEspeciales={filtrosEspeciales}
+          toggleFiltroEspecial={toggleFiltroEspecial}
+          onClose={onClose}
+        />
 
         <div className="table-scroll-wrapper">
           <table className="table-lista">
@@ -156,6 +169,7 @@ const Modal = ({
                 [])
           }
           onClose={handleCloseFicha}
+          editable={editable}
         />
       )}
       {formAgregarVisible && (

@@ -18,6 +18,7 @@ const Access = ({
   text = "",
   filtro = null,
   onClickForm = null,
+  editable = true,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -48,6 +49,7 @@ const Access = ({
           data={coleccion}
           headers={headers}
           onClose={() => handleClose()}
+          editable={editable}
         />
       )}
 

@@ -24,6 +24,7 @@ const Ficha = ({
   container = Object.keys(elemento),
   reload = null,
   onClose,
+  editable = true,
 }) => {
   const titulado = container.find((campo) => campo.type === "title");
   const tituladoAbajo = container.find((campo) => campo.type === "secondtitle");
@@ -354,12 +355,14 @@ const Ficha = ({
           })}
         </div>
 
-        <div className="ficha-buttons">
-          <TextButton
-            text={"EDITAR"}
-            onClick={() => setFormEditarVisible(true)}
-          />
-        </div>
+        {editable && (
+          <div className="ficha-buttons">
+            <TextButton
+              text={"EDITAR"}
+              onClick={() => setFormEditarVisible(true)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -11,7 +11,10 @@ const Resources = () => {
         <PersonasAccess />
         <TractoresAccess />
         <FurgonesAccess />
+      </div>
+      <div className="sections-options-group">
         <EmpresasAccess filtro={"clientes"} />
+        <EmpresasAccess filtro={"proveedores"} />
       </div>
     </section>
   );
