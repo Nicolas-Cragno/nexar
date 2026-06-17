@@ -126,11 +126,11 @@ export const eventos = {
         { key: "detalle", label: "Detalle", use: "database", type: "principal", dato: "text", inputType: "textarea", important: false },
         {
             key: "tramos", label: "Tramos", type: "groupTramos", use: "database", dato: "array", addButton: true, items: [
-                { key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
+                //{ key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
                 { key: "lugarSalida", label: "Origen", inputType: "inputOptions", optionsList: "provincias" },
-                { key: "fechaLlegada", label: "Fecha", inputType: "inputDate" },
+                //{ key: "fechaLlegada", label: "Fecha", inputType: "inputDate" },
                 { key: "lugarLlegada", label: "Destino", inputType: "inputOptions", optionsList: "provincias" },
-                { key: "detalle", label: "Detalle", inputType: "input" },
+                //{ key: "detalle", label: "Detalle", inputType: "input" },
             ]
         },
         { key: "adelanto", label: "Adelanto", use: "database", type: "noVisual", dato: "number" },

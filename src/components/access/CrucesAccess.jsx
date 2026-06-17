@@ -1,7 +1,7 @@
 //------------------------------------------------------ externos
 import { useState } from "react";
 //------------------------------------------------------ elementos
-import Logo from "../../assets/logos/logoPrincipal.png";
+import Logo from "../../assets/logos/LOGO_SHIP.png";
 import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../../components/modales/data/Columnas";

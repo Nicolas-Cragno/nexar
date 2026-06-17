@@ -66,8 +66,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       setLoading,
       onGuardar,
       onClose,
-      false,
-      elemento?.id,
+      elemento,
     );
 
     if (!viajeCreado) return;

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
-import Logo from "../../assets/logos/logoPrincipal.png";
+import Logo from "../../assets/logos/LOGO_PRINCIPAL2.png";
 import CardLogoText from "../../components/cards/CardLogoText";
 import Modal from "../modales/Modal";
 //------------------------------------------------------ funciones
@@ -13,7 +13,7 @@ import { useData } from "../../contexto/DataContext";
 const Access = ({
   coleccion,
   title,
-  logo,
+  logo = Logo,
   headers,
   text = "",
   filtro = null,
@@ -34,7 +34,7 @@ const Access = ({
       <CardLogoText
         title={title}
         text={text}
-        logo={Logo}
+        logo={logo}
         onClick={() => handleOpen()}
         onClick2={onClickForm}
         onClose={() => handleClose()}
