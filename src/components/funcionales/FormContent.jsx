@@ -226,7 +226,7 @@ const FormContent = ({
                 onChange={(nuevoListado) =>
                   handleChange(campo.key, nuevoListado)
                 }
-                opciones={cargarSelects("provincias")} // se manda solo esta lista
+                opciones={cargarSelects("localidades")} // se manda solo esta lista
               />
             </div>
           </label>
