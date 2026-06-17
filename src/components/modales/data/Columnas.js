@@ -29,9 +29,9 @@ export const columnas = {
   empresas: [
     { key: "id", label: "CUIT" },
     { key: "nombre", label: "Nombre" },
+    { key: "razonSocial", label: "Razon social" },
     { key: "tipo", label: "Tipo" },
-    { key: "cuentaCorriente", label: "Cta Corriente" },
-    { key: "estado", label: "Estado" }
+    { key: "ubicacion", label: "Ubicacion" }
   ],
   cuentaCorriente: [
     { key: "id", label: "CUIT" },

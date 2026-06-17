@@ -177,9 +177,33 @@ export const puestosOptions = () => {
     }
 }
 
+export const especializacionOptions = (puesto) => {
+    switch (puesto) {
+        case "ADMINISTRATIVO":
+            return [
+                { value: "RRHH", label: "RECURSOS HUMANOS" },
+                { value: "CONTABLE", label: "CONTABLE" },
+                { value: "FACTURACION", label: "FACTURACIÓN" },
+                { value: "COMPRAS", label: "COMPRAS" },
+                { value: "TRAFICO", label: "TRAFICO" },
+                { value: "SATELITAL", lable: "SATELITAL" },
+            ];
+
+        case "CHOFER":
+            return [
+                { value: "LARGA DISTANCIA", label: "LARGA DISTANCIA" },
+                { value: "MOVIMIENTO", label: "MOVIMIENTO" },
+            ];
+
+        default:
+            return [];
+    }
+};
+
 export const tipoEmpleadoOptions = () => {
     return {
         "EMPLEADO": { "key": "EMPLEADO", "descripcion": "EMPLEADO (TCC - TC - EX - TA)" },
+        "FLETERO": { "key": "EXTERNO", "descripcion": "EXTERNO (TERCIARIZADOS, FLETEROS, ETC)" },
         //"PROVEEDOR" : { "key": "PROVEEDOR", "descripcion" : "PROVEEDOR"},
     }
 }

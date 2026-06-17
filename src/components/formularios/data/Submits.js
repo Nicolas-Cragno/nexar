@@ -250,6 +250,10 @@ export const submitEmpresa = async (formData, campos, loading, onGuardar, onClos
 
             // avanzar con la carga
             const carga = await submit("empresas", { id: campoId, ...elementoAGuardar }, onGuardar);
+            if (carga) {
+                await submit("cuentaCorriente", { id: String(elementoAGuardar.cuit), estado: true, monto: 0, nombre: `${elementoAGuardar.razonSocial}` });
+            }
+
 
             statusOptions(carga);
         }

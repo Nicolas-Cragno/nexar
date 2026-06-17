@@ -127,9 +127,9 @@ export const eventos = {
         {
             key: "tramos", label: "Tramos", type: "groupTramos", use: "database", dato: "array", addButton: true, items: [
                 //{ key: "fechaSalida", label: "Fecha", inputType: "inputDate" },
-                { key: "lugarSalida", label: "Origen", inputType: "inputOptions", optionsList: "provincias" },
+                { key: "lugarSalida", label: "Origen", inputType: "inputOptions", optionsList: "localidades" },
                 //{ key: "fechaLlegada", label: "Fecha", inputType: "inputDate" },
-                { key: "lugarLlegada", label: "Destino", inputType: "inputOptions", optionsList: "provincias" },
+                { key: "lugarLlegada", label: "Destino", inputType: "inputOptions", optionsList: "localidades" },
                 //{ key: "detalle", label: "Detalle", inputType: "input" },
             ]
         },
@@ -189,13 +189,14 @@ export const elementos = {
         { key: "apellido", label: "Apellido", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "nombres", label: "Nombres", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "nacimiento", label: "Nacimiento", type: "principal", use: "database", dato: "date", inputType: "inputDate", important: false },
-        { key: "ubicacion", label: "Ubicación", type: "principal", use: "database", dato: "text", inputType: "input", important: false },
+        //{ key: "ubicacion", label: "Ubicación", type: "principal", use: "database", dato: "text", inputType: "input", important: false },
+        { key: "ubicacion", label: "Ubicación", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "localidades", important: false },
         // datos laborales
         { key: "legajo", label: "Legajo", type: "secondary", use: "database", dato: "number", inputType: "input", important: false },
         { key: "empresa", label: "Empresa", type: "secondary", use: "database", dato: "number", inputType: "inputOptions", optionsList: "empresasPropias", important: false },
         { key: "tipo", label: "Tipo", type: "secondary", use: "database", dato: "text", inputType: "inputOptions", optionsList: "tipoEmpleados", important: false },
         { key: "puesto", label: "Puesto", type: "secondary", use: "database", dato: "text", inputType: "inputOptions", optionsList: "puestos", important: false },
-        { key: "especializacion", label: "Especialización", type: "secondary", use: "database", dato: "text", inputType: "input", important: false },
+        { key: "especializacion", label: "Especialización", type: "secondary", use: "database", dato: "text", inputType: "inputOptions", optionsList: "especializaciones", important: false },
         { key: "sucursal", label: "Sucursal", type: "secondary", use: "database", dato: "text", inputType: "inputOptions", optionsList: "ubicaciones", important: false },
         //{ key: "ingreso", label: "Ingreso", type: "secret", use: "database", dato: "date", inputType: "", important: false },
         { key: "detalle", label: "Detalle", type: "principal", use: "database", dato: "text", inputType: "textarea", important: false },

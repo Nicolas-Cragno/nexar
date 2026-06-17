@@ -28,7 +28,8 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
       setListado(empresa);
     } else if (filtro === "clientes") {
       const clientes = empresas.filter((em) => em.tipo === "cliente");
-      txt = "Listado";
+      const cantidadClientes = clientes ? Object.keys(clientes).length : 0;
+      txt = `${cantidadClientes} ${cantidadClientes > 1 ? "registrados" : cantidadClientes === 1 ? "registrado" : null}`;
       setListado(clientes);
     }
 

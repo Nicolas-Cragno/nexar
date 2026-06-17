@@ -9,6 +9,7 @@ import { useViajes } from "../../contexto/ViajesContext";
 import FormListGroup from "./FormListGroup";
 import FormListTramos from "./FormListTramos";
 import { usePersonas } from "../../contexto/PersonasContext";
+import { especializacionOptions } from "../formularios/data/OptionsContent";
 
 const FormContent = ({
   elemento,
@@ -23,10 +24,19 @@ const FormContent = ({
   const modoEdicion = !!elemento;
 
   const handleChange = (key, value) => {
-    setData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setData((prev) => {
+      const nuevo = {
+        ...prev,
+        [key]: value,
+      };
+
+      // para especializaciones de personas
+      if (key === "puesto") {
+        nuevo.especializacion = "";
+      }
+
+      return nuevo;
+    });
   };
 
   // info para selects
@@ -96,6 +106,9 @@ const FormContent = ({
         break;
       case "puestos":
         listado = cargarSelects("puestos");
+        break;
+      case "especializaciones":
+        listado = especializacionOptions(data?.puesto);
         break;
       case "ubicaciones":
         listado = cargarSelects("ubicaciones", ubicaciones);
