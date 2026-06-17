@@ -2,21 +2,15 @@
 import { useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
-import Logo from "../../assets/logos/LOGO_PRINCIPAL2.png";
+import Logo from "../../assets/logos/LOGO_COMPANY.png";
 import Access from "./Access";
 //------------------------------------------------------ funciones
 import { columnas } from "../../components/modales/data/Columnas";
-import {
-  capitalizarTexto,
-  formatearMonto,
-} from "../../functions/dataFunctions";
 import { useEmpresas } from "../../contexto/EmpresasContext";
-import { useData } from "../../contexto/DataContext";
 import FormEmpresa from "../formularios/FormEmpresa";
 
 const EmpresasAccess = ({ filtro = "propia" }) => {
   const { empresas, loading } = useEmpresas();
-  const { cuentaCorriente } = useData();
   const [texto, setTexto] = useState(<Load className="spinner" />);
   const [listado, setListado] = useState([]);
 

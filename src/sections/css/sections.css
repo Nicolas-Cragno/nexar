@@ -2,6 +2,7 @@
   padding: 1.5rem;
   gap: 2rem;
   width: 100%;
+  display: flex;
 }
 
 .section-banner{
@@ -10,6 +11,19 @@
   display: flex;
   justify-content: end;
   align-items: end;
+}
+
+.left{
+  width: 50%;
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dashboard-logo {
+    width: 50vh;
+    height: 100%;
 }
 
 .sections-options-group {

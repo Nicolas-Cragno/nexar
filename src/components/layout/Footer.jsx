@@ -3,7 +3,7 @@ import "./css/Footer.css";
 const Footer = () => {
   return (
     <>
-      <footer>@ Nexar | Nexar Argentina S.A.</footer>
+      <footer>© 2026 Nexar | GEBB Desarrollos</footer>
     </>
   );
 };
