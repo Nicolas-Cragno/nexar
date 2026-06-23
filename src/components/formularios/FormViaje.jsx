@@ -56,7 +56,6 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const { empresas } = useEmpresas();
   const { movimientos } = useMovimientos();
   const { crucesBarcaza } = useCruces();
-  
 
   const handleCloseFormMovimientoCuenta = () => {
     setFormMovimientoCuentaVisible(false);
@@ -137,15 +136,17 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           (tr) => String(tr.id) === String(viajeCreado.tractor),
         );
 
-        const clientesAsignados = empresas.filter((em) => 
-          (viajeCreado.cliente || []).some((idGuardado) => String(idGuardado) === String(em.id))
+        const clientesAsignados = empresas.filter((em) =>
+          (viajeCreado.cliente || []).some(
+            (idGuardado) => String(idGuardado) === String(em.id),
+          ),
         );
 
-        const anticiposAsignados = movimientos?.filter((mv) =>
-          String(mv.viaje) === String(viajeCreado.id)
+        const anticiposAsignados = movimientos?.filter(
+          (mv) => String(mv.viaje) === String(viajeCreado.id),
         );
 
-        if(viajeCreado.adelanto !== undefined){
+        if (viajeCreado.adelanto !== undefined) {
           anticiposAsignados.push(viajeCreado.adelanto);
         }
 
@@ -155,7 +156,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         );
         */
 
-        const nombresClientes = clientesAsignados.map(c => c.label);
+        const nombresClientes = clientesAsignados.map((c) => c.label);
 
         const idFurgon1 = viajeCreado.furgon?.[0];
         const idFurgon2 = viajeCreado.furgon?.[1];
@@ -179,7 +180,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           anticiposCompletos: anticiposAsignados,
           //crucesBarcazaCompletos: crucesBarcazaAsignados,
 
-          clientesCompletos: nombresClientes
+          clientesCompletos: nombresClientes,
         };
 
         debugger;
@@ -209,7 +210,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           <div className="doble-form-content">
             <FormHeader
               title={titulo}
-              subTitle={`${subtitulo} ${elemento?.id}`}
+              subTitle={`${subtitulo} ${elemento ? elemento.id : ""}`}
               onClose={onClose}
             />
 

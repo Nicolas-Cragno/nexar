@@ -116,10 +116,13 @@ export const furgonesOptions = () => {
 
 export const typeFurgonesOptions = () => {
     return [
-        { value: "BITREN-D-PLAYO", label: "BITREN DELANTERO (PLAYO)" },
-        { value: "BITREN-T-PLAYO", label: "BITREN TRASERO (PLAYO)" },
+        { value: "SEMI", label: "SEMI REMOLQUE" },
+        { value: "PLAYO", label: "PLAYO" },
+        { value: "PORTACONTENEDORES", label: "PORTA CONTENEDORES (ARAÑA)" },
         { value: "BITREN-D-SEMI", label: "BITREN DELANTERO (SEMI)" },
         { value: "BITREN-T-SEMI", label: "BITREN TRASERO (SEMI)" },
+        { value: "BITREN-D-PLAYO", label: "BITREN DELANTERO (PLAYO)" },
+        { value: "BITREN-T-PLAYO", label: "BITREN TRASERO (PLAYO)" },
     ];
 }
 
