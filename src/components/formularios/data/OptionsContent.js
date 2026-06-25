@@ -166,7 +166,8 @@ export const unidadesOptions = () => {
 export const tipoCuentaCorrienteOptions = () => {
     return {
         "COBRO": { key: "COBRO", "descripcion": "COBRO (INGRESO DE DINERO A CAJA)" },
-        "PAGO": { key: "PAGO", "descripcion": " PAGO (ANTICIPOS, PAGOS, ETC)" }
+        "PAGO": { key: "PAGO", "descripcion": " PAGO (ANTICIPOS, PAGOS, ETC)" },
+        "GASTO": { key: "GASTO", "descripcion": "GASTO A COMPENSAR (EN VIAJE Y/O A CARGO DE LA EMPRESA)" }
     }
 }
 

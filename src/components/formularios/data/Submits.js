@@ -302,7 +302,7 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
 
         let cuentaSuma, cuentaResta;
 
-        if (elementoAGuardar.tipo === "COBRO") {
+        if (elementoAGuardar.tipo === "COBRO" || elementoAGuardar.tipo === "GASTO") {
             cuentaSuma = CUIT_TRANSCAN;
             cuentaResta = elementoAGuardar.persona;
         } else {
