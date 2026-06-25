@@ -53,11 +53,15 @@ const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const personaOperadora = formData.operador;
+    const sucursalOperadora = personaOperadora?.sucursal || "01";
+
     await submitCruce(
       formData,
       campos,
-      contadores,
       ubicaciones,
+      contadores,
+      sucursalOperadora,
       setLoading,
       onGuardar,
       onClose,

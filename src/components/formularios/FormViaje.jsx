@@ -64,11 +64,15 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const personaOperadora = formData.operador;
+    const sucursalOperadora = personaOperadora?.sucursal || "01";
+
     const viajeCreado = await submitViaje(
       formData,
       campos,
-      contadores,
       ubicaciones,
+      contadores,
+      sucursalOperadora,
       setLoading,
       onGuardar,
       onClose,

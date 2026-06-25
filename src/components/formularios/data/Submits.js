@@ -7,7 +7,7 @@ import {
     formatearCampoParaCarga,
     formatearCampoFirestore
 } from "../../../functions/dataFunctions";
-import { submit, update, statusOptions, codeGenerator, codeTravel } from "../../../functions/abmFunctions";
+import { submit, update, statusOptions, eventCode } from "../../../functions/abmFunctions";
 
 
 // elementos
@@ -184,7 +184,7 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
             const carga = await submit("personas", { id: campoId, ...elementoAGuardar, estado: true, alta: serverTimestamp() }, onGuardar);
 
             if (carga) {
-                await submit("cuentaCorriente", { id: String(elementoAGuardar.cuit), estado: true, monto: 0, nombre: `${elementoAGuardar.apellido}, ${elementoAGuardar.nombres}` });
+                await submit("cuentaCorriente", { id: String(elementoAGuardar.cuit), estado: true, monto: 0, nombre: `${elementoAGuardar.apellido}, ${elementoAGuardar.nombres}`, dni: elementoAGuardar.id });
 
                 if (String(elementoAGuardar.empresa) === String(CUIT_TRANSCAN)) {
                     await update(String(CUIT_TRANSCAN), "empresas", { personas: increment(1) });
@@ -273,7 +273,8 @@ export const submitEmpresa = async (formData, campos, loading, onGuardar, onClos
     }
 }
 // eventos
-export const submitMovimientoCuenta = async (formData, campos, sectores, loading, onGuardar, onClose) => {
+
+export const submitMovimientoCuenta = async (formData, campos, ubicaciones, contadores, sucursal, loading, onGuardar, onClose) => {
     const CUIT_TRANSCAN = "33719349949";
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return;
@@ -281,8 +282,7 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
 
     // guardar elemento
     try {
-        const { id: identificador } = await codeGenerator((formData.area || "ADMINISTRACION"), sectores, true);
-
+        const { id: identificador } = await eventCode("movimientos", ubicaciones, contadores, sucursal);
         const elementoAGuardar = campos.reduce((acc, cp) => {
             if (cp.use !== "database") return acc;
 
@@ -348,8 +348,7 @@ export const submitMovimientoCuenta = async (formData, campos, sectores, loading
     }
 }
 
-export const submitViaje = async (formData, campos, contadores, ubicaciones, loading, onGuardar, onClose, elemento = null) => {
-    const CUIT_TRANSCAN = "33719349949";
+export const submitViaje = async (formData, campos, ubicaciones, contadores, sucursal, loading, onGuardar, onClose, elemento = null) => {
     const modoEdicion = elemento;
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return;
@@ -395,7 +394,7 @@ export const submitViaje = async (formData, campos, contadores, ubicaciones, loa
             return viajeEditado;
         } else {
 
-            const { id: identificador } = await codeTravel(ubicaciones, contadores);
+            const { id: identificador } = await eventCode("viajes", ubicaciones, contadores, sucursal);
 
             const elementoAGuardar = campos.reduce((acc, cp) => {
                 if (cp.use !== "database") return acc;
@@ -428,6 +427,23 @@ export const submitViaje = async (formData, campos, contadores, ubicaciones, loa
 
             statusOptions(resultadoCarga);
 
+            /* lo hace directamente el formViaje
+                if (nuevoViaje.movimiento) {
+                // automaticamente cargar movimiento de cuenta
+
+                await submitMovimientoCuenta({
+                    fecha: serverTimestamp(),
+                    viaje: nuevoViaje.id,
+                    tipo: "PAGO", //para que se tome la cuenta de la persona/chofer para asignar el cash
+                    operador: nuevoViaje.operador || "", // debe llega si o si
+                    persona: nuevoViaje.persona || "", // debe llega si o si
+                    monto: nuevoViaje.adelanto,
+                    detalle: `ADELANTO ASIGNADO EN EL VIAJE ${nuevoViaje.id}`
+                }, camposMov, sectores, loading, onGuardar, onClose);
+            }
+
+            */
+
             if (!resultadoCarga) return null;
 
             if (onGuardar) onGuardar();
@@ -451,7 +467,7 @@ export const submitViaje = async (formData, campos, contadores, ubicaciones, loa
     }
 }
 
-export const submitCruce = async (formData, campos, contadores, ubicaciones, loading, onGuardar, onClose) => {
+export const submitCruce = async (formData, campos, ubicaciones, contadores, sucursal, loading, onGuardar, onClose) => {
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return;
     loading(true); // ahora si empieza a cargar ...
@@ -475,7 +491,7 @@ export const submitCruce = async (formData, campos, contadores, ubicaciones, loa
             return;
         }
 
-        const { id: identificador } = await codeTravel(ubicaciones, contadores, "cruces");
+        const { id: identificador } = await eventCode("cruces", ubicaciones, contadores, sucursal);
 
         const carga = async () => {
             const cargaCruce = await submit("cruces", { id: identificador, fecha: serverTimestamp(), estado: true, ...elementoAGuardar });

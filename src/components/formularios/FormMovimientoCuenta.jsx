@@ -12,6 +12,7 @@ import { useData } from "../../contexto/DataContext";
 import { useViajes } from "../../contexto/ViajesContext";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
+import { usePersonas } from "../../contexto/PersonasContext";
 
 const FormMovimientoCuenta = ({
   elemento = null,
@@ -27,16 +28,16 @@ const FormMovimientoCuenta = ({
   const [readOnly, setReadOnly] = useState(false);
 
   const [formData, setFormData] = useState({
-    area: "ADMINISTRACION",
-    viaje: "",
-    tipo: "",
-    operador: "",
-    persona: "",
-    detalle: "",
-    monto: 0,
+    area: elemento?.area || "ADMINISTRACION",
+    viaje: elemento?.viaje || "",
+    tipo: elemento?.tipo || "",
+    operador: elemento?.operador || "",
+    persona: elemento?.personas || "",
+    detalle: elemento?.detalle || "",
+    monto: elemento?.monto || 0,
   });
 
-  const { sectores } = useData();
+  const { ubicaciones, contadores, cuentaCorriente, personas } = useData();
   const { viajes } = useViajes();
 
   useEffect(() => {
@@ -65,15 +66,21 @@ const FormMovimientoCuenta = ({
     }
 
     const viajeSeleccionado = viajes.find((vj) => vj.id === formData.viaje);
+    let cuentaPersona = null;
 
     if (!viajeSeleccionado) {
       setReadOnly(false);
       return;
+    } else {
+      cuentaPersona = cuentaCorriente.find(
+        (cc) => String(cc.dni) === String(viajeSeleccionado.persona),
+      );
     }
 
     setFormData((prev) => ({
       ...prev,
-      persona: viajeSeleccionado.persona,
+      tipo: "GASTO",
+      persona: cuentaPersona.id,
     }));
 
     setReadOnly(true);
@@ -82,15 +89,19 @@ const FormMovimientoCuenta = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const personaOperadora = formData.operador;
+    const sucursalOperadora = personaOperadora?.sucursal || "01";
+
     await submitMovimientoCuenta(
       formData,
       campos,
-      sectores,
+      ubicaciones,
+      contadores,
+      sucursalOperadora,
       setLoading,
       onGuardar,
       onClose,
-      false,
-      elemento?.id,
+      //elemento?.id, // NO preparado para editar movimiento existente
     );
   };
 

@@ -44,53 +44,26 @@ export const statusOptions = (result) => {
     }
 };
 
-// generacion de codigo por area
+// generacion de codigo por sucursal (para eventos)
 
-export const codeGenerator = async (area, sectores, cuentaCorriente = false) => {
-    const areaString = String(area).trim().toLowerCase();
+export const eventCode = async (type = "eventos", ubicaciones, contadores, sucursal = "01") => {
+    const contador = contadores.find((cs) => cs.id === type);
 
-    const sector = sectores.find(
-        (sec) => sec.nombre.trim().toLowerCase() === areaString
-    );
+    // ------------------------------ definir tipo
+    const codigoTipo = contador?.codigo || "EV";
 
-    if (!sector) {
-        throw new Error(`Sector inválido: ${area}`);
-    }
+    // ------------------------------ definir codigo sucursal
+    const sucursalUb = ubicaciones.find((ub) => ub.id?.toLowerCase() === sucursal.toLowerCase());
+    const codigoSucursal = String(sucursalUb?.id || sucursal).padStart(3, "0");
 
-    let parametro = "ultimo";
+    // ------------------------------ definir correlativo (usar runTrasaction en un futuro, para evitar duplicados)
+    const ultimo = contador[sucursal];
+    const nuevoOrden = ultimo + 1;
 
-    if (cuentaCorriente) parametro = "cuentaCorriente"
-
-    const nuevoOrden = Number(sector[parametro] || 0) + 1;
-
-    await update(sector.id, "sectores", { [parametro]: nuevoOrden });
-
-    const codigoSector = String(sector.codigo ?? sector.id).padStart(3, "0");
+    await update(contador.id, "contadores", { ultimo: increment(1), [sucursal]: increment(1) });
 
     return {
-        id: `${codigoSector}-${String(nuevoOrden).padStart(8, "0")}`,
-        orden: nuevoOrden,
-    };
-};
-
-// generacion de codigo por sucursal (para viajes)
-
-export const codeTravel = async (ubicaciones, contadores, contador = "viajes", sucursal = "DON TORCUATO") => {
-
-    const sucursalUb = ubicaciones.find((ub) => ub.nombre?.toLowerCase() === sucursal.toLowerCase());
-
-    const contadorColeccion = contadores.find(
-        ct => ct.nombre === contador
-    );
-
-    const nuevoOrden = (contadorColeccion?.ultimo ?? 0) + 1;
-
-    await update(contador, "contadores", { ultimo: increment(1) });
-
-    const codigoSucursal = String(sucursalUb.codigo ?? sucursalUb.id).padStart(3, "0");
-
-    return {
-        id: `${codigoSucursal}-${String(nuevoOrden).padStart(8, "0")}`,
+        id: `${codigoTipo}${codigoSucursal}-${String(nuevoOrden).padStart(8, "0")}`,
         orden: nuevoOrden,
     };
 };

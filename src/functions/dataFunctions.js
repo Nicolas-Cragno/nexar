@@ -302,7 +302,7 @@ export const cargarSelects = (tipo, listado = []) => {
         raw: tr
       })); break;
     case "furgones":
-      console.log("furgones para select: ", listado);
+
       lista = listado.map(fg => ({
         value: fg.id,
         label: `${fg.id} (${fg.dominio.toUpperCase()})`,
