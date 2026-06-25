@@ -31,6 +31,8 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const titulo = "Registro";
   const subtitulo = "Viaje";
   const campos = eventos["viajes"];
+  const camposMov = eventos["cuentaCorriente"];
+  const camposCruce = eventos["cruces"];
   const [loading, setLoading] = useState(false);
   const [formMovimientoCuentaVisible, setFormMovimientoCuentaVisible] =
     useState(false);
@@ -98,9 +100,13 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           persona: cuentaPersona.id,
           monto: viajeCreado.adelanto,
         },
-        eventos.cuentaCorriente,
-        sectores,
+        camposMov,
+        ubicaciones,
+        contadores,
+        sucursalOperadora,
         setLoading,
+        onGuardar,
+        onClose,
       );
     }
 
@@ -123,9 +129,10 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           tractor: viajeCreado.tractor,
           furgon: viajeCreado.furgon,
         },
-        eventos.cruces,
-        contadores,
+        camposCruce,
         ubicaciones,
+        contadores,
+        sucursalOperadora,
         setLoading,
         onGuardar,
         onClose,

@@ -509,7 +509,7 @@ export const submitCruce = async (formData, campos, ubicaciones, contadores, suc
         statusOptions(resultadoCarga);
         if (onGuardar) onGuardar();
 
-        onClose();
+        if (onClose) onClose();
     } catch (error) {
         console.error("[Error] al intentar guardar", error);
 
