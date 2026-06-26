@@ -59,6 +59,10 @@
   font-size: medium;
 }
 
+.status:hover{
+  cursor: pointer;
+}
+
 .ficha-type-logo{
   margin-right: .4rem;
 }
@@ -123,8 +127,10 @@
 }
 
 .ficha-id {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-weight: 700;
-  display: block;
 }
 
 .interno {
@@ -480,7 +486,7 @@ opacity: .5;
 .ficha-buttons {
   padding-top: 1rem;
   display: flex;
-  justify-content: right;
+  justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -653,6 +659,17 @@ opacity: .5;
 .obj-info-monto{
   font-style: italic;
   color: #0056b3;
+}
+
+.pdf-logo{
+  color: rgb(229, 50, 45);
+  margin-left: 25px;
+  opacity: .65;
+}
+
+.pdf-logo:hover {
+  cursor: pointer;
+  opacity: 1;
 }
 
 .obj-info-footer{

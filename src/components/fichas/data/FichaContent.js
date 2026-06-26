@@ -67,6 +67,7 @@ export const fichaContent = {
         { key: "tractorCompleto", label: "Tractor", type: "principal" },
         { key: "furgonCompleto", label: "Carga/Furgon", type: "principal" },
         { key: "clienteCompleto", label: "Cliente/s", type: "principal" },
+        { key: "pdf", label: "Impresion", type: "pdf", function: "imprimirHojaDeRuta" },
         //{ key: "tramos", label: "Tramos", type: "secondary" },
         //{ key: "adelantosRegistrados", label: "Adelantos", type: "secondary" }, se renderiza directo en Ficha.jsx
         //{ key: "crucesRegistrados", label: "Cruces de barcaza", type: "secondary" }, se renderiza directo en Ficha.jsx

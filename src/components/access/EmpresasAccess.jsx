@@ -26,7 +26,9 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
         setTitulo("Empresas Propias");
         break;
       case "clientes":
-        const clientes = empresas.filter((em) => em.tipo === "cliente");
+        const clientes = empresas.filter(
+          (em) => em.tipo.toLowerCase() === "cliente",
+        );
         const cantidadClientes = clientes ? Object.keys(clientes).length : 0;
         txt = `${cantidadClientes} ${cantidadClientes > 1 ? "registrados" : cantidadClientes === 1 ? "registrado" : null}`;
         setTipo("cliente");
@@ -34,7 +36,9 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
         setTitulo("Clientes");
         break;
       case "proveedores":
-        const proveedores = empresas.filter((em) => em.tipo === "proveedor");
+        const proveedores = empresas.filter(
+          (em) => em.tipo.toLowerCase() === "proveedor",
+        );
         const cantidadProveedores = proveedores
           ? Object.keys(proveedores).length
           : 0;

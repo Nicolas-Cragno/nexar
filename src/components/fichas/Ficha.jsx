@@ -1,5 +1,6 @@
 //------------------------------------------------------ externos
 import { memo, useEffect, useState } from "react";
+import { FaRegFilePdf as PDFsLogo } from "react-icons/fa6";
 //------------------------------------------------------ elementos
 import TextButton from "../buttons/TextButton.jsx";
 import CloseButton from "../buttons/CloseButton";
@@ -44,6 +45,9 @@ const Ficha = ({
   const campos = fichaContent[auxCampos] ?? [];
 
   const stateButton = campos.find((cp) => cp.type === "stateButton");
+
+  const campoPdf = campos.find((cp) => cp.type === "pdf");
+
   const bloquePrincipal = campos.filter(
     (campo) =>
       campo.type === "principal" &&
@@ -100,7 +104,14 @@ const Ficha = ({
       <div className="ficha-content">
         <CloseButton onClose={onClose} />
         <h1 className="ficha-header">
-          <strong className="ficha-id">{titulo}</strong>
+          <strong className="ficha-id">
+            {titulo}{" "}
+            {campoPdf && (
+              <PDFsLogo
+                className="pdf-logo" /*onClick={funcion para imprimir}*/
+              />
+            )}
+          </strong>
           {tituladoAbajo && <span className="nombres">{tituloAbajo}</span>}{" "}
         </h1>
         <hr />
