@@ -333,6 +333,7 @@ export const submitMovimientoCuenta = async (formData, campos, ubicaciones, cont
         if (onGuardar) onGuardar();
 
         if (onClose) onClose();
+
     } catch (error) {
         console.error("[Error] al intentar guardar", error);
 

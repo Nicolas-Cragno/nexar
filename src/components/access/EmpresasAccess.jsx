@@ -17,7 +17,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
 
   useEffect(() => {
     let txt = "";
-    switch (filtro) {
+    switch (filtro.toLocaleLowerCase()) {
       case "propia":
         const empresa = empresas.find((em) => em.id === "33719349949");
         txt = empresa ? `$ ${empresa.monto || 0}` : "";
