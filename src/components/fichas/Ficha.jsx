@@ -289,6 +289,9 @@ const Ficha = ({
                       ${formatearMonto(adelanto.monto)}
                     </span>
                   </div>
+                  {adelanto.detalle && (
+                    <div className="obj-info-footer">{adelanto.detalle}</div>
+                  )}
                   <div className="obj-info-footer">
                     {adelanto.operadorCompleto}
                   </div>

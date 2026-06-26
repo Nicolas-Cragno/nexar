@@ -11,6 +11,7 @@ import FormEmpresa from "../formularios/FormEmpresa";
 
 const EmpresasAccess = ({ filtro = "propia" }) => {
   const { empresas, loading } = useEmpresas();
+  const [tipo, setTipo] = useState("");
   const [texto, setTexto] = useState(<Load className="spinner" />);
   const [titulo, setTitulo] = useState("Empresas");
   const [listado, setListado] = useState([]);
@@ -28,6 +29,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
         const clientes = empresas.filter((em) => em.tipo === "cliente");
         const cantidadClientes = clientes ? Object.keys(clientes).length : 0;
         txt = `${cantidadClientes} ${cantidadClientes > 1 ? "registrados" : cantidadClientes === 1 ? "registrado" : null}`;
+        setTipo("cliente");
         setListado(clientes);
         setTitulo("Clientes");
         break;
@@ -37,6 +39,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
           ? Object.keys(proveedores).length
           : 0;
         txt = `${cantidadProveedores} ${cantidadProveedores > 1 ? "registrados" : cantidadProveedores === 1 ? "registrado" : null}`;
+        setTipo("proveedor");
         setListado(proveedores);
         setTitulo("Proveedores");
         break;
@@ -72,7 +75,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
         onClickForm={handleOpen}
         editable={false}
       />
-      {formVisible && <FormEmpresa onClose={handleClose} />}
+      {formVisible && <FormEmpresa filtro={tipo} onClose={handleClose} />}
     </>
   );
 };
