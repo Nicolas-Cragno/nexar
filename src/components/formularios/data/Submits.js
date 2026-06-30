@@ -333,6 +333,18 @@ export const submitMovimientoCuenta = async (formData, campos, ubicaciones, cont
         if (onGuardar) onGuardar();
 
         if (onClose) onClose();
+
+
+
+        if (resultadoCarga) {
+            return {
+                elemento: { id: identificador, ...elementoAGuardar }
+            };
+        }
+        return null;
+
+
+
     } catch (error) {
         console.error("[Error] al intentar guardar", error);
 
@@ -510,6 +522,18 @@ export const submitCruce = async (formData, campos, ubicaciones, contadores, suc
         if (onGuardar) onGuardar();
 
         if (onClose) onClose();
+
+        
+        
+        if (resultadoCarga) {
+            return {
+                elemento: { id: identificador, ...elementoAGuardar }
+            };
+        }
+        return null;
+
+
+
     } catch (error) {
         console.error("[Error] al intentar guardar", error);
 

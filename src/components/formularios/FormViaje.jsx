@@ -57,7 +57,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const { personas } = usePersonas();
   const { empresas } = useEmpresas();
   const { movimientos } = useMovimientos();
-  const { crucesBarcaza } = useCruces();
+  const { cruces } = useCruces();
 
   const handleCloseFormMovimientoCuenta = () => {
     setFormMovimientoCuentaVisible(false);
@@ -85,14 +85,17 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
 
     setNuevoViaje(viajeCreado);
 
-    // registrar evento de movimiento de cuenta (por adelantos)
 
+    let anticipoCreado = null;
+    let cruceCreado = null;
+
+    // registrar evento de movimiento de cuenta (por adelantos)
     if (viajeCreado.movimiento) {
       const cuentaPersona = cuentaCorriente.find(
         (cc) => String(cc.dni) === String(viajeCreado.persona),
       );
 
-      await submitMovimientoCuenta(
+      anticipoCreado = await submitMovimientoCuenta(
         {
           viaje: viajeCreado.id,
           tipo: "PAGO",
@@ -122,7 +125,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
     });
 
     if (cruce.isConfirmed) {
-      await submitCruce(
+      cruceCreado = await submitCruce(
         {
           viaje: viajeCreado.id,
           persona: viajeCreado.persona,
@@ -137,8 +140,8 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         onGuardar,
         onClose,
       );
-
-      //const impresion = generarDocumentos("pdf", viajeCreado, imgPlantilla);
+      
+      
       const handleImprimir = async () => {
         const persona = personas.find(
           (ps) => String(ps.dni) === String(viajeCreado.persona),
@@ -153,19 +156,23 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           ),
         );
 
+
         const anticiposAsignados = movimientos?.filter(
           (mv) => String(mv.viaje) === String(viajeCreado.id),
         );
 
         if (viajeCreado.adelanto !== undefined) {
-          anticiposAsignados.push(viajeCreado.adelanto);
+          anticiposAsignados.unshift(anticipoCreado);
         }
 
-        /*
-        const crucesBarcazaAsignados = crucesBarcaza.filter((cb)=>
-          String(cb.viaje) === String(viajeCreado.id)
+        const crucesBarcazaAsignados = cruces.filter(
+          (cr) => String(cr.viaje) === String(viajeCreado.id),
         );
-        */
+
+        if (cruceCreado !== undefined) {
+          crucesBarcazaAsignados.unshift(cruceCreado);
+        }
+
 
         const nombresClientes = clientesAsignados.map((c) => c.label);
 
@@ -178,18 +185,22 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         const furgon2 = idFurgon2
           ? furgones.find((fg) => String(fg.id) === String(idFurgon2))
           : null;
+
+
+
+
         const viajeEnriquecido = {
           ...viajeCreado,
-          personaCompleta: persona?.label ?? "null o undefinded >:(",
-          tractorCompleto: tractor?.label ?? "null o undefinded >:(",
+          personaCompleta: persona?.label ?? "",
+          tractorCompleto: tractor?.label ?? "",
 
           furgonCompleto: [
-            furgon1?.label ?? "null o undefinded >:(",
-            furgon2?.label ?? "null o undefinded >:(",
+            furgon1?.label ?? "",
+            furgon2?.label ?? "",
           ],
 
           anticiposCompletos: anticiposAsignados,
-          //crucesBarcazaCompletos: crucesBarcazaAsignados,
+          crucesBarcazaCompletos: crucesBarcazaAsignados,
 
           clientesCompletos: nombresClientes,
         };

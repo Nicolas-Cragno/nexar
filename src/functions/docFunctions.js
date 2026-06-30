@@ -155,6 +155,17 @@ let carga = {
 
 import { elementos } from "../components/formularios/data/FormContent";
 import provincias from "./data/provincias.json";
+import localidades from "./data/localidades.json";
+
+const procesarFecha = (datoFecha) => {
+  if (!datoFecha) return null;
+  // Si es de Firebase (Timestamp)
+  if (datoFecha.toDate) return datoFecha.toDate();
+  // Si es un String del input de HTML ("2026-05-30")
+  // Le agregamos la hora T00:00:00 para evitar que el desfasaje de zona horaria le reste un día
+  const jsDate = new Date(datoFecha.includes('T') ? datoFecha : datoFecha + 'T00:00:00');
+  return isNaN(jsDate) ? null : jsDate;
+};
 
 const normalizarDatosPdf = (viaje) => {
   // 1. Asegurar furgones (Mínimo 2 posiciones vacías)
@@ -170,72 +181,73 @@ const normalizarDatosPdf = (viaje) => {
     const tramo = viaje.tramos && viaje.tramos[i] ? viaje.tramos[i] : null;
 
     if (tramo !== null) {
-      const provinciaOrigen = provincias.find(
+      const localidadOrigen = localidades.find(
         (loc) => String(loc.key) === String(tramo?.lugarSalida),
       );
-      const provinciaDestino = provincias.find(
+      const localidadDestino = localidades.find(
         (loc) => String(loc.key) === String(tramo?.lugarLlegada),
       );
 
-      debugger;
+      // Transformamos los datos crudos a Objetos Date reales
+      const fechaSalidaJS = procesarFecha(tramo.fechaSalida);
+      const fechaLlegadaJS = procesarFecha(tramo.fechaLlegada);
+
+
 
       return {
-        localidadOrigen: provinciaOrigen || {},
+        localidadOrigen: localidadOrigen || {},
 
-        fechaCarga: fechaHora.toLocaleDateString("es-ES"),
-        horaCarga: fechaHora.toLocaleTimeString("es-ES", {
+        fechaCarga: fechaSalidaJS ? fechaSalidaJS.toLocaleDateString("es-ES") : "",
+        horaCarga: fechaSalidaJS ? fechaSalidaJS.toLocaleTimeString("es-ES", {
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
-        }),
-
-        localidadDestino: provinciaDestino || {},
-        fechaDescarga: "",
-        horaDescarga: "",
+        }) : "",
+        
+        localidadDestino: localidadDestino || {},
+        fechaDescarga: fechaLlegadaJS ? fechaLlegadaJS.toLocaleDateString("es-ES") : "",
+        horaDescarga: fechaLlegadaJS ? fechaLlegadaJS.toLocaleTimeString("es-ES", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }) : "",
       };
     }
   });
 
-  const clientesOriginales = Array.isArray(viaje.clientesCompletos)
-    ? viaje.clientesCompletos
-    : [];
+  const clientesOriginales = Array.isArray(viaje.clientesCompletos) ? viaje.clientesCompletos : [];
 
-  const clientes = Array.from(
-    { length: 4 },
-    (_, i) => clientesOriginales[i] ?? "",
+  const clientes = Array.from({ length: 4 }, (_, i) => 
+    clientesOriginales[i] ?? "",
   );
-
+  
   /*
   // 3. Normalizar Clientes (Obligatorio 4 posiciones)
   const clientesOriginales = Array.isArray(viaje.clienteCompleto)
-    ? viaje.clienteCompleto
-    : [viaje.clienteCompleto];
-
+  ? viaje.clienteCompleto
+  : [viaje.clienteCompleto];
+  
   const clientes = Array.from({ length: 4 }, (_, i) => ({
     nombre: clientesOriginales[i] || "",
     contenidoFurgon: "",
     observaciones: "",
-  }));
-*/
-
-  const anticiposOriginales = Array.isArray(viaje.anticiposCompletos)
-    ? viaje.anticiposCompletos
-    : [];
-
-  const anticipos = Array.from({ length: 5 }, (_, i) => {
+    }));
+    */
+   
+   const anticiposOriginales = Array.isArray(viaje.anticiposCompletos) ? viaje.anticiposCompletos : [];
+   
+   const anticipos = Array.from({ length: 5 }, (_, i) => {
 
     const anticipo = anticiposOriginales[i];
 
     if (anticipo) {
 
-      const fechaAnticipo = anticipo.fecha?.toDate
-        ? anticipo.fecha.toDate()
-        : new Date();
+      const fechaAnticipo = anticipo.elemento.fecha?.toDate ? anticipo.fecha.toDate() : new Date();
 
       return {
         fecha: fechaAnticipo.toLocaleDateString("es-ES"),
-        numero: anticipo.id ?? "",
-        importe: anticipo.montoCompleto ?? "",
+        numero: anticipo.elemento.id ?? "",
+        importe: `$ ${anticipo.elemento.monto}` ?? "",
       };
     }
 
@@ -257,20 +269,24 @@ const normalizarDatosPdf = (viaje) => {
   });
   */
   
-  
+  debugger;
+
+
   // 5. Normalizar Ordenes de Cruce (Obligatorio 4 posiciones)
   const ordenesDeCruce = Array.from({ length: 4 }, (_, i) => {
     // Si hay una orden de cruce cargada, la ponemos en la primera posición
-    if (i === 0 && viaje.ordenesDeCruce > 0) {
+    if (i === 0 && viaje.crucesBarcazaCompletos.length > 0) {
+
+      //const fechaCruceJS = viaje.fecha;
+
       return {
-        fecha: fechaHora.toLocaleDateString("es-ES"),
-        numero: viaje.id,
+        fecha: fechaHora.toLocaleDateString("es-ES") ?? "",
+        numero: viaje.crucesBarcazaCompletos[0].elemento.id ?? "",
       };
     }
     return { fecha: "", numero: "" };
   });
 
-  debugger;
 
   // Retornamos el objeto con el nombre de variables exacto que lee el PDF
   let auxPersona = viaje.personaCompleta.split(" ");
@@ -287,7 +303,7 @@ const normalizarDatosPdf = (viaje) => {
 
   return {
     numeroViaje: viaje.id || "",
-    fechaSalida: fechaHora.toLocaleDateString("es-ES"), // Podrías formatear viaje.fecha aquí
+    fechaSalida: fechaHora.toLocaleDateString("es-ES"), 
     chofer: [nombre, dni],
     tractor: viaje.tractorCompleto || "",
     furgon: furgonFinal,
@@ -426,31 +442,31 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
     doc.setFontSize(8);
     doc.text(`${carga.anticipos[0].fecha}`, 15, 227);
     doc.setFontSize(10);
-    doc.text(`${carga.anticipos[0].numero}`, 35, 227);
+    doc.text(`${carga.anticipos[0].numero}`, 32, 227);
     doc.text(`${carga.anticipos[0].importe}`, 63, 227);
 
     doc.setFontSize(8);
     doc.text(`${carga.anticipos[1].fecha}`, 15, 236.9);
     doc.setFontSize(10);
-    doc.text(`${carga.anticipos[1].numero}`, 35, 236.9);
+    doc.text(`${carga.anticipos[1].numero}`, 32, 236.9);
     doc.text(`${carga.anticipos[1].importe}`, 63, 236.9);
 
     doc.setFontSize(8);
     doc.text(`${carga.anticipos[2].fecha}`, 15, 246);
     doc.setFontSize(10);
-    doc.text(`${carga.anticipos[2].numero}`, 35, 246);
+    doc.text(`${carga.anticipos[2].numero}`, 32, 246);
     doc.text(`${carga.anticipos[2].importe}`, 63, 246);
 
     doc.setFontSize(8);
     doc.text(`${carga.anticipos[3].fecha}`, 15, 255);
     doc.setFontSize(10);
-    doc.text(`${carga.anticipos[3].numero}`, 35, 255);
+    doc.text(`${carga.anticipos[3].numero}`, 32, 255);
     doc.text(`${carga.anticipos[3].importe}`, 63, 255);
 
     doc.setFontSize(8);
     doc.text(`${carga.anticipos[4].fecha}`, 15, 264);
     doc.setFontSize(10);
-    doc.text(`${carga.anticipos[4].numero}`, 35, 264);
+    doc.text(`${carga.anticipos[4].numero}`, 32, 264);
     doc.text(`${carga.anticipos[4].importe}`, 63, 264);
 
     doc.text(`${carga.ordenesDeCruce[0].fecha}`, 135, 227);
