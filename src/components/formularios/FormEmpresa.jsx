@@ -14,13 +14,13 @@ import { capitalizarTexto } from "../../functions/dataFunctions";
 
 const FormEmpresa = ({
   elemento = null,
-  filtro = "empresa",
+  filtro = null,
   onGuardar,
   onClose,
 }) => {
   const modoEdicion = !!elemento;
   const titulo = modoEdicion ? "Editar" : "Agregar";
-  const subtitulo = capitalizarTexto(filtro);
+  const subtitulo = capitalizarTexto(filtro ? filtro : "empresa");
   const campos = elementos["empresas"];
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ const FormEmpresa = ({
     razonSocial: elemento?.razonSocial || "",
     nombre: elemento?.nombre || "",
     ubicacion: elemento?.ubicacion || "",
-    tipo: elemento?.tipo || "",
+    tipo: elemento?.tipo || filtro || "",
     // información laboral
     // detalles y comentarios
     detalle: elemento?.detalle || "",

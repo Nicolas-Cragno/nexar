@@ -11,13 +11,14 @@ import FormEmpresa from "../formularios/FormEmpresa";
 
 const EmpresasAccess = ({ filtro = "propia" }) => {
   const { empresas, loading } = useEmpresas();
+  const [tipo, setTipo] = useState("");
   const [texto, setTexto] = useState(<Load className="spinner" />);
   const [titulo, setTitulo] = useState("Empresas");
   const [listado, setListado] = useState([]);
 
   useEffect(() => {
     let txt = "";
-    switch (filtro) {
+    switch (filtro.toLocaleLowerCase()) {
       case "propia":
         const empresa = empresas.find((em) => em.id === "33719349949");
         txt = empresa ? `$ ${empresa.monto || 0}` : "";
@@ -25,18 +26,24 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
         setTitulo("Empresas Propias");
         break;
       case "clientes":
-        const clientes = empresas.filter((em) => em.tipo === "cliente");
+        const clientes = empresas.filter(
+          (em) => em.tipo.toLowerCase() === "cliente",
+        );
         const cantidadClientes = clientes ? Object.keys(clientes).length : 0;
         txt = `${cantidadClientes} ${cantidadClientes > 1 ? "registrados" : cantidadClientes === 1 ? "registrado" : null}`;
+        setTipo("cliente");
         setListado(clientes);
         setTitulo("Clientes");
         break;
       case "proveedores":
-        const proveedores = empresas.filter((em) => em.tipo === "proveedor");
+        const proveedores = empresas.filter(
+          (em) => em.tipo.toLowerCase() === "proveedor",
+        );
         const cantidadProveedores = proveedores
           ? Object.keys(proveedores).length
           : 0;
         txt = `${cantidadProveedores} ${cantidadProveedores > 1 ? "registrados" : cantidadProveedores === 1 ? "registrado" : null}`;
+        setTipo("proveedor");
         setListado(proveedores);
         setTitulo("Proveedores");
         break;
@@ -72,7 +79,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
         onClickForm={handleOpen}
         editable={false}
       />
-      {formVisible && <FormEmpresa onClose={handleClose} />}
+      {formVisible && <FormEmpresa filtro={tipo} onClose={handleClose} />}
     </>
   );
 };

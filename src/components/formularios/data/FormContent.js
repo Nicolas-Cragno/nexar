@@ -207,7 +207,7 @@ export const elementos = {
         { key: "cuit", isId: true, label: "Cuit", type: "principal", use: "database", dato: "number", inputType: "input", important: true, notChange: true }, // se envía como identificador
         { key: "razonSocial", label: "Razon Social", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
         { key: "nombre", label: "Nombre", type: "principal", use: "database", dato: "text", inputType: "input", important: true },
-        { key: "tipo", label: "Tipo", use: "database", type: "secondary", dato: "text", inputType: "inputOptions", optionsList: "tipoEmpresas", important: true },
-        { key: "ubicacion", label: "Ubicacion", type: "principal", use: "database", dato: "text", inputType: "input", important: false },
+        { key: "tipo", label: "Tipo", use: "database", type: "secondary", dato: "text", inputType: "inputOptions", optionsList: "tipoEmpresas", important: true, neverDisabled: true },
+        { key: "ubicacion", label: "Ubicacion", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "localidades", important: false },
     ]
 }

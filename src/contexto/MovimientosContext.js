@@ -20,7 +20,7 @@ export function MovimientosProvider({ children }) {
             const movimientoLabel = `${mv.id} ($${monto} | ${persona?.label})`;
             return {
                 ...mv,
-                personaCompleta: persona?.label || "",
+                personaCompleta: persona?.nombre || "",
                 operadorCompleto: operador?.label || "",
                 montoCompleto: `$ ${monto}`,
                 label: movimientoLabel

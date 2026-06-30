@@ -58,7 +58,6 @@ const TripCard = ({
                 <strong className="form-label">FIN / LLEGADA</strong>
                 {formatearCampoFirestore(placeEnd)}
               </span>
-
               <input
                 className="form-input-small"
                 type="date"

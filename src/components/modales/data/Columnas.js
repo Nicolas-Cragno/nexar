@@ -56,6 +56,7 @@ export const columnas = {
     { key: "furgonCompleto", label: "Carga / Furgon", filtroEspecial: true },
     { key: "clienteCompleto", label: "Cliente", filtroEspecial: true },
     { key: "detalle", label: "Detalle" },
+    { key: "estadoLabel", label: "Estado" }
   ],
   cruces: [
     { key: "id", label: "N° Cruce", filtroEspecial: true },
