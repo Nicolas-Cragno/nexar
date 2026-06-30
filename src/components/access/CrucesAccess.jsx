@@ -36,6 +36,7 @@ const CrucesAccess = ({ filtro = null }) => {
         text={texto}
         filtro={filtro}
         onClickForm={handleOpen}
+        editable={false}
       />
       {formVisible && <FormCruce onClose={handleClose} />}
     </>

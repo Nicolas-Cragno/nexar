@@ -36,6 +36,7 @@ const ViajesAccess = ({ filtro = null }) => {
         text={texto}
         filtro={filtro}
         onClickForm={handleOpen}
+        editable={false}
       />
       {formVisible && <FormViaje onClose={handleClose} />}
     </>

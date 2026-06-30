@@ -34,6 +34,7 @@ const CuentasAccess = () => {
         headers={headers}
         text={"REGISTROS"}
         onClickForm={handleOpen}
+        editable={false}
       />
       {formVisible && <FormMovimientoCuenta onClose={handleClose} />}
     </>
