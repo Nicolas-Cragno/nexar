@@ -140,87 +140,86 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         onGuardar,
         onClose,
       );
+    }
       
-      
-      const handleImprimir = async () => {
-        const persona = personas.find(
-          (ps) => String(ps.dni) === String(viajeCreado.persona),
-        );
-        const tractor = tractores.find(
-          (tr) => String(tr.id) === String(viajeCreado.tractor),
-        );
+    const handleImprimir = async () => {
+      const persona = personas.find(
+        (ps) => String(ps.dni) === String(viajeCreado.persona),
+      );
+      const tractor = tractores.find(
+        (tr) => String(tr.id) === String(viajeCreado.tractor),
+      );
 
-        const clientesAsignados = empresas.filter((em) =>
-          (viajeCreado.cliente || []).some(
-            (idGuardado) => String(idGuardado) === String(em.id),
-          ),
-        );
-
-
-        const anticiposAsignados = movimientos?.filter(
-          (mv) => String(mv.viaje) === String(viajeCreado.id),
-        );
-
-        if (viajeCreado.adelanto !== undefined) {
-          anticiposAsignados.unshift(anticipoCreado);
-        }
-
-        const crucesBarcazaAsignados = cruces.filter(
-          (cr) => String(cr.viaje) === String(viajeCreado.id),
-        );
-
-        if (cruceCreado !== undefined) {
-          crucesBarcazaAsignados.unshift(cruceCreado);
-        }
+      const clientesAsignados = empresas.filter((em) =>
+        (viajeCreado.cliente || []).some(
+          (idGuardado) => String(idGuardado) === String(em.id),
+        ),
+      );
 
 
-        const nombresClientes = clientesAsignados.map((c) => c.label);
+      const anticiposAsignados = movimientos?.filter(
+        (mv) => String(mv.viaje) === String(viajeCreado.id),
+      );
 
-        const idFurgon1 = viajeCreado.furgon?.[0];
-        const idFurgon2 = viajeCreado.furgon?.[1];
+      if (viajeCreado.adelanto !== undefined) {
+        anticiposAsignados.unshift(anticipoCreado);
+      }
 
-        const furgon1 = idFurgon1
-          ? furgones.find((fg) => String(fg.id) === String(idFurgon1))
-          : null;
-        const furgon2 = idFurgon2
-          ? furgones.find((fg) => String(fg.id) === String(idFurgon2))
-          : null;
+      const crucesBarcazaAsignados = cruces.filter(
+        (cr) => String(cr.viaje) === String(viajeCreado.id),
+      );
 
+      if (cruceCreado !== undefined) {
+        crucesBarcazaAsignados.unshift(cruceCreado);
+      }
+
+
+      const nombresClientes = clientesAsignados.map((c) => c.label);
+
+      const idFurgon1 = viajeCreado.furgon?.[0];
+      const idFurgon2 = viajeCreado.furgon?.[1];
+
+      const furgon1 = idFurgon1
+        ? furgones.find((fg) => String(fg.id) === String(idFurgon1))
+        : null;
+      const furgon2 = idFurgon2
+        ? furgones.find((fg) => String(fg.id) === String(idFurgon2))
+        : null;
 
 
 
-        const viajeEnriquecido = {
-          ...viajeCreado,
-          personaCompleta: persona?.label ?? "",
-          tractorCompleto: tractor?.label ?? "",
 
-          furgonCompleto: [
-            furgon1?.label ?? "",
-            furgon2?.label ?? "",
-          ],
+      const viajeEnriquecido = {
+        ...viajeCreado,
+        personaCompleta: persona?.label ?? "",
+        tractorCompleto: tractor?.label ?? "",
 
-          anticiposCompletos: anticiposAsignados,
-          crucesBarcazaCompletos: crucesBarcazaAsignados,
+        furgonCompleto: [
+          furgon1?.label ?? "",
+          furgon2?.label ?? "",
+        ],
 
-          clientesCompletos: nombresClientes,
-        };
+        anticiposCompletos: anticiposAsignados,
+        crucesBarcazaCompletos: crucesBarcazaAsignados,
 
-        debugger;
-        console.log("viaje enriquecido", viajeEnriquecido);
-
-        try {
-          // 2. Le pasas la variable importada, NO un string manual
-          await generarDocumentos("pdf", viajeEnriquecido, imgPlantilla);
-          console.log("PDF generado correctamente");
-        } catch (error) {
-          console.error("Falló la creación del PDF:", error);
-        }
+        clientesCompletos: nombresClientes,
       };
 
-      await handleImprimir();
-    } else {
-      onClose();
-    }
+      debugger;
+      console.log("viaje enriquecido", viajeEnriquecido);
+
+      try {
+        // 2. Le pasas la variable importada, NO un string manual
+        await generarDocumentos("pdf", viajeEnriquecido, imgPlantilla);
+        console.log("PDF generado correctamente");
+      } catch (error) {
+        console.error("Falló la creación del PDF:", error);
+      }
+    };
+
+    await handleImprimir();
+      
+    onClose();
   };
 
   return (

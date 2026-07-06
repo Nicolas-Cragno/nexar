@@ -153,9 +153,11 @@ let carga = {
 };
 */
 
-import { elementos } from "../components/formularios/data/FormContent";
-import provincias from "./data/provincias.json";
 import localidades from "./data/localidades.json";
+
+import imgCruce_Adelanto from "./docs/plantillaCruceDeBarcaza_Y_Adelanto.jpg";
+import imgAdelanto from "./docs/plantillaAdelanto.jpg";
+import imgCruce from "./docs/plantillaCruceDeBarcaza.jpg";
 
 const procesarFecha = (datoFecha) => {
   if (!datoFecha) return null;
@@ -233,6 +235,7 @@ const normalizarDatosPdf = (viaje) => {
     observaciones: "",
     }));
     */
+   debugger;
    
    const anticiposOriginales = Array.isArray(viaje.anticiposCompletos) ? viaje.anticiposCompletos : [];
    
@@ -269,7 +272,6 @@ const normalizarDatosPdf = (viaje) => {
   });
   */
   
-  debugger;
 
 
   // 5. Normalizar Ordenes de Cruce (Obligatorio 4 posiciones)
@@ -280,8 +282,8 @@ const normalizarDatosPdf = (viaje) => {
       //const fechaCruceJS = viaje.fecha;
 
       return {
-        fecha: fechaHora.toLocaleDateString("es-ES") ?? "",
-        numero: viaje.crucesBarcazaCompletos[0].elemento.id ?? "",
+        fecha: viaje.crucesBarcazaCompletos?.[0]?.elemento?.id === null ? fechaHora.toLocaleDateString("es-ES") ?? "" : "",
+        numero: viaje.crucesBarcazaCompletos?.[0]?.elemento?.id ?? "",
       };
     }
     return { fecha: "", numero: "" };
@@ -483,12 +485,138 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
 
     doc.save(`Hoja de ruta ${carga.chofer} ${carga.fechaSalida}.pdf`);
 
+    generarPDFCruceBarcaza_Y_Adelanto(carga);
+
     return true;
   }
 
   return false;
 };
 
-export const generarPDFCruceBarcaza = async (carga, urlPlantilla) => {};
+const generarPDFCruceBarcaza_Y_Adelanto = async (carga) => {
 
-export const generarPDFAdelanto = async (carga, urlPlantilla) => {};
+  debugger;
+
+  const { jsPDF } = window.jspdf || require("jspdf");
+
+  //210mm x 297mm
+
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  let urlPlantilla;
+  
+  if((carga.anticipos[0].fecha !== "") && (carga.ordenesDeCruce[0].numero !== "")) {  
+    
+    doc.setFontSize(10);
+    doc.setFont("Helvetica", "bold");
+    
+    urlPlantilla = imgCruce_Adelanto;
+    
+    const img = new Image();
+    img.src = urlPlantilla;
+    
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = (err) =>
+        reject(new Error("Error al cargar la plantilla: " + err));
+    });
+    
+    doc.addImage(img, "JPG", 0, 0, 210, 297);
+
+    doc.text(`${carga.anticipos[0].numero}`, 140, 41);
+    doc.text(`${carga.fechaSalida}`, 140, 47);
+
+    doc.text(`Sr.: ${carga.chofer[0]}, ${carga.chofer[1]}.`, 25, 57);
+
+    
+    doc.setFont("Helvetica", "normal");
+    doc.text(`Recibí conforme la suma de ${carga.anticipos[0].importe} en concepto de anticipo para el viaje`, 25, 65);
+    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 73);
+
+
+    
+    doc.setFont("Helvetica", "bold");
+    doc.text(`${carga.ordenesDeCruce[0].numero}`, 140, 145);
+    doc.text(`${carga.fechaSalida}`, 140, 150);
+
+
+    doc.setFont("Helvetica", "normal");
+    doc.text(`Autorizo al chofer: ${carga.chofer[0]} ${carga.chofer[1]} a realizar el cruce de las siguientes unidades: `, 25, 171);
+    doc.text(`Tractor Patente: ${carga.tractor}.`, 25, 179);
+    doc.text(`Semirremolque/s Patente/s: ${carga.furgon[0]} / ${carga.furgon[1]}.`, 25, 187);
+    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 195);
+
+    doc.save(`Cruce de barcaza y anticipo ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
+
+  
+  
+  } else if((carga.anticipos[0].fecha !== "") && (carga.ordenesDeCruce[0].numero === "")) {
+    
+  
+    doc.setFontSize(10);
+    doc.setFont("Helvetica", "bold");
+    
+    urlPlantilla = imgAdelanto;
+    
+    const img = new Image();
+    img.src = urlPlantilla;
+    
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = (err) =>
+        reject(new Error("Error al cargar la plantilla: " + err));
+    });
+    
+    doc.addImage(img, "JPG", 0, 0, 210, 297);
+
+    doc.text(`${carga.anticipos[0].numero}`, 144, 38);
+    doc.text(`${carga.fechaSalida}`, 144, 44);
+    
+    doc.text(`Sr.: ${carga.chofer[0]}, ${carga.chofer[1]}.`, 25, 57);
+    
+    
+    doc.setFont("Helvetica", "normal");
+    doc.text(`Recibí conforme la suma de ${carga.anticipos[0].importe} en concepto de anticipo para el viaje`, 25, 65);
+    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 73);
+  
+    doc.save(`Anticipo ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
+  
+  } else if(carga.anticipos[0].fecha === "" && (carga.ordenesDeCruce[0].numero !== "")) {
+    
+    doc.setFontSize(10);
+    doc.setFont("Helvetica", "bold");
+    
+    urlPlantilla = imgCruce;
+    
+    const img = new Image();
+    img.src = urlPlantilla;
+
+    await new Promise((resolve, reject) => {
+      img.onload = () => resolve(); 
+      img.onerror = (err) =>
+        reject(new Error("Error al cargar la plantilla: " + err));
+    });
+    
+    doc.addImage(img, "JPG", 0, 0, 210, 297);
+
+    doc.setFont("Helvetica", "bold");
+    doc.text(`${carga.ordenesDeCruce[0].numero}`, 144, 38);
+    doc.text(`${carga.fechaSalida}`, 144, 44);
+
+
+    doc.setFont("Helvetica", "normal");
+    doc.text(`Autorizo al chofer: ${carga.chofer[0]} ${carga.chofer[1]} a realizar el cruce de las siguientes unidades: `, 25, 63);
+    doc.text(`Tractor Patente: ${carga.tractor}.`, 25, 71);
+    doc.text(`Semirremolque/s Patente/s: ${carga.furgon[0]} / ${carga.furgon[1]}.`, 25, 79);
+    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 87);
+
+
+    doc.save(`Cruce de barcaza ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
+  }
+
+};
+
