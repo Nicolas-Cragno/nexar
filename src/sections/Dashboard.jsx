@@ -1,5 +1,5 @@
 import "./css/Dashboard.css";
-import Logo from "../assets/logos/LOGO_PRINCIPAL2.png";
+import Logo from "../assets/logos/LOGO_PRINCIPAL.png";
 import InfoModal from "../components/modales/InfoModal";
 import DashboardLogo from "../components/logos/DashboardLogo";
 

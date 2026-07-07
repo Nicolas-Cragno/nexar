@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import "./css/Lowbar.css";
-import Logo from "../../assets/logos/logoPrincipal.png";
+import Logo from "../../assets/logos/LOGO_PRINCIPAL.png";
 import { MdEvent as EventLogo } from "react-icons/md";
 import { GrResources as ResourcesLogo } from "react-icons/gr";
 

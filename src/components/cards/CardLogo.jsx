@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import LogoDefault from "../../assets/logos/LOGO_PRINCIPAL2.png";
+import LogoDefault from "../../assets/logos/LOGO_PRINCIPAL.png";
 import "./css/Card.css";
 
 const CardLogo = ({

@@ -1,5 +1,5 @@
 import "./css/DashboardLogo.css";
-import Logo from "../../assets/logos/LOGO_PRINCIPAL2.png";
+import Logo from "../../assets/logos/LOGO_PRINCIPAL.png";
 
 const DashboardLogo = ({ logo }) => {
   return (

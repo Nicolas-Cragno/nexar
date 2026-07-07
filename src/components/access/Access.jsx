@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AiOutlineLoading3Quarters as Load } from "react-icons/ai";
 //------------------------------------------------------ elementos
-import Logo from "../../assets/logos/LOGO_PRINCIPAL2.png";
+import Logo from "../../assets/logos/LOGO_PRINCIPAL.png";
 import CardLogoText from "../../components/cards/CardLogoText";
 import Modal from "../modales/Modal";
 //------------------------------------------------------ funciones
