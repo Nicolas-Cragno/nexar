@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import LogoDefault from "../../assets/logos/LOGO_PRINCIPAL2.png";
-import "./css/Card.css";
+import "./css/CardLogoText.css";
 import PlusButton from "../buttons/PlusButton";
 
 const CardText = ({
@@ -33,7 +33,7 @@ const CardText = ({
               </p>
             </div>
             {onClick2 && (
-              <div className="col-md-2">
+              <div className="card-action">
                 <PlusButton onClick={onClick2} />
               </div>
             )}
