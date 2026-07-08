@@ -14,8 +14,10 @@ import { eventos } from "../formularios/data/FormContent.js";
 import { fichaContent } from "./data/FichaContent.js";
 import { submitFinViaje } from "../formularios/data/Submits.js";
 import { getSubmitFunction } from "../formularios/data/SubmitGestor.js";
+import { generarDocumentos } from "../../functions/docFunctions.js";
 //------------------------------------------------------ estilos
 import "./css/Fichas.css";
+import imgPlantilla from "../../functions/docs/hojaRuta.png";
 
 const Ficha = ({
   elemento,
@@ -99,6 +101,10 @@ const Ficha = ({
     onClose();
   };
 
+  const handleImprimir = async () => {
+    await generarDocumentos("pdf", elemento, imgPlantilla);
+  }
+  
   return (
     <div className="ficha">
       <div className="ficha-content">
@@ -108,7 +114,7 @@ const Ficha = ({
             {titulo}{" "}
             {campoPdf && (
               <PDFsLogo
-                className="pdf-logo" /*onClick={funcion para imprimir}*/
+                className="pdf-logo" onClick={handleImprimir}
               />
             )}
           </strong>

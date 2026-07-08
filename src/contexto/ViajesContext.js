@@ -41,6 +41,7 @@ export function ViajesProvider({ children }) {
                 tractorCompleto: tractor?.label || "-",
                 furgonCompleto: furgonesLabel,
                 clienteCompleto: clientesLabel,
+                clienteObj: clientes || [],
                 adelantosRegistrados: adelantos || [],
                 crucesRegistrados: cruceBarcaza || []
             };

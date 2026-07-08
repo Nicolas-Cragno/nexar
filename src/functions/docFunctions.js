@@ -170,10 +170,12 @@ const procesarFecha = (datoFecha) => {
 };
 
 const normalizarDatosPdf = (viaje) => {
+  debugger;
   // 1. Asegurar furgones (Mínimo 2 posiciones vacías)
   const furgones = Array.isArray(viaje.furgonCompleto)
     ? viaje.furgonCompleto
-    : [viaje.furgonCompleto];
+    : viaje.furgonCompleto.split(",").map((f) => f.trim());
+
   const furgonFinal = [furgones[0] || "", furgones[1] || ""];
 
   const fechaHora = new Date();
@@ -219,9 +221,14 @@ const normalizarDatosPdf = (viaje) => {
 
   const clientesOriginales = Array.isArray(viaje.clientesCompletos) ? viaje.clientesCompletos : [];
 
-  const clientes = Array.from({ length: 4 }, (_, i) => 
+  const clientesOr = Array.from({ length: 4 }, (_, i) => 
     clientesOriginales[i] ?? "",
   );
+  const clientesRe = Array.from({ length: 4 }, (_, i) =>
+    viaje.clienteObj[i].label ?? "",
+  );
+
+  const clientes = clientesOr[0] !== '' ? clientesOr : clientesRe;
   
   /*
   // 3. Normalizar Clientes (Obligatorio 4 posiciones)
@@ -238,8 +245,9 @@ const normalizarDatosPdf = (viaje) => {
    debugger;
    
    const anticiposOriginales = Array.isArray(viaje.anticiposCompletos) ? viaje.anticiposCompletos : [];
-   
-   const anticipos = Array.from({ length: 5 }, (_, i) => {
+   const anticiposReimpresion = Array.isArray(viaje.adelantosRegistrados) ? viaje.adelantosRegistrados : [];
+
+   const anticiposOr = Array.from({ length: 5 }, (_, i) => {
 
     const anticipo = anticiposOriginales[i];
 
@@ -256,6 +264,26 @@ const normalizarDatosPdf = (viaje) => {
 
     return { fecha: "", numero: "", importe: "" };
   });
+
+  const anticiposRe = Array.from({ length: 5 }, (_, i) => {
+
+    const anticipo = anticiposReimpresion[i];
+
+    if (anticipo) {
+
+      const fechaAnticipo = anticipo.fecha?.toDate ? anticipo.fecha.toDate() : new Date();
+
+      return {
+        fecha: fechaAnticipo.toLocaleDateString("es-ES"),
+        numero: anticipo.id ?? "",
+        importe: `$ ${anticipo.monto}` ?? "",
+      };
+    }
+
+    return { fecha: "", numero: "", importe: "" };
+  });
+
+  const anticipos = anticiposOr[0].fecha !== '' ? anticiposOr : anticiposRe;
 
   /*
   // 4. Normalizar Anticipos (Obligatorio 5 posiciones)
@@ -275,9 +303,9 @@ const normalizarDatosPdf = (viaje) => {
 
 
   // 5. Normalizar Ordenes de Cruce (Obligatorio 4 posiciones)
-  const ordenesDeCruce = Array.from({ length: 4 }, (_, i) => {
+  const ordenesDeCruceOr = Array.from({ length: 4 }, (_, i) => {
     // Si hay una orden de cruce cargada, la ponemos en la primera posición
-    if (i === 0 && viaje.crucesBarcazaCompletos.length > 0) {
+    if (i === 0 && viaje.crucesBarcazaCompletos?.length > 0) {
 
       //const fechaCruceJS = viaje.fecha;
 
@@ -289,6 +317,18 @@ const normalizarDatosPdf = (viaje) => {
     return { fecha: "", numero: "" };
   });
 
+  const ordenesDeCruceRe = Array.from({ length: 4 }, (_, i) => {
+    if(i === 0 && viaje.crucesRegistrados?.length > 0) {
+      const fechaCruceJS = procesarFecha(viaje.crucesRegistrados?.[0]?.fecha);
+      return{
+        fecha: fechaCruceJS ? fechaCruceJS.toLocaleDateString("es-ES") : "",
+        numero: viaje.crucesRegistrados?.[0]?.id ?? "",
+      };
+    }
+    return { fecha: "", numero: "" };
+  });
+
+  const ordenesDeCruce = ordenesDeCruceOr[0].numero !== '' ? ordenesDeCruceOr : ordenesDeCruceRe;
 
   // Retornamos el objeto con el nombre de variables exacto que lee el PDF
   let auxPersona = viaje.personaCompleta.split(" ");
