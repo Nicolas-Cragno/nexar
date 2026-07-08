@@ -102,7 +102,7 @@ const Ficha = ({
   };
 
   const handleImprimir = async () => {
-    await generarDocumentos("pdf", elemento, imgPlantilla);
+    await generarDocumentos("pdf", elemento, imgPlantilla, true);
   }
   
   return (

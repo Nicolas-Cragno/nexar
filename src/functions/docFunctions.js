@@ -225,23 +225,11 @@ const normalizarDatosPdf = (viaje) => {
     clientesOriginales[i] ?? "",
   );
   const clientesRe = Array.from({ length: 4 }, (_, i) =>
-    viaje.clienteObj[i].label ?? "",
+    viaje.clienteObj?.[i]?.label ?? "",
   );
 
   const clientes = clientesOr[0] !== '' ? clientesOr : clientesRe;
   
-  /*
-  // 3. Normalizar Clientes (Obligatorio 4 posiciones)
-  const clientesOriginales = Array.isArray(viaje.clienteCompleto)
-  ? viaje.clienteCompleto
-  : [viaje.clienteCompleto];
-  
-  const clientes = Array.from({ length: 4 }, (_, i) => ({
-    nombre: clientesOriginales[i] || "",
-    contenidoFurgon: "",
-    observaciones: "",
-    }));
-    */
    debugger;
    
    const anticiposOriginales = Array.isArray(viaje.anticiposCompletos) ? viaje.anticiposCompletos : [];
@@ -356,12 +344,12 @@ const normalizarDatosPdf = (viaje) => {
   };
 };
 
-export const generarDocumentos = async (tipo, datos, urlPlantilla) => {
+export const generarDocumentos = async (tipo, datos, urlPlantilla, reimpresion = false) => {
   let resultado = false;
 
   switch (tipo) {
     case "pdf":
-      resultado = await generarPDFHojaRuta(datos, urlPlantilla);
+      resultado = await generarPDFHojaRuta(datos, urlPlantilla, reimpresion);
 
       break;
     case "excel":
@@ -375,8 +363,9 @@ export const generarDocumentos = async (tipo, datos, urlPlantilla) => {
   return resultado;
 };
 
-const generarPDFHojaRuta = async (datos, urlPlantilla) => {
+const generarPDFHojaRuta = async (datos, urlPlantilla, reimpresion) => {
   if (datos) {
+
     const carga = normalizarDatosPdf(datos);
 
     const { jsPDF } = window.jspdf;
@@ -525,7 +514,9 @@ const generarPDFHojaRuta = async (datos, urlPlantilla) => {
 
     doc.save(`Hoja de ruta ${carga.chofer} ${carga.fechaSalida}.pdf`);
 
-    generarPDFCruceBarcaza_Y_Adelanto(carga);
+    if (!reimpresion){
+      await generarPDFCruceBarcaza_Y_Adelanto(carga);
+    }
 
     return true;
   }
@@ -547,116 +538,138 @@ const generarPDFCruceBarcaza_Y_Adelanto = async (carga) => {
     format: "a4",
   });
 
-  let urlPlantilla;
   
   if((carga.anticipos[0].fecha !== "") && (carga.ordenesDeCruce[0].numero !== "")) {  
     
-    doc.setFontSize(10);
-    doc.setFont("Helvetica", "bold");
-    
-    urlPlantilla = imgCruce_Adelanto;
-    
-    const img = new Image();
-    img.src = urlPlantilla;
-    
-    await new Promise((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = (err) =>
-        reject(new Error("Error al cargar la plantilla: " + err));
-    });
-    
-    doc.addImage(img, "JPG", 0, 0, 210, 297);
-
-    doc.text(`${carga.anticipos[0].numero}`, 140, 41);
-    doc.text(`${carga.fechaSalida}`, 140, 47);
-
-    doc.text(`Sr.: ${carga.chofer[0]}, ${carga.chofer[1]}.`, 25, 57);
-
-    
-    doc.setFont("Helvetica", "normal");
-    doc.text(`Recibí conforme la suma de ${carga.anticipos[0].importe} en concepto de anticipo para el viaje`, 25, 65);
-    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 73);
-
-
-    
-    doc.setFont("Helvetica", "bold");
-    doc.text(`${carga.ordenesDeCruce[0].numero}`, 140, 145);
-    doc.text(`${carga.fechaSalida}`, 140, 150);
-
-
-    doc.setFont("Helvetica", "normal");
-    doc.text(`Autorizo al chofer: ${carga.chofer[0]} ${carga.chofer[1]} a realizar el cruce de las siguientes unidades: `, 25, 171);
-    doc.text(`Tractor Patente: ${carga.tractor}.`, 25, 179);
-    doc.text(`Semirremolque/s Patente/s: ${carga.furgon[0]} / ${carga.furgon[1]}.`, 25, 187);
-    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 195);
-
-    doc.save(`Cruce de barcaza y anticipo ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
-
-  
+    await cruceBarcaza_Adelanto(doc, carga);
   
   } else if((carga.anticipos[0].fecha !== "") && (carga.ordenesDeCruce[0].numero === "")) {
     
-  
-    doc.setFontSize(10);
-    doc.setFont("Helvetica", "bold");
-    
-    urlPlantilla = imgAdelanto;
-    
-    const img = new Image();
-    img.src = urlPlantilla;
-    
-    await new Promise((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = (err) =>
-        reject(new Error("Error al cargar la plantilla: " + err));
-    });
-    
-    doc.addImage(img, "JPG", 0, 0, 210, 297);
-
-    doc.text(`${carga.anticipos[0].numero}`, 144, 38);
-    doc.text(`${carga.fechaSalida}`, 144, 44);
-    
-    doc.text(`Sr.: ${carga.chofer[0]}, ${carga.chofer[1]}.`, 25, 57);
-    
-    
-    doc.setFont("Helvetica", "normal");
-    doc.text(`Recibí conforme la suma de ${carga.anticipos[0].importe} en concepto de anticipo para el viaje`, 25, 65);
-    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 73);
-  
-    doc.save(`Anticipo ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
+    await anticipo(doc, carga);
   
   } else if(carga.anticipos[0].fecha === "" && (carga.ordenesDeCruce[0].numero !== "")) {
     
-    doc.setFontSize(10);
-    doc.setFont("Helvetica", "bold");
-    
-    urlPlantilla = imgCruce;
-    
-    const img = new Image();
-    img.src = urlPlantilla;
+    await cruceBarcaza(doc, carga);
 
-    await new Promise((resolve, reject) => {
-      img.onload = () => resolve(); 
-      img.onerror = (err) =>
-        reject(new Error("Error al cargar la plantilla: " + err));
-    });
-    
-    doc.addImage(img, "JPG", 0, 0, 210, 297);
-
-    doc.setFont("Helvetica", "bold");
-    doc.text(`${carga.ordenesDeCruce[0].numero}`, 144, 38);
-    doc.text(`${carga.fechaSalida}`, 144, 44);
-
-
-    doc.setFont("Helvetica", "normal");
-    doc.text(`Autorizo al chofer: ${carga.chofer[0]} ${carga.chofer[1]} a realizar el cruce de las siguientes unidades: `, 25, 63);
-    doc.text(`Tractor Patente: ${carga.tractor}.`, 25, 71);
-    doc.text(`Semirremolque/s Patente/s: ${carga.furgon[0]} / ${carga.furgon[1]}.`, 25, 79);
-    doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 87);
-
-
-    doc.save(`Cruce de barcaza ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
   }
-
 };
+
+const cruceBarcaza_Adelanto = async (doc, carga) => {
+  
+  let urlPlantilla;
+
+  doc.setFontSize(10);
+  doc.setFont("Helvetica", "bold");
+  
+  urlPlantilla = imgCruce_Adelanto;
+  
+  const img = new Image();
+  img.src = urlPlantilla;
+  
+  await new Promise((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = (err) =>
+      reject(new Error("Error al cargar la plantilla: " + err));
+  });
+  
+  doc.addImage(img, "JPG", 0, 0, 210, 297);
+
+  doc.text(`${carga.anticipos[0].numero}`, 140, 41);
+  doc.text(`${carga.fechaSalida}`, 140, 47);
+
+  doc.text(`Sr.: ${carga.chofer[0]}, ${carga.chofer[1]}.`, 25, 57);
+
+  
+  doc.setFont("Helvetica", "normal");
+  doc.text(`Recibí conforme la suma de ${carga.anticipos[0].importe} en concepto de anticipo para el viaje`, 25, 65);
+  doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 73);
+
+
+  
+  doc.setFont("Helvetica", "bold");
+  doc.text(`${carga.ordenesDeCruce[0].numero}`, 140, 145);
+  doc.text(`${carga.fechaSalida}`, 140, 150);
+
+
+  doc.setFont("Helvetica", "normal");
+  doc.text(`Autorizo al chofer: ${carga.chofer[0]} ${carga.chofer[1]} a realizar el cruce de las siguientes unidades: `, 25, 171);
+  doc.text(`Tractor Patente: ${carga.tractor}.`, 25, 179);
+  doc.text(`Semirremolque/s Patente/s: ${carga.furgon[0]} / ${carga.furgon[1]}.`, 25, 187);
+  doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 195);
+
+  doc.save(`Cruce de barcaza y anticipo ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
+}
+
+const cruceBarcaza = async (doc, carga, i) => {
+  
+  let urlPlantilla;
+  let index = i || 0;
+
+  doc.setFontSize(10);
+  doc.setFont("Helvetica", "bold");
+  
+  urlPlantilla = imgCruce;
+  
+  const img = new Image();
+  img.src = urlPlantilla;
+
+  await new Promise((resolve, reject) => {
+    img.onload = () => resolve(); 
+    img.onerror = (err) =>
+      reject(new Error("Error al cargar la plantilla: " + err));
+  });
+  
+  doc.addImage(img, "JPG", 0, 0, 210, 297);
+
+  doc.setFont("Helvetica", "bold");
+  doc.text(`${carga.ordenesDeCruce[index].numero}`, 144, 38);
+  doc.text(`${carga.fechaSalida}`, 144, 44);
+
+
+  doc.setFont("Helvetica", "normal");
+  doc.text(`Autorizo al chofer: ${carga.chofer[0]} ${carga.chofer[1]} a realizar el cruce de las siguientes unidades: `, 25, 63);
+  doc.text(`Tractor Patente: ${carga.tractor}.`, 25, 71);
+  doc.text(`Semirremolque/s Patente/s: ${carga.furgon[0]} / ${carga.furgon[1]}.`, 25, 79);
+  doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 87);
+
+
+  doc.save(`Cruce de barcaza ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);  
+
+}
+
+const anticipo = async (doc, carga, i) => {
+
+  let index = i || 0;
+  let urlPlantilla;
+
+  doc.setFontSize(10);
+  doc.setFont("Helvetica", "bold");
+  
+  urlPlantilla = imgAdelanto;
+  
+  const img = new Image();
+  img.src = urlPlantilla;
+  
+  await new Promise((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = (err) =>
+      reject(new Error("Error al cargar la plantilla: " + err));
+  });
+  
+  doc.addImage(img, "JPG", 0, 0, 210, 297);
+
+  doc.text(`${carga.anticipos[index].numero}`, 144, 38);
+  doc.text(`${carga.fechaSalida}`, 144, 44);
+  
+  doc.text(`Sr.: ${carga.chofer[0]}, ${carga.chofer[1]}.`, 25, 57);
+  
+  
+  doc.setFont("Helvetica", "normal");
+  doc.text(`Recibí conforme la suma de ${carga.anticipos[index].importe} en concepto de anticipo para el viaje`, 25, 65);
+  doc.text(`H. de Ruta Nro.: ${carga.numeroViaje}`, 25, 73);
+
+  doc.save(`Anticipo ${carga.chofer[0]} ${carga.chofer[1]} ${carga.fechaSalida}.pdf`);
+
+}
+
 
