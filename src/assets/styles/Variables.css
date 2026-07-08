@@ -1,0 +1,55 @@
+/* ==========================================================================
+   NR · Design tokens
+   Importar este archivo primero en cualquier .css que use var(--nr-*)
+   ========================================================================== */
+
+:root {
+  /* ---- marca ---- */
+  --nr-blue: #1e4fd8;        /* azul del logo / header */
+  --nr-blue-dark: #123a9e;
+  --nr-orange: #f0743c;      /* naranja del logo / degrade */
+  --nr-orange-dark: #d85a26;
+  --nr-black: #0b0b0f;       /* negro del header */
+
+  /* ---- acción (botones, links, focus) ---- */
+  --nr-accent: #007bff;
+  --nr-accent-dark: #0056b3;
+  --nr-accent-soft: #e8f1ff;
+
+  /* ---- estado ---- */
+  --nr-ok: #1a8a4a;
+  --nr-ok-bg: #eaf6ef;
+  --nr-fail: #c0392b;
+  --nr-fail-bg: #fbebe9;
+  --nr-warn: #f0b13b;
+
+  /* ---- superficies ---- */
+  --nr-bg: #ffffff;          /* fondo blanco: fichas, formularios, modales, tablas */
+  --nr-bg-soft: #f7f8fa;     /* fondo alterno (headers de tabla, hover, etc.) */
+  --nr-bg-muted: #f3f4f6;
+
+  /* ---- texto ---- */
+  --nr-ink: #1a1a1a;
+  --nr-ink-soft: #6b7280;
+  --nr-ink-faint: #9aa1ac;
+
+  /* ---- bordes / sombras ---- */
+  --nr-border: #e3e5e8;
+  --nr-border-strong: #d0d3d8;
+  --nr-shadow: rgba(20, 20, 30, 0.18);
+  --nr-shadow-soft: rgba(20, 20, 30, 0.08);
+  --nr-overlay: rgba(10, 12, 20, 0.6); /* fondo detrás de modales/fichas */
+
+  /* ---- forma ---- */
+  --nr-radius-sm: 4px;
+  --nr-radius: 8px;
+  --nr-radius-lg: 14px;
+
+  /* ---- tipografía ---- */
+  --nr-font: "Roboto", "Segoe UI", Arial, Helvetica, sans-serif;
+  --nr-font-mono: "Roboto Mono", "Courier New", monospace;
+
+  /* ---- compatibilidad con nombres viejos usados en Modales.css ---- */
+  --dark-transparent: var(--nr-overlay);
+  --box-shadow: var(--nr-shadow);
+}
