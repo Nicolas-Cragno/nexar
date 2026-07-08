@@ -4,11 +4,11 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: var(--dark-transparent);
   display: flex;
   justify-content: right;
   align-items: top;
-  z-index: 999;
+  z-index: 9999;
   text-align: left;
   padding: 1rem;
   box-sizing: border-box;
@@ -41,11 +41,10 @@ font-size: 2.8rem;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  
 }
 
 .modal-filtros-section {
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 10px 14px;
 }
 
@@ -98,7 +97,7 @@ font-size: 2.8rem;
   color: #333;
   background-color: #f9f9f9;
   border: 1px solid #dcdcdc;
-  border-radius: 6px;
+  border-radius: 2px;
   outline: none;
   min-width: 600px;
 }
@@ -128,7 +127,7 @@ font-size: 2.8rem;
   background-color: white;
   color: #333;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 2px;
   font-weight: bold;
   transition: 0.3s;
   opacity: 0.2;
@@ -169,7 +168,7 @@ font-size: 2.8rem;
   padding-right: .2rem;
   padding-left: .2rem;
   margin-left: .5rem;
-  border-radius: 5rem;
+  border-radius: 2px;
   font-size: small;
   font-weight: bolder;
   display: inline-flex;
@@ -223,7 +222,7 @@ color:#888
 .modal-content {
   background: #fff;
   padding: 2rem;
-  border-radius: 10px;
+  border-radius: 2px;
   width: 90%;
   max-width: 500px;
   position: relative;
@@ -233,12 +232,10 @@ color:#888
   box-sizing: border-box;
 }
 
-
-
 .modal-content-2 {  /* para modal de personas que necesito mas espacio para los datos */
   background: #fff;
   padding: 2rem;
-  border-radius: 10px;
+  border-radius: 2px;
   width: 90%;
   max-width: 1500px;
   position: relative;
@@ -246,7 +243,20 @@ color:#888
   max-height: 90vh;
   overflow-y: auto;
   box-sizing: border-box;
+}
 
+.modal-content-3{
+  background-color: var(--dark-transparent);
+  padding: 2rem;
+  border-radius: 2px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 10px 25px var(--box-shadow);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display:grid;
+  align-items: center;
 }
 
 .modal-close {
@@ -284,7 +294,7 @@ color:#888
 
 .infobox{
   margin-left: 1rem;
-  border-radius: 1rem;
+  border-radius: 2px;
   padding: .2rem;
   padding-right: .5rem;
   padding-left: .5rem;
@@ -294,7 +304,7 @@ color:#888
 }
 
 .infobox-mini{
-  border-radius: 1rem;
+  border-radius: 2px;
   padding: .1rem;
   padding-right: .3rem;
   padding-left: .3rem;
@@ -357,6 +367,15 @@ background-color: #d8252a;
   font-weight: 600;
 }
 
+.modal-coleccion-title {
+  margin: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  font-weight: bolder;
+}
+
 .modal-info-title{
   margin-bottom: -2rem;
 }
@@ -412,7 +431,7 @@ max-height: 50;
   padding-right: 0.4rem;
   padding-left: 0.4rem;
   margin-left: .6rem;
-  border-radius: 0.5rem;
+  border-radius: 2px;
   font-weight: bold;
   font-size: small;
 }
@@ -428,7 +447,7 @@ max-height: 50;
 .modal-buttons button {
   padding: 0.5rem 1.2rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 2px;
   font-weight: 600;
   cursor: pointer;
   font-size: 1rem;
@@ -451,7 +470,7 @@ max-height: 50;
 
 .chequeo-item {
   padding: 0.4rem 0.8rem;
-  border-radius: 6px;
+  border-radius: 2px;
   font-weight: bold;
   color: white;
 }
@@ -616,7 +635,7 @@ Desktops
 .modal-content { 
   background-color: white;
   padding: 1.5rem 2rem;
-  border-radius: 8px;
+  border-radius: 2px;
   width: 80%;
   max-width: auto;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -629,4 +648,102 @@ Desktops
 .modal-header{
   display: block;
 }
+}
+
+.modal-coleccion {
+  max-width: 95vw;
+  width: 95vw;
+  max-height: 95vh;
+}
+
+.modal-coleccion-body {
+  display: flex;
+  gap: 1rem;
+  height: 75vh;
+}
+
+.modal-coleccion-sidebar {
+  width: 320px;
+  min-width: 320px;
+  border: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.modal-coleccion-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.modal-coleccion-item {
+  padding: .8rem 1rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.modal-coleccion-item:hover {
+  background-color: #f3f4f6;
+}
+
+.modal-coleccion-item.active {
+  background-color: #1f2937;
+  color: white;
+  font-weight: bold;
+}
+
+.modal-coleccion-content .table-body-wrapper {
+  max-height: 65vh;
+}
+
+@media (max-width: 768px) {
+
+  .modal{
+    justify-content:center;
+    align-items:flex-start;
+    padding:.5rem;
+  }
+
+  .modal-content,
+  .modal-content-2{
+    width:100%;
+    max-width:100%;
+    max-height:100dvh;
+    padding:1rem;
+    border-radius:6px;
+  }
+
+  .modal-header{
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+  }
+
+  .modal-title{
+    font-size:1.8rem;
+  }
+
+  .modal-filtro{
+    min-width:0;
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  .modal-filtros-container{
+    justify-content:flex-start;
+    gap:.5rem;
+  }
+
+  .modal-filtro-check{
+    justify-content:flex-start;
+    width:100%;
+  }
+
+  .modal-buttons{
+    flex-direction:column;
+  }
+
+  .modal-buttons>*{
+    width:100%;
+  }
+
 }

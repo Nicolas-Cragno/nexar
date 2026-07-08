@@ -1,4 +1,4 @@
-import { useMemo, useState, memo } from "react";
+import { useMemo, useState, memo, useEffect } from "react";
 import "./css/Modales.css";
 import "./css/Tablas.css";
 import CloseButton from "../buttons/CloseButton";
@@ -27,10 +27,30 @@ const Modal = ({
   const [itemSeleccionado, setItemSeleccionado] = useState(null);
   const [formAgregarVisible, setFormAgregarVisible] = useState(false);
   const [filtrosEspeciales, setFiltrosEspeciales] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width:768px)");
+
+    const update = () => setIsMobile(media.matches);
+
+    update();
+
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   const rows = data ?? [];
-  const columnas = headers ?? Object.keys(rows?.[0] ?? {});
-
+  const columnas =
+    headers ??
+    Object.keys(rows?.[0] ?? {}).map((key) => ({
+      key,
+      label: key,
+      responsive: true,
+    }));
+  const columnasFinal = isMobile
+    ? columnas.filter((cl) => cl.responsive)
+    : columnas;
   const columnasFiltroEspecial = headers?.filter((h) => h.filtroEspecial) ?? [];
 
   const toggleFiltroEspecial = (key) => {
@@ -64,7 +84,7 @@ const Modal = ({
         renderizarValor(value, key)?.toString().toLowerCase().includes(filtro),
       );
     });
-  }, [textoFiltro, limiteFiltro, filtrosEspeciales, data]);
+  }, [rows, textoFiltro, limiteFiltro, filtrosEspeciales, index]);
 
   const handleCloseFicha = async () => {
     if (reload) await reload();
@@ -75,7 +95,7 @@ const Modal = ({
 
   return (
     <div className="modal">
-      <div className="modal-content-2">
+      <div className={`modal-content-2 ${isMobile ? "mobile" : ""}`}>
         {/*
         <CloseButton onClose={onClose} />
         <div className="modal-header">
@@ -121,7 +141,7 @@ const Modal = ({
           <table className="table-lista">
             <thead className="table-titles">
               <tr>
-                {columnas.map((col) => (
+                {columnasFinal.map((col) => (
                   <th key={col.key}>{col.label.toUpperCase()}</th>
                 ))}
               </tr>
@@ -133,7 +153,7 @@ const Modal = ({
               <tbody className="table-doby">
                 {dataFiltrada.map((row, i) => (
                   <tr key={i} onClick={() => setItemSeleccionado(row)}>
-                    {columnas.map((col) => (
+                    {columnasFinal.map((col) => (
                       <td key={col.key}>
                         {renderizarValor(row[col.key], col.key, "upper")}
                       </td>

@@ -1,4 +1,4 @@
-import LogoDefault from "../../assets/logos/LOGO_PRINCIPAL2.png";
+import LogoDefault from "../../assets/logos/LOGO_PRINCIPAL.png";
 import "./css/Buttons.css";
 
 const LogoButton = ({ logo = LogoDefault, type = "button", onClick }) => {

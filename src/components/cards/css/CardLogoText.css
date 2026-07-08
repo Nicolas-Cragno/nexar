@@ -1,0 +1,163 @@
+/* === ESTILOS BASE === */
+
+.card {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  width: 100%;
+  height: 25vh;
+  margin: 1vh auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 600px;
+  opacity: 0.85;
+}
+
+.card2{
+  background-color: #1f2937;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  width: 100%;
+  height: auto;
+  margin: 1vh auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 600px;
+  opacity: 0.85;
+}
+
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 1;
+}
+
+.card2:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 1;
+}
+
+
+.card-title {
+  font-size: 1.8rem;
+  color: #6b7280;
+  margin: 0;
+  padding: 0;
+}
+
+.card-title2 {
+    display: flex;
+    justify-content: center;
+  font-size: 1.8rem;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+.card-text{
+  font-size:large;
+  font-weight: bolder;
+  color: #6b7280;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  padding: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
+  margin-top: 5px;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.card-logo{
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.card-section {
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* evita que contenido se desborde */
+}
+
+.card-section-line{
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  overflow: hidden;
+   gap:1rem;
+}
+
+.card-action{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+}
+
+.card-section-info{
+  flex: 1;
+  align-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.card-value {
+  display: inline-block;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: white;
+  background-color: #1f2937;
+  padding: 0.15rem 0.8rem;
+  border-radius: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.link{
+  cursor: pointer;
+}
+
+.card-route {
+  text-decoration: none;
+}
+
+@media (max-width:767px){
+
+.card2{
+    width:100%;
+    max-width:none;
+    min-height:90px;
+    padding:.75rem;
+}
+
+.card-logo{
+    width:50px;
+    height:50px;
+}
+
+.card-title2{
+    font-size:1rem;
+}
+
+.card-text{
+    font-size:.8rem;
+    padding:4px 8px;
+}
+
+.card-section-line{
+    gap:.75rem;
+}
+
+}

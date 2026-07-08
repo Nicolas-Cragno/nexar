@@ -288,7 +288,9 @@ const Ficha = ({
         {elemento.adelantosRegistrados?.length > 0 && (
           <>
             <label>
-              <strong className="ficha-info-title">Adelantos</strong>
+              <strong className="ficha-info-title">
+                Movimientos de cuenta
+              </strong>
             </label>
 
             <div className="ficha-info-box">

@@ -5,7 +5,7 @@
 
 body {
   margin: 0;
-  background-image: url("../images/IMG_RUTA_40.png");
+  background-image: url("../images/IMG_BACK_2.png");
    background-size: cover;        /* ocupa toda la pantalla */
   background-position: center;   /* centra la imagen */
   background-repeat: no-repeat;
@@ -15,12 +15,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.no-responsive{
+        display: none;
+      }
 
 .spinner {
   animation: girar 1s linear infinite;
