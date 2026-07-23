@@ -50,7 +50,7 @@ export const eventCode = async (type = "eventos", ubicaciones, contadores, sucur
     const contador = contadores.find((cs) => cs.id === type);
 
     // ------------------------------ definir tipo
-    const codigoTipo = contador?.codigo || "EV";
+    //const codigoTipo = contador?.codigo || "EV";
 
     // ------------------------------ definir codigo sucursal
     const sucursalUb = ubicaciones.find((ub) => ub.id?.toLowerCase() === sucursal.toLowerCase());
@@ -63,7 +63,7 @@ export const eventCode = async (type = "eventos", ubicaciones, contadores, sucur
     await update(contador.id, "contadores", { ultimo: increment(1), [sucursal]: increment(1) });
 
     return {
-        id: `${codigoTipo}${codigoSucursal}-${String(nuevoOrden).padStart(8, "0")}`,
+        id: `${codigoSucursal}-${String(nuevoOrden).padStart(8, "0")}`,
         orden: nuevoOrden,
     };
 };

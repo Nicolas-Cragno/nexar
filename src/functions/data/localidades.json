@@ -1,4 +1,5 @@
 [
+    {"key": "006L0000", "nombre": "CIUDAD AUTONOMA DE BUENOS AIRES", "ubicacion": "C.A.B.A.", "provincia" : "BUENOS AIRES", "codigoLocalidad" : "0000", "codigoProvincia": "006"},
     {"key": "006L0001", "nombre": "25 DE MAYO", "ubicacion": "25 DE MAYO", "provincia": "BUENOS AIRES", "codigoLocalidad": "0001", "codigoProvincia": "006"},
 {"key": "006L0002", "nombre": "9 DE JULIO", "ubicacion": "9 DE JULIO", "provincia": "BUENOS AIRES", "codigoLocalidad": "0002", "codigoProvincia": "006"},
 {"key": "006L0003", "nombre": "ADOLFO ALSINA", "ubicacion": "ADOLFO ALSINA", "provincia": "BUENOS AIRES", "codigoLocalidad": "0003", "codigoProvincia": "006"},
