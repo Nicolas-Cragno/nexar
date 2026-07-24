@@ -184,7 +184,7 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
             const carga = await submit("personas", { id: campoId, ...elementoAGuardar, estado: true, alta: serverTimestamp() }, onGuardar);
 
             if (carga) {
-                await submit("cuentaCorriente", { id: String(elementoAGuardar.cuit), estado: true, monto: 0, nombre: `${elementoAGuardar.apellido}, ${elementoAGuardar.nombres}`, dni: elementoAGuardar.id });
+                await submit("cuentaCorriente", { id: String(elementoAGuardar.cuit), estado: true, monto: 0, nombre: `${elementoAGuardar.apellido}, ${elementoAGuardar.nombres}`, dni: campoId });
 
                 if (String(elementoAGuardar.empresa) === String(CUIT_TRANSCAN)) {
                     await update(String(CUIT_TRANSCAN), "empresas", { personas: increment(1) });
@@ -523,8 +523,8 @@ export const submitCruce = async (formData, campos, ubicaciones, contadores, suc
 
         if (onClose) onClose();
 
-        
-        
+
+
         if (resultadoCarga) {
             return {
                 elemento: { id: identificador, ...elementoAGuardar }
