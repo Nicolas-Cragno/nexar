@@ -83,19 +83,19 @@ const FormContent = ({
       case "empresasPropias":
         listado = cargarSelects(
           "empresas",
-          empresas.filter((em) => em.tipo === "propia"),
+          empresas.filter((em) => em.tipo?.toLowerCase() === "propia"),
         );
         break;
       case "clientes":
         listado = cargarSelects(
           "empresas",
-          empresas.filter((em) => em.tipo === "cliente"),
+          empresas.filter((em) => em.tipo?.toLowerCase() === "cliente"),
         );
         break;
       case "proveedores":
         listado = cargarSelects(
           "empresas",
-          empresas.filter((em) => em.tipo === "proveedor"),
+          empresas.filter((em) => em.tipo?.toLowerCase() === "proveedor"),
         );
         break;
       case "tipoEmpleados":
