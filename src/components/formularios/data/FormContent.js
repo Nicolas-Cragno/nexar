@@ -117,6 +117,11 @@ export const eventos = {
         { key: "monto", label: "Monto", use: "database", type: "secondary", dato: "number", inputType: "input", important: true, neverDisabled: true },
         { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false, neverDisabled: true },
     ],
+    liquidaciones: [
+        { key: "cuenta", label: "Cuenta corriente", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "cuentasCorrientes", important: true },
+        { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true },
+        { key: "detalle", label: "Detalle", type: "secondary", use: "database", dato: "text", inputType: "textarea", important: false },
+    ],
     viajes: [
         { key: "persona", label: "Chofer", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "choferes", important: true },
         { key: "tractor", label: "Tractor", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "tractores", important: true },

@@ -71,6 +71,18 @@ export const fichaContent = {
         //{ key: "tramos", label: "Tramos", type: "secondary" },
         //{ key: "adelantosRegistrados", label: "Adelantos", type: "secondary" }, se renderiza directo en Ficha.jsx
         //{ key: "crucesRegistrados", label: "Cruces de barcaza", type: "secondary" }, se renderiza directo en Ficha.jsx
+    ],
+    liquidaciones: [
+        { key: "id", label: "N° Liquidación", type: "title" },
+        { key: "fecha", label: "Fecha", type: "principal" },
+        { key: "cuentaCompleta", label: "Cuenta", type: "principal" },
+        { key: "saldoCompleto", label: "Saldo liquidado", type: "principal" },
+        { key: "cantidadMovimientos", label: "Cantidad de movimientos", type: "principal" },
+        { key: "tipoCierreCompleto", label: "Tipo de cierre", type: "principal" },
+        { key: "movimientoCierre", label: "Movimiento de cierre", type: "secondary" },
+        { key: "operadorCompleto", label: "Operador", type: "secondary" },
+        { key: "detalle", label: "Detalle", type: "secondary" },
+        { key: "estado", label: "Estado", type: "state" },
     ]
 
 }

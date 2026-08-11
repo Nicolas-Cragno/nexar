@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, increment } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useData } from "../contexto/DataContext";
 
@@ -47,20 +47,39 @@ export const statusOptions = (result) => {
 // generacion de codigo por sucursal (para eventos)
 
 export const eventCode = async (type = "eventos", ubicaciones, contadores, sucursal = "01") => {
-    const contador = contadores.find((cs) => cs.id === type);
+    const codigoSucursalOriginal = String(sucursal || "01");
+    const sucursalUb = ubicaciones.find(
+        (ub) => String(ub.id).toLowerCase() === codigoSucursalOriginal.toLowerCase()
+    );
+    const codigoSucursal = String(sucursalUb?.id || codigoSucursalOriginal).padStart(3, "0");
+    const contadorRef = doc(db, "contadores", String(type));
 
-    // ------------------------------ definir tipo
-    //const codigoTipo = contador?.codigo || "EV";
+    const nuevoOrden = await runTransaction(db, async (transaction) => {
+        const contadorSnapshot = await transaction.get(contadorRef);
 
-    // ------------------------------ definir codigo sucursal
-    const sucursalUb = ubicaciones.find((ub) => ub.id?.toLowerCase() === sucursal.toLowerCase());
-    const codigoSucursal = String(sucursalUb?.id || sucursal).padStart(3, "0");
+        if (!contadorSnapshot.exists()) {
+            throw new Error(`No existe el contador ${type}.`);
+        }
 
-    // ------------------------------ definir correlativo (usar runTrasaction en un futuro, para evitar duplicados)
-    const ultimo = contador[sucursal];
-    const nuevoOrden = ultimo + 1;
+        const contadorActual = contadorSnapshot.data();
+        const ultimoSucursal = Number(contadorActual[codigoSucursalOriginal]);
+        const ultimoGeneral = Number(contadorActual.ultimo);
 
-    await update(contador.id, "contadores", { ultimo: increment(1), [sucursal]: increment(1) });
+        if (!Number.isFinite(ultimoSucursal)) {
+            throw new Error(
+                `El contador ${type} no tiene un correlativo valido para la sucursal ${codigoSucursalOriginal}.`
+            );
+        }
+
+        const siguienteOrden = ultimoSucursal + 1;
+
+        transaction.update(contadorRef, {
+            ultimo: Number.isFinite(ultimoGeneral) ? ultimoGeneral + 1 : siguienteOrden,
+            [codigoSucursalOriginal]: siguienteOrden,
+        });
+
+        return siguienteOrden;
+    });
 
     return {
         id: `${codigoSucursal}-${String(nuevoOrden).padStart(8, "0")}`,

@@ -12,6 +12,7 @@ const colecciones = [
     "ubicaciones",
     "sectores",
     "movimientos",
+    "liquidaciones",
     "cuentaCorriente",
     "viajes",
     "cruces", // para cruces de barcaza
