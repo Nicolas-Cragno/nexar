@@ -5,7 +5,7 @@
   overflow: auto;
 }
 
-.dashboard-content { width: min(1200px, 100%); margin: 0 auto; }
+.dashboard-content { width: min(100%, 100%); margin: 0 auto;}
 .dashboard-heading { color: var(--color-text); margin-bottom: 1rem; }
 .dashboard-heading h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); }
 .dashboard-heading p { margin: .25rem 0 0; }
