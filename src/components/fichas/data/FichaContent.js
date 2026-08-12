@@ -1,4 +1,20 @@
 export const fichaContent = {
+    cuentacorriente: [
+        { key: "id", label: "CUIT / CUIL", type: "title" },
+        { key: "nombre", label: "Titular", type: "principal" },
+        { key: "id", label: "CUIT / CUIL", type: "principal" },
+        { key: "monto", label: "Saldo actual", type: "principal" },
+        { key: "estado", label: "Estado", type: "state" },
+    ],
+    movimientos: [
+        { key: "id", label: "Movimiento", type: "title" },
+        { key: "fecha", label: "Fecha", type: "principal" },
+        { key: "tipo", label: "Tipo", type: "principal" },
+        { key: "montoCompleto", label: "Monto", type: "principal" },
+        { key: "viaje", label: "Viaje", type: "secondary" },
+        { key: "detalle", label: "Detalle", type: "secondary" },
+        { key: "estado", label: "Liquidado", type: "state" },
+    ],
     tractores: [
         { key: "id", label: "Interno", type: "title" },
         { key: "dominio", label: "Dominio", type: "principal" },
@@ -60,6 +76,7 @@ export const fichaContent = {
         { key: "ubicacion", label: "Ubicacion", type: "principal" }
     ],
     viajes: [
+        { key: "id", label: "Viaje", type: "title" },
         { key: "fecha", label: "Fecha de inicio", type: "principal", soloFecha: true },
         { key: "fechaFin", label: "Fecha finalización", type: "principal", soloFecha: true },
         { key: "estadoLabel", label: "Estado", type: "stateButton", submitType: "submitFinViaje" },
@@ -67,6 +84,8 @@ export const fichaContent = {
         { key: "tractorCompleto", label: "Tractor", type: "principal" },
         { key: "furgonCompleto", label: "Carga/Furgon", type: "principal" },
         { key: "clienteCompleto", label: "Cliente/s", type: "principal" },
+        { key: "operador", label: "Operador", type: "secondary" },
+        { key: "detalle", label: "Detalle", type: "secondary" },
         { key: "pdf", label: "Impresion", type: "pdf", function: "imprimirHojaDeRuta" },
         //{ key: "tramos", label: "Tramos", type: "secondary" },
         //{ key: "adelantosRegistrados", label: "Adelantos", type: "secondary" }, se renderiza directo en Ficha.jsx

@@ -30,6 +30,7 @@ const CrucesAccess = ({ filtro = null }) => {
     <>
       <Access
         coleccion={cruces}
+        entity="cruces"
         title={TITLE}
         logo={Logo}
         headers={headers}

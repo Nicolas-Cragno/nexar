@@ -1,5 +1,5 @@
 //------------------------------------------------------ externos
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Swal from "sweetalert2";
 //------------------------------------------------------ elementos
 import FormMovimientoCuenta from "./FormMovimientoCuenta";
@@ -58,6 +58,43 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const { empresas } = useEmpresas();
   const { movimientos } = useMovimientos();
   const { cruces } = useCruces();
+  const { viajes } = useViajes();
+
+  const conflictosRecursos = useMemo(() => {
+    const viajeId = elemento?.id;
+    const activosAjenos = viajes.filter(
+      (viaje) => viaje.estado === true && String(viaje.id) !== String(viajeId),
+    );
+    const conflictos = [];
+    const persona = personas.find((ps) => String(ps.id) === String(formData.persona));
+    const tractor = tractores.find((tr) => String(tr.id) === String(formData.tractor));
+
+    const viajePersona = activosAjenos.find(
+      (viaje) => String(viaje.persona) === String(formData.persona),
+    );
+    const viajeTractor = activosAjenos.find(
+      (viaje) => String(viaje.tractor) === String(formData.tractor),
+    );
+
+    if (persona && ((persona.enViaje && String(persona.viajeActivo) !== String(viajeId)) || viajePersona)) {
+      conflictos.push(`El chofer ${persona.id} está afectado al viaje ${viajePersona?.id || persona.viajeActivo || "desconocido"}.`);
+    }
+    if (tractor && ((tractor.enViaje && String(tractor.viajeActivo) !== String(viajeId)) || viajeTractor)) {
+      conflictos.push(`El tractor ${tractor.id} está afectado al viaje ${viajeTractor?.id || tractor.viajeActivo || "desconocido"}.`);
+    }
+
+    (formData.furgon || []).forEach((id) => {
+      const furgon = furgones.find((fg) => String(fg.id) === String(id));
+      const viajeFurgon = activosAjenos.find((viaje) =>
+        (viaje.furgon || []).some((furgonId) => String(furgonId) === String(id)),
+      );
+      if (furgon && ((furgon.enViaje && String(furgon.viajeActivo) !== String(viajeId)) || viajeFurgon)) {
+        conflictos.push(`El furgón ${id} está afectado al viaje ${viajeFurgon?.id || furgon.viajeActivo || "desconocido"}.`);
+      }
+    });
+
+    return conflictos;
+  }, [elemento?.id, formData.persona, formData.tractor, formData.furgon, viajes, personas, tractores, furgones]);
 
   const handleCloseFormMovimientoCuenta = () => {
     setFormMovimientoCuentaVisible(false);
@@ -66,7 +103,19 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const personaOperadora = formData.operador;
+    if (conflictosRecursos.length) {
+      await Swal.fire({
+        title: "Recursos no disponibles",
+        html: conflictosRecursos.map((mensaje) => `<p>${mensaje}</p>`).join(""),
+        icon: "error",
+        confirmButtonColor: "#4161bd",
+      });
+      return;
+    }
+
+    const personaOperadora = personas.find(
+      (persona) => String(persona.id) === String(formData.operador),
+    );
     const sucursalOperadora = personaOperadora?.sucursal || "01";
 
     const viajeCreado = await submitViaje(
@@ -78,6 +127,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       setLoading,
       onGuardar,
       onClose,
+      viajes,
       elemento,
     );
 
@@ -245,6 +295,13 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
               />
             </div>
             <div className="form-buttons">
+              {conflictosRecursos.length > 0 && (
+                <div className="complete">
+                  {conflictosRecursos.map((mensaje) => (
+                    <div key={mensaje}>{mensaje}</div>
+                  ))}
+                </div>
+              )}
               <TextButton
                 text={"Guardar"}
                 type={"button"}

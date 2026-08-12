@@ -13,6 +13,7 @@ const LiquidacionesAccess = () => {
     <>
       <Access
         coleccion={liquidaciones}
+        entity="liquidaciones"
         title="LIQUIDACIONES"
         logo={Logo}
         headers={columnas.liquidaciones}

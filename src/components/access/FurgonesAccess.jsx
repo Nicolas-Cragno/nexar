@@ -38,6 +38,7 @@ const FurgonesAccess = () => {
     <>
       <Access
         coleccion={furgones}
+        entity="furgones"
         title={TITLE}
         logo={Logo}
         headers={headers}

@@ -14,10 +14,30 @@ import { eventos } from "../formularios/data/FormContent.js";
 import { fichaContent } from "./data/FichaContent.js";
 import { submitFinViaje } from "../formularios/data/Submits.js";
 import { getSubmitFunction } from "../formularios/data/SubmitGestor.js";
-import { generarDocumentos } from "../../functions/docFunctions.js";
+import {
+  generarDocumentoCruce,
+  generarDocumentos,
+} from "../../functions/docFunctions.js";
 //------------------------------------------------------ estilos
 import "./css/Fichas.css";
 import imgPlantilla from "../../functions/docs/hojaRuta.png";
+import { usePersonas } from "../../contexto/PersonasContext.js";
+import { useTractores } from "../../contexto/TractoresContext.js";
+import { useFurgones } from "../../contexto/FurgonesContext.js";
+import { useData } from "../../contexto/DataContext.js";
+import { useViajes } from "../../contexto/ViajesContext.js";
+import { useMovimientos } from "../../contexto/MovimientosContext.js";
+import { useLiquidaciones } from "../../contexto/LiquidacionesContext.js";
+import FormLiquidacion from "../formularios/FormLiquidacion.jsx";
+
+const CUIT_TRANSCAN = "33719349949";
+
+const impactoEnCuenta = (movimiento, cuentaId) => {
+  const monto = Number(movimiento.monto) || 0;
+  const tipo = movimiento.tipo === "PAGO" ? "ADELANTO" : movimiento.tipo;
+  const impactoContraparte = tipo === "ADELANTO" ? monto : -monto;
+  return String(cuentaId) === CUIT_TRANSCAN ? -impactoContraparte : impactoContraparte;
+};
 
 const Ficha = ({
   elemento,
@@ -29,6 +49,13 @@ const Ficha = ({
   onClose,
   editable = true,
 }) => {
+  const { personas } = usePersonas();
+  const { tractores } = useTractores();
+  const { furgones } = useFurgones();
+  const { cuentaCorriente } = useData();
+  const { viajes } = useViajes();
+  const { movimientos } = useMovimientos();
+  const { liquidaciones } = useLiquidaciones();
   const titulado = container.find((campo) => campo.type === "title");
   const tituladoAbajo = container.find((campo) => campo.type === "secondtitle");
   const titulo = titulado ? elemento[titulado.key] : elemento["id"];
@@ -37,6 +64,8 @@ const Ficha = ({
   const estadoLabel = elemento.estadoLabel || false;
   const estadoSubtitulo = estado ? "ACTIVO" : "DADO DE BAJA";
   const [formEditarVisible, setFormEditarVisible] = useState(false);
+  const [formLiquidacionVisible, setFormLiquidacionVisible] = useState(false);
+  const [viajeVinculado, setViajeVinculado] = useState(null);
   const [modalStateVisible, setModalStateVisible] = useState(false);
   const eventosPorteria = eventos.porteria;
   const eventosViaje = eventos.viajes;
@@ -45,6 +74,40 @@ const Ficha = ({
     coleccion?.toLowerCase() || area?.toLowerCase() || "personas";
 
   const campos = fichaContent[auxCampos] ?? [];
+  const esCuenta = auxCampos === "cuentacorriente";
+  const esViaje = auxCampos === "viajes";
+  const esPersona = auxCampos === "personas";
+  const cuentaId = esCuenta
+    ? elemento.id
+    : elemento.cuenta || elemento.cuit;
+  const cuentaAsociada = cuentaCorriente.find(
+    (cuenta) => String(cuenta.id) === String(cuentaId),
+  );
+  const movimientosCuenta = movimientos.filter(
+    (movimiento) => String(movimiento.cuenta || movimiento.persona) === String(cuentaId),
+  );
+  const liquidacionesCuenta = liquidaciones.filter(
+    (liquidacion) => String(liquidacion.cuenta || liquidacion.persona) === String(cuentaId),
+  );
+  const viajesPersona = esPersona
+    ? viajes.filter((viaje) => String(viaje.persona) === String(elemento.id))
+    : [];
+  const viajeActivoPersona = viajesPersona.find((viaje) => viaje.estado === true);
+  const movimientosViaje = esViaje
+    ? movimientos.filter((movimiento) => String(movimiento.viaje) === String(elemento.id))
+    : [];
+  const resumenViaje = movimientosViaje.reduce(
+    (resumen, movimiento) => {
+      const monto = Number(movimiento.monto) || 0;
+      const tipo = movimiento.tipo === "PAGO" ? "ADELANTO" : movimiento.tipo;
+      if (tipo === "ADELANTO") resumen.adelantos += monto;
+      if (tipo === "GASTO") resumen.gastos += monto;
+      if (tipo === "COBRO") resumen.cobros += monto;
+      resumen.saldo += tipo === "ADELANTO" ? monto : -monto;
+      return resumen;
+    },
+    { adelantos: 0, gastos: 0, cobros: 0, saldo: 0 },
+  );
 
   const stateButton = campos.find((cp) => cp.type === "stateButton");
 
@@ -86,7 +149,7 @@ const Ficha = ({
       return;
     }
 
-    await submitFc(elemento.id, false, onClose);
+    await submitFc(elemento, false, onClose);
   };
 
   if (!elemento || typeof elemento !== "object") {
@@ -104,6 +167,35 @@ const Ficha = ({
   const handleImprimir = async () => {
     await generarDocumentos("pdf", elemento, imgPlantilla, true);
   }
+
+  const handleImprimirCruce = async (cruce) => {
+    const personaCruce = personas.find(
+      (persona) => String(persona.id) === String(cruce.persona),
+    );
+    const tractorCruce = tractores.find(
+      (tractor) => String(tractor.id) === String(cruce.tractor),
+    );
+    const idsFurgones = Array.isArray(cruce.furgon)
+      ? cruce.furgon
+      : cruce.furgon
+        ? [cruce.furgon]
+        : [];
+    const furgonesCruce = furgones.filter((furgon) =>
+      idsFurgones.some((id) => String(id) === String(furgon.id)),
+    );
+
+    await generarDocumentoCruce(
+      {
+        ...elemento,
+        personaCompleta: personaCruce?.label || elemento.personaCompleta,
+        tractorCompleto: tractorCruce?.label || elemento.tractorCompleto,
+        furgonCompleto:
+          furgonesCruce.map((furgon) => furgon.label).join(", ") ||
+          elemento.furgonCompleto,
+      },
+      cruce,
+    );
+  };
   
   return (
     <div className="ficha">
@@ -285,7 +377,19 @@ const Ficha = ({
           </>
         )}
 
-        {elemento.adelantosRegistrados?.length > 0 && (
+        {esViaje && (
+          <>
+            <label><strong className="ficha-info-title">Resumen económico</strong></label>
+            <div className="ficha-summary-grid">
+              <div><span>Adelantos</span><strong>$ {formatearMonto(resumenViaje.adelantos)}</strong></div>
+              <div><span>Gastos</span><strong>$ {formatearMonto(resumenViaje.gastos)}</strong></div>
+              <div><span>Cobros</span><strong>$ {formatearMonto(resumenViaje.cobros)}</strong></div>
+              <div><span>Saldo neto</span><strong>$ {formatearMonto(resumenViaje.saldo)}</strong></div>
+            </div>
+          </>
+        )}
+
+        {movimientosViaje.length > 0 && (
           <>
             <label>
               <strong className="ficha-info-title">
@@ -294,25 +398,25 @@ const Ficha = ({
             </label>
 
             <div className="ficha-info-box">
-              {elemento.adelantosRegistrados.map((adelanto, index) => (
-                <div key={adelanto.id || index} className="ficha-info">
+              {movimientosViaje.map((movimiento, index) => (
+                <div key={movimiento.id || index} className={`ficha-info movement-${movimiento.tipo?.toLowerCase()}`}>
                   <div className="obj-info-body">
                     <strong className="obj-info-fecha">
-                      {adelanto.fecha && (
+                      {movimiento.fecha && (
                         <span>
-                          {formatearCampoFirestore(adelanto.fecha, true)}
+                          {formatearCampoFirestore(movimiento.fecha, true)} · {movimiento.tipo}
                         </span>
                       )}
                     </strong>
                     <span className="obj-info-monto">
-                      ${formatearMonto(adelanto.monto)}
+                      ${formatearMonto(movimiento.monto)}
                     </span>
                   </div>
-                  {adelanto.detalle && (
-                    <div className="obj-info-footer">{adelanto.detalle}</div>
+                  {movimiento.detalle && (
+                    <div className="obj-info-footer">{movimiento.detalle}</div>
                   )}
                   <div className="obj-info-footer">
-                    {adelanto.operadorCompleto}
+                    {movimiento.operadorCompleto}
                   </div>
                 </div>
               ))}
@@ -338,7 +442,114 @@ const Ficha = ({
                       )}
                     </strong>
                     <span className="obj-info-id">{cruce.id}</span>
+                    <PDFsLogo
+                      className="pdf-logo"
+                      title="Imprimir cruce"
+                      onClick={() => handleImprimirCruce(cruce)}
+                    />
                   </div>
+                  <div className="obj-info-footer">
+                    Chofer: {cruce.persona || "-"} · Tractor: {cruce.tractor || "-"}
+                  </div>
+                  <div className="obj-info-footer">
+                    Furgones: {Array.isArray(cruce.furgon)
+                      ? cruce.furgon.join(", ") || "-"
+                      : cruce.furgon || "-"}
+                  </div>
+                  {cruce.detalle && (
+                    <div className="obj-info-footer">{cruce.detalle}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {esCuenta && (
+          <>
+            <label><strong className="ficha-info-title">Resumen de cuenta</strong></label>
+            <div className="ficha-summary-grid">
+              <div><span>Saldo actual</span><strong>$ {formatearMonto(elemento.monto)}</strong></div>
+              <div><span>Pendientes</span><strong>{movimientosCuenta.filter((m) => m.estado === false).length}</strong></div>
+              <div><span>Liquidados</span><strong>{movimientosCuenta.filter((m) => m.estado === true).length}</strong></div>
+              <div><span>Liquidaciones</span><strong>{liquidacionesCuenta.length}</strong></div>
+            </div>
+            <label><strong className="ficha-info-title">Historial de movimientos</strong></label>
+            <div className="ficha-info-box">
+              {movimientosCuenta.length === 0 && <p>Sin movimientos registrados.</p>}
+              {movimientosCuenta.map((movimiento) => {
+                const impacto = impactoEnCuenta(movimiento, elemento.id);
+                return (
+                  <div key={movimiento.id} className={`ficha-info movement-${movimiento.tipo?.toLowerCase()}`}>
+                    <div className="obj-info-body">
+                      <strong>{movimiento.tipo} · {movimiento.id}</strong>
+                      <span className={impacto >= 0 ? "money positive" : "money negative"}>
+                        {impacto >= 0 ? "+" : "−"} $ {formatearMonto(Math.abs(impacto))}
+                      </span>
+                    </div>
+                    <div className="obj-info-footer">
+                      {movimiento.estado === true ? "Liquidado" : "Pendiente"}
+                      {movimiento.viaje ? ` · Viaje ${movimiento.viaje}` : ""}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <label><strong className="ficha-info-title">Liquidaciones anteriores</strong></label>
+            <div className="ficha-info-box">
+              {liquidacionesCuenta.length === 0 && <p>Sin liquidaciones registradas.</p>}
+              {liquidacionesCuenta.map((liquidacion) => (
+                <div key={liquidacion.id} className="ficha-info">
+                  <div className="obj-info-body"><strong>{liquidacion.id}</strong><span>{liquidacion.saldoCompleto}</span></div>
+                  <div className="obj-info-footer">{liquidacion.cantidadMovimientos} movimientos · {liquidacion.tipoCierreCompleto}</div>
+                </div>
+              ))}
+            </div>
+            <div className="ficha-buttons">
+              <TextButton text="NUEVA LIQUIDACIÓN" onClick={() => setFormLiquidacionVisible(true)} />
+            </div>
+          </>
+        )}
+
+        {esPersona && (
+          <>
+            <label><strong className="ficha-info-title">Actividad del chofer</strong></label>
+            <div className="ficha-summary-grid">
+              <div><span>Cuenta corriente</span><strong>{cuentaAsociada?.id || "Sin cuenta"}</strong></div>
+              <div><span>Saldo actual</span><strong>{cuentaAsociada ? `$ ${formatearMonto(cuentaAsociada.monto)}` : "-"}</strong></div>
+              <div><span>Viaje activo</span><strong>{viajeActivoPersona?.id || "Ninguno"}</strong></div>
+              <div><span>Viajes históricos</span><strong>{viajesPersona.length}</strong></div>
+            </div>
+            {viajeActivoPersona && (
+              <div className="ficha-buttons">
+                <TextButton text={`VER VIAJE ${viajeActivoPersona.id}`} onClick={() => setViajeVinculado(viajeActivoPersona)} />
+              </div>
+            )}
+            <label><strong className="ficha-info-title">Historial relacionado</strong></label>
+            <div className="ficha-info-box">
+              <p>{viajesPersona.length} viajes · {movimientosCuenta.length} movimientos · {liquidacionesCuenta.length} liquidaciones</p>
+              {viajesPersona.map((viaje) => (
+                <button className="ficha-link" key={viaje.id} onClick={() => setViajeVinculado(viaje)}>
+                  {viaje.id} · {viaje.estado ? "En viaje" : "Finalizado"}
+                </button>
+              ))}
+            </div>
+            <label><strong className="ficha-info-title">Movimientos</strong></label>
+            <div className="ficha-info-box">
+              {movimientosCuenta.length === 0 && <p>Sin movimientos registrados.</p>}
+              {movimientosCuenta.map((movimiento) => (
+                <div key={movimiento.id} className={`ficha-info movement-${movimiento.tipo?.toLowerCase()}`}>
+                  <div className="obj-info-body"><strong>{movimiento.tipo} · {movimiento.id}</strong><span>$ {formatearMonto(movimiento.monto)}</span></div>
+                  <div className="obj-info-footer">{movimiento.estado ? "Liquidado" : "Pendiente"}</div>
+                </div>
+              ))}
+            </div>
+            <label><strong className="ficha-info-title">Liquidaciones</strong></label>
+            <div className="ficha-info-box">
+              {liquidacionesCuenta.length === 0 && <p>Sin liquidaciones registradas.</p>}
+              {liquidacionesCuenta.map((liquidacion) => (
+                <div key={liquidacion.id} className="ficha-info">
+                  <div className="obj-info-body"><strong>{liquidacion.id}</strong><span>{liquidacion.saldoCompleto}</span></div>
                 </div>
               ))}
             </div>
@@ -352,6 +563,21 @@ const Ficha = ({
             coleccion={coleccion}
             onGuardar={handleClose}
             onClose={handleClose}
+          />
+        )}
+        {formLiquidacionVisible && (
+          <FormLiquidacion
+            cuentaInicial={String(elemento.id)}
+            onClose={() => setFormLiquidacionVisible(false)}
+          />
+        )}
+        {viajeVinculado && (
+          <Ficha
+            elemento={viajeVinculado}
+            coleccion="viajes"
+            container={fichaContent.viajes}
+            editable={false}
+            onClose={() => setViajeVinculado(null)}
           />
         )}
 

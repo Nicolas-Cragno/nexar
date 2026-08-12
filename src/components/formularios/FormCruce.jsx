@@ -1,5 +1,6 @@
 //------------------------------------------------------ externos
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 //------------------------------------------------------ elementos
 import FormContent from "../funcionales/FormContent";
 import FormHeader from "../funcionales/FormHeader";
@@ -12,6 +13,8 @@ import { useData } from "../../contexto/DataContext";
 //------------------------------------------------------ estilos
 import "./css/Forms.css";
 import { useViajes } from "../../contexto/ViajesContext";
+import { usePersonas } from "../../contexto/PersonasContext";
+import { generarDocumentoCruce } from "../../functions/docFunctions";
 
 const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
   const titulo = "Solicitud";
@@ -24,18 +27,24 @@ const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
     viaje: elemento?.viaje || "",
     persona: elemento?.persona || "",
     tractor: elemento?.tractor || "",
-    furgon: elemento?.furgon || "",
+    furgon: elemento?.furgon || [],
     detalle: elemento?.detalle || "",
   });
   const { contadores, ubicaciones } = useData();
   const { viajes } = useViajes();
+  const { personas } = usePersonas();
+  const viajeSeleccionado = viajes.find(
+    (viaje) => String(viaje.id) === String(formData.viaje),
+  );
 
   useEffect(() => {
     if (!formData.viaje) {
       setReadOnly(false);
       return;
     }
-    const viajeSeleccionado = viajes.find((vj) => vj.id === formData.viaje);
+    const viajeSeleccionado = viajes.find(
+      (vj) => String(vj.id) === String(formData.viaje) && vj.estado === true,
+    );
 
     if (!viajeSeleccionado) {
       setReadOnly(false);
@@ -53,10 +62,22 @@ const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const personaOperadora = formData.operador;
+    if (!viajeSeleccionado || viajeSeleccionado.estado !== true) {
+      await Swal.fire({
+        title: "Viaje no disponible",
+        text: "El viaje seleccionado ya no está activo.",
+        icon: "error",
+        confirmButtonColor: "#4161bd",
+      });
+      return;
+    }
+
+    const personaOperadora = personas.find(
+      (persona) => String(persona.id) === String(formData.operador),
+    );
     const sucursalOperadora = personaOperadora?.sucursal || "01";
 
-    await submitCruce(
+    const cruceCreado = await submitCruce(
       formData,
       campos,
       ubicaciones,
@@ -64,8 +85,25 @@ const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
       sucursalOperadora,
       setLoading,
       onGuardar,
-      onClose,
+      null,
+      viajeSeleccionado,
     );
+
+    if (cruceCreado?.elemento) {
+      try {
+        await generarDocumentoCruce(viajeSeleccionado, cruceCreado.elemento);
+      } catch (error) {
+        console.error("[Error] al generar el documento del cruce:", error);
+        await Swal.fire({
+          title: "Cruce guardado",
+          text: "El cruce se guardó correctamente, pero no se pudo generar el PDF.",
+          icon: "warning",
+          confirmButtonColor: "#4161bd",
+        });
+      } finally {
+        if (onClose) onClose();
+      }
+    }
   };
 
   return (

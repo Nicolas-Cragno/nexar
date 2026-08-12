@@ -167,3 +167,12 @@ width: 100%;
 
     
 }
+
+.section-heading {
+  width: 100%;
+  color: var(--color-text);
+  margin-bottom: .5rem;
+}
+
+.section-heading h1 { margin: 0; font-size: clamp(2rem, 5vw, 3rem); }
+.section-heading p { margin: .25rem 0 0; }

@@ -22,7 +22,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
       case "propia":
         const empresa = empresas.find((em) => em.id === "33719349949");
         txt = empresa ? `$ ${empresa.monto || 0}` : "";
-        setListado(empresa);
+        setListado(empresa ? [empresa] : []);
         setTitulo("Empresas Propias");
         break;
       case "clientes":
@@ -53,7 +53,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
     }
 
     setTexto(txt);
-  }, [empresas, loading]);
+  }, [empresas, loading, filtro]);
 
   const COLECCION = "empresas";
   const [formVisible, setFormVisible] = useState(false);
@@ -71,6 +71,7 @@ const EmpresasAccess = ({ filtro = "propia" }) => {
     <>
       <Access
         coleccion={listado}
+        entity={filtro === "clientes" ? "clientes" : filtro === "proveedores" ? "proveedores" : "empresas"}
         title={titulo}
         logo={Logo}
         headers={headers}

@@ -662,207 +662,383 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
     }
 };
 
-export const submitViaje = async (formData, campos, ubicaciones, contadores, sucursal, loading, onGuardar, onClose, elemento = null) => {
-    const modoEdicion = elemento;
-    const verificacion = verificarCamposObligatorios(campos, formData);
-    if (!verificacion) return;
-    loading(true); // ahora si empieza a cargar ...
+const normalizarIds = (valores = []) =>
+    [...new Set((Array.isArray(valores) ? valores : []).filter(Boolean).map(String))];
 
-    // guardar elemento
-    try {
-        if (modoEdicion) {
-            const elementoAGuardar = campos.reduce((acc, cp) => {
-                if (cp.use !== "database") return acc;
+const viajeUsaRecurso = (viaje, tipo, id) => {
+    if (!viaje || viaje.estado !== true) return false;
+    if (tipo === "personas") return String(viaje.persona) === String(id);
+    if (tipo === "tractores") return String(viaje.tractor) === String(id);
+    return (viaje.furgon || []).some((furgonId) => String(furgonId) === String(id));
+};
 
-                let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
-
-                acc[cp.key] = valor;
-                return acc;
-            }, {});
-
-            const result = await confirmDataSwal("Viaje", elementoAGuardar);
-
-
-            if (!result.isConfirmed) {
-                return null;
-            }
-
-            const viajeEditado = {
-                ultimaModificacion: serverTimestamp(),
-                ...elementoAGuardar,
-            };
-
-            const resultadoCarga = await update(elemento.id,
-                "viajes",
-                viajeEditado
-            );
-
-            statusOptions(resultadoCarga);
-
-
-            if (!resultadoCarga) return null;
-
-            if (onGuardar) onGuardar();
-
-
-            return viajeEditado;
-        } else {
-            const elementoAGuardar = campos.reduce((acc, cp) => {
-                if (cp.use !== "database") return acc;
-
-                let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
-
-                acc[cp.key] = valor;
-                return acc;
-            }, {});
-
-            const result = await confirmDataSwal("Viaje", elementoAGuardar);
-
-
-            if (!result.isConfirmed) {
-                return null;
-            }
-
-            const { id: identificador } = await eventCode("viajes", ubicaciones, contadores, sucursal);
-
-            const nuevoViaje = {
-                id: identificador,
-                fecha: serverTimestamp(),
-                estado: true,
-                movimiento: elementoAGuardar.adelanto > 0,
-                ...elementoAGuardar,
-            };
-
-            const resultadoCarga = await submit(
-                "viajes",
-                nuevoViaje
-            );
-
-            statusOptions(resultadoCarga);
-
-            /* lo hace directamente el formViaje
-                if (nuevoViaje.movimiento) {
-                // automaticamente cargar movimiento de cuenta
-
-                await submitMovimientoCuenta({
-                    fecha: serverTimestamp(),
-                    viaje: nuevoViaje.id,
-                    tipo: "PAGO", //para que se tome la cuenta de la persona/chofer para asignar el cash
-                    operador: nuevoViaje.operador || "", // debe llega si o si
-                    persona: nuevoViaje.persona || "", // debe llega si o si
-                    monto: nuevoViaje.adelanto,
-                    detalle: `ADELANTO ASIGNADO EN EL VIAJE ${nuevoViaje.id}`
-                }, camposMov, sectores, loading, onGuardar, onClose);
-            }
-
-            */
-
-            if (!resultadoCarga) return null;
-
-            if (onGuardar) onGuardar();
-
-            return nuevoViaje;
-        }
-    } catch (error) {
-        console.error("[Error] al intentar guardar", error);
-
-        Swal.fire({
-            title: "Error",
-            text: "No hemos podido procesar la solicitud.",
-            icon: "error",
-            confirmButtonText: "Entendido",
-            confirmButtonColor: "#4161bd",
-        });
-
-        return null;
-    } finally {
-        loading(false);
+const validarRecursoViaje = ({ recurso, tipo, id, viajeId, viajesActivos, eraRecursoPropio }) => {
+    if (!recurso) {
+        throw new Error(`No existe el recurso ${tipo}/${id}.`);
     }
-}
 
-export const submitCruce = async (formData, campos, ubicaciones, contadores, sucursal, loading, onGuardar, onClose) => {
+    const viajeAsociado = viajesActivos.find((viaje) =>
+        viajeUsaRecurso(viaje, tipo, id)
+    );
+    const banderaOcupado = recurso.enViaje === true;
+    const banderaViaje = recurso.viajeActivo ? String(recurso.viajeActivo) : null;
+    const perteneceAlPropio = String(viajeAsociado?.id) === String(viajeId);
+    const banderaPropia = banderaViaje === String(viajeId);
+
+    if (banderaPropia && !eraRecursoPropio) {
+        throw new Error(
+            `Inconsistencia en ${tipo}/${id}: apunta al viaje ${viajeId}, pero no forma parte de sus recursos actuales.`
+        );
+    }
+
+    if (viajeAsociado && !perteneceAlPropio) {
+        throw new Error(
+            `El recurso ${tipo}/${id} está afectado al viaje activo ${viajeAsociado.id}.`
+        );
+    }
+
+    if ((banderaOcupado || banderaViaje) && !banderaPropia) {
+        if (!viajeAsociado) {
+            throw new Error(
+                `Inconsistencia en ${tipo}/${id}: figura afectado al viaje ${banderaViaje || "desconocido"}, pero no coincide con un viaje activo cargado.`
+            );
+        }
+        throw new Error(
+            `El recurso ${tipo}/${id} está afectado al viaje ${banderaViaje || viajeAsociado.id}.`
+        );
+    }
+
+    if (viajeAsociado && (!banderaOcupado || !banderaViaje)) {
+        throw new Error(
+            `Inconsistencia en ${tipo}/${id}: está asociado al viaje activo ${viajeAsociado.id}, pero sus banderas no coinciden.`
+        );
+    }
+};
+
+export const submitViaje = async (
+    formData,
+    campos,
+    ubicaciones,
+    contadores,
+    sucursal,
+    loading,
+    onGuardar,
+    onClose,
+    viajes = [],
+    elemento = null
+) => {
     const verificacion = verificarCamposObligatorios(campos, formData);
-    if (!verificacion) return;
-    loading(true); // ahora si empieza a cargar ...
+    if (!verificacion) return null;
+    loading(true);
 
-    // guardar elemento
     try {
-        const elementoAGuardar = campos.reduce((acc, cp) => {
-            if (cp.use !== "database") return acc;
-
-            let valor = formatearCampoParaCarga(formData[cp.key], cp.dato);
-
-            acc[cp.key] = valor;
+        const datosViaje = campos.reduce((acc, campo) => {
+            if (campo.use === "database") {
+                acc[campo.key] = formatearCampoParaCarga(formData[campo.key], campo.dato);
+            }
             return acc;
         }, {});
 
-        const result = await confirmDataSwal("Cruce", elementoAGuardar);
+        const confirmacion = await confirmDataSwal("Viaje", datosViaje);
+        if (!confirmacion.isConfirmed) return null;
 
+        const modoEdicion = !!elemento;
+        const idViaje = modoEdicion
+            ? String(elemento.id)
+            : (await eventCode("viajes", ubicaciones, contadores, sucursal)).id;
+        const viajeRef = doc(db, "viajes", idViaje);
+        const viajesActivosConocidos = viajes.filter(
+            (viaje) => viaje.estado === true
+        );
+        const viajesConflictoRefs = viajesActivosConocidos
+            .filter((viaje) => String(viaje.id) !== idViaje)
+            .map((viaje) => doc(db, "viajes", String(viaje.id)));
 
-        if (!result.isConfirmed) {
-            loading(false);
-            return;
-        }
+        let viajeGuardado;
 
-        const { id: identificador } = await eventCode("cruces", ubicaciones, contadores, sucursal);
-
-        const carga = async () => {
-            const cargaCruce = await submit("cruces", { id: identificador, fecha: serverTimestamp(), estado: true, ...elementoAGuardar });
-
-            if (cargaCruce) {
-                return true;
-            } else {
-                return false;
+        await runTransaction(db, async (transaction) => {
+            const viajeSnap = await transaction.get(viajeRef);
+            if (modoEdicion && !viajeSnap.exists()) {
+                throw new Error(`No existe el viaje ${idViaje}.`);
             }
-        };
+            if (!modoEdicion && viajeSnap.exists()) {
+                throw new Error(`El viaje ${idViaje} ya existe.`);
+            }
 
-        const resultadoCarga = await carga();
+            const viajeAnterior = viajeSnap.exists() ? viajeSnap.data() : null;
+            if (modoEdicion && viajeAnterior.estado !== true) {
+                throw new Error("No se pueden reasignar recursos de un viaje cerrado.");
+            }
 
+            const recursosNuevos = [
+                { tipo: "personas", id: String(datosViaje.persona) },
+                { tipo: "tractores", id: String(datosViaje.tractor) },
+                ...normalizarIds(datosViaje.furgon).map((id) => ({ tipo: "furgones", id })),
+            ];
+            const recursosAnteriores = viajeAnterior
+                ? [
+                    { tipo: "personas", id: String(viajeAnterior.persona) },
+                    { tipo: "tractores", id: String(viajeAnterior.tractor) },
+                    ...normalizarIds(viajeAnterior.furgon).map((id) => ({ tipo: "furgones", id })),
+                ]
+                : [];
+            const recursosTodos = [...recursosNuevos, ...recursosAnteriores].filter(
+                (recurso, index, lista) =>
+                    lista.findIndex(
+                        (otro) => otro.tipo === recurso.tipo && otro.id === recurso.id
+                    ) === index
+            );
+            const recursosConRefs = recursosTodos.map((recurso) => ({
+                ...recurso,
+                ref: doc(db, recurso.tipo, recurso.id),
+            }));
+            const recursosSnaps = [];
+            for (const recurso of recursosConRefs) {
+                recursosSnaps.push({
+                    ...recurso,
+                    snap: await transaction.get(recurso.ref),
+                });
+            }
 
-        statusOptions(resultadoCarga);
-        if (onGuardar) onGuardar();
+            const viajesConflicto = [];
+            for (const ref of viajesConflictoRefs) {
+                const snapshot = await transaction.get(ref);
+                if (snapshot.exists()) {
+                    viajesConflicto.push({ id: snapshot.id, ...snapshot.data() });
+                }
+            }
 
-        if (onClose) onClose();
+            recursosTodos.forEach((recursoNuevo) => {
+                const recursoActual = recursosSnaps.find(
+                    (recurso) =>
+                        recurso.tipo === recursoNuevo.tipo && recurso.id === recursoNuevo.id
+                );
+                validarRecursoViaje({
+                    recurso: recursoActual?.snap.data(),
+                    tipo: recursoNuevo.tipo,
+                    id: recursoNuevo.id,
+                    viajeId: idViaje,
+                    viajesActivos: viajesConflicto,
+                    eraRecursoPropio: recursosAnteriores.some(
+                        (recurso) =>
+                            recurso.tipo === recursoNuevo.tipo && recurso.id === recursoNuevo.id
+                    ),
+                });
+            });
 
+            recursosAnteriores.forEach((recursoAnterior) => {
+                const seConserva = recursosNuevos.some(
+                    (recurso) =>
+                        recurso.tipo === recursoAnterior.tipo && recurso.id === recursoAnterior.id
+                );
+                if (seConserva) return;
+                const recursoActual = recursosSnaps.find(
+                    (recurso) =>
+                        recurso.tipo === recursoAnterior.tipo && recurso.id === recursoAnterior.id
+                );
+                const datos = recursoActual?.snap.data();
+                if (!datos) {
+                    throw new Error(`No existe el recurso anterior ${recursoAnterior.tipo}/${recursoAnterior.id}.`);
+                }
+                if (
+                    datos.viajeActivo &&
+                    String(datos.viajeActivo) !== idViaje
+                ) {
+                    throw new Error(
+                        `Inconsistencia en ${recursoAnterior.tipo}/${recursoAnterior.id}: pertenece a otro viaje.`
+                    );
+                }
+            });
 
+            viajeGuardado = modoEdicion
+                ? {
+                    ...viajeAnterior,
+                    ...datosViaje,
+                    id: idViaje,
+                    ultimaModificacion: serverTimestamp(),
+                }
+                : {
+                    id: idViaje,
+                    fecha: serverTimestamp(),
+                    estado: true,
+                    movimiento: datosViaje.adelanto > 0,
+                    ...datosViaje,
+                };
 
-        if (resultadoCarga) {
-            return {
-                elemento: { id: identificador, ...elementoAGuardar }
-            };
-        }
-        return null;
+            if (modoEdicion) {
+                transaction.update(viajeRef, {
+                    ...datosViaje,
+                    ultimaModificacion: serverTimestamp(),
+                });
+            } else {
+                transaction.set(viajeRef, viajeGuardado);
+            }
 
+            recursosNuevos.forEach((recursoNuevo) => {
+                const recurso = recursosConRefs.find(
+                    (item) =>
+                        item.tipo === recursoNuevo.tipo && item.id === recursoNuevo.id
+                );
+                transaction.update(recurso.ref, {
+                    enViaje: true,
+                    viajeActivo: idViaje,
+                    ultimaModificacion: serverTimestamp(),
+                });
+            });
 
+            recursosAnteriores.forEach((recursoAnterior) => {
+                const seConserva = recursosNuevos.some(
+                    (recurso) =>
+                        recurso.tipo === recursoAnterior.tipo && recurso.id === recursoAnterior.id
+                );
+                if (seConserva) return;
+                const recurso = recursosConRefs.find(
+                    (item) =>
+                        item.tipo === recursoAnterior.tipo && item.id === recursoAnterior.id
+                );
+                transaction.update(recurso.ref, {
+                    enViaje: false,
+                    viajeActivo: null,
+                    ultimaModificacion: serverTimestamp(),
+                });
+            });
+        });
 
+        statusOptions({ status: "success" });
+        if (onGuardar) await onGuardar();
+        return viajeGuardado;
     } catch (error) {
-        console.error("[Error] al intentar guardar", error);
-
+        console.error("[Error] al guardar viaje:", error);
         Swal.fire({
-            title: "Error",
-            text: "No hemos podido procesar la solicitud.",
+            title: "No se pudo guardar el viaje",
+            text: error?.message || "No hemos podido procesar la solicitud.",
             icon: "error",
             confirmButtonText: "Entendido",
             confirmButtonColor: "#4161bd",
         });
+        return null;
     } finally {
         loading(false);
     }
-}
+};
+
+export const submitCruce = async (
+    formData,
+    campos,
+    ubicaciones,
+    contadores,
+    sucursal,
+    loading,
+    onGuardar,
+    onClose,
+    viajeReferencia = null
+) => {
+    const verificacion = verificarCamposObligatorios(campos, formData);
+    if (!verificacion) return null;
+    loading(true);
+
+    try {
+        const elementoAGuardar = campos.reduce((acc, campo) => {
+            if (campo.use === "database") {
+                acc[campo.key] = formatearCampoParaCarga(
+                    formData[campo.key],
+                    campo.dato
+                );
+            }
+            return acc;
+        }, {});
+
+        if (viajeReferencia) {
+            if (
+                viajeReferencia.estado !== true ||
+                String(viajeReferencia.id) !== String(elementoAGuardar.viaje)
+            ) {
+                throw new Error("El viaje seleccionado ya no está activo o no coincide.");
+            }
+
+            const furgonesViaje = normalizarIds(viajeReferencia.furgon);
+            const furgonesCruce = normalizarIds(elementoAGuardar.furgon);
+            const recursosCoinciden =
+                String(viajeReferencia.persona) === String(elementoAGuardar.persona) &&
+                String(viajeReferencia.tractor) === String(elementoAGuardar.tractor) &&
+                furgonesViaje.length === furgonesCruce.length &&
+                furgonesViaje.every((id) => furgonesCruce.includes(id));
+
+            if (!recursosCoinciden) {
+                throw new Error(
+                    "Los datos del cruce no coinciden con los recursos actuales del viaje."
+                );
+            }
+        }
+
+        const confirmacion = await confirmDataSwal("Cruce", elementoAGuardar);
+        if (!confirmacion.isConfirmed) return null;
+
+        const { id: identificador } = await eventCode(
+            "cruces",
+            ubicaciones,
+            contadores,
+            sucursal
+        );
+        const documento = {
+            id: identificador,
+            fecha: serverTimestamp(),
+            estado: true,
+            ...elementoAGuardar,
+            viaje: String(elementoAGuardar.viaje),
+            furgon: normalizarIds(elementoAGuardar.furgon),
+        };
+        const resultadoCarga = await submit("cruces", documento);
+
+        statusOptions(resultadoCarga);
+
+        if (resultadoCarga.status !== "success") {
+            return null;
+        }
+
+        if (onGuardar) await onGuardar();
+        if (onClose) onClose();
+
+        return {
+            elemento: {
+                ...documento,
+                // Firestore conserva serverTimestamp(); el PDF inmediato necesita una fecha materializada.
+                fecha: new Date(),
+            }
+        };
+    } catch (error) {
+        console.error("[Error] al guardar cruce:", error);
+        Swal.fire({
+            title: "No se pudo guardar el cruce",
+            text: error?.message || "No hemos podido procesar la solicitud.",
+            icon: "error",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: "#4161bd",
+        });
+        return null;
+    } finally {
+        loading(false);
+    }
+};
 
 // estados
 
 export const submitFinViaje = async (
-    id,
+    viaje,
     state = false,
     callback = null
 ) => {
+    const id = String(viaje?.id || viaje);
+    const detalleRecursos = typeof viaje === "object"
+        ? `Chofer: ${viaje.persona || "-"}<br/>Tractor: ${viaje.tractor || "-"}<br/>Furgones: ${normalizarIds(viaje.furgon).join(", ") || "ninguno"}`
+        : "Se liberarán los recursos asociados al viaje.";
+
     const result = await Swal.fire({
         title: id,
-        text: "¿Desea finalizar el viaje?",
+        html: `<p>¿Desea finalizar el viaje?</p><p>${detalleRecursos}</p>`,
         icon: "question",
         showCancelButton: true,
-        confirmButtonText: "Sí, finalizar",
+        confirmButtonText: "Sí, finalizar y liberar",
         cancelButtonText: "Cancelar",
         confirmButtonColor: "#4161bd",
     });
@@ -870,31 +1046,98 @@ export const submitFinViaje = async (
     if (!result.isConfirmed) return false;
 
     try {
-        const resultado = await update(id, "viajes", {
-            estado: state,
-            fechaFin: serverTimestamp(),
+        const viajeRef = doc(db, "viajes", id);
+        let recursosLiberados;
+
+        await runTransaction(db, async (transaction) => {
+            const viajeSnap = await transaction.get(viajeRef);
+            if (!viajeSnap.exists()) {
+                throw new Error(`No existe el viaje ${id}.`);
+            }
+
+            const viajeActual = viajeSnap.data();
+            if (viajeActual.estado !== true) {
+                throw new Error(`El viaje ${id} ya está cerrado.`);
+            }
+
+            const recursos = [
+                { tipo: "personas", id: String(viajeActual.persona) },
+                { tipo: "tractores", id: String(viajeActual.tractor) },
+                ...normalizarIds(viajeActual.furgon).map((furgonId) => ({
+                    tipo: "furgones",
+                    id: furgonId,
+                })),
+            ];
+            const recursosLeidos = [];
+            for (const recurso of recursos) {
+                const ref = doc(db, recurso.tipo, recurso.id);
+                const snapshot = await transaction.get(ref);
+                if (!snapshot.exists()) {
+                    throw new Error(`No existe el recurso ${recurso.tipo}/${recurso.id}.`);
+                }
+                recursosLeidos.push({ ...recurso, ref, datos: snapshot.data() });
+            }
+
+            recursosLeidos.forEach((recurso) => {
+                const tieneBandera = recurso.datos.enViaje !== undefined;
+                const tieneViaje = recurso.datos.viajeActivo !== undefined;
+                if (tieneBandera && recurso.datos.enViaje !== true) {
+                    throw new Error(
+                        `Inconsistencia en ${recurso.tipo}/${recurso.id}: el viaje está activo pero el recurso figura libre.`
+                    );
+                }
+                if (
+                    tieneViaje &&
+                    String(recurso.datos.viajeActivo) !== id
+                ) {
+                    throw new Error(
+                        `Inconsistencia en ${recurso.tipo}/${recurso.id}: figura asociado al viaje ${recurso.datos.viajeActivo || "ninguno"}.`
+                    );
+                }
+            });
+
+            transaction.update(viajeRef, {
+                estado: state,
+                fechaFin: serverTimestamp(),
+                ultimaModificacion: serverTimestamp(),
+            });
+            recursosLeidos.forEach((recurso) => {
+                transaction.update(recurso.ref, {
+                    enViaje: false,
+                    viajeActivo: null,
+                    ultimaModificacion: serverTimestamp(),
+                });
+            });
+
+            recursosLiberados = {
+                persona: viajeActual.persona,
+                tractor: viajeActual.tractor,
+                furgones: normalizarIds(viajeActual.furgon),
+            };
         });
 
-        statusOptions({
-            status: resultado ? "success" : "error"
+        await Swal.fire({
+            title: "Viaje finalizado",
+            html: `
+                <p>Chofer liberado: <strong>${recursosLiberados.persona}</strong></p>
+                <p>Tractor liberado: <strong>${recursosLiberados.tractor}</strong></p>
+                <p>Furgones liberados: <strong>${recursosLiberados.furgones.join(", ") || "ninguno"}</strong></p>
+            `,
+            icon: "success",
+            confirmButtonColor: "#4161bd",
         });
 
-        if (resultado && callback) {
-            await callback();
-        }
-
-        return resultado;
+        if (callback) await callback();
+        return true;
     } catch (error) {
-        console.error("[Error] al modificar estado", error);
-
+        console.error("[Error] al finalizar viaje:", error);
         Swal.fire({
-            title: "Error",
-            text: "No hemos podido procesar la solicitud.",
+            title: "No se pudo finalizar el viaje",
+            text: error?.message || "No hemos podido procesar la solicitud.",
             icon: "error",
             confirmButtonText: "Entendido",
             confirmButtonColor: "#4161bd",
         });
-
         return false;
     }
 };

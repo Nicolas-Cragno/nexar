@@ -65,6 +65,22 @@ const FormContent = ({
         );
         listado = cargarSelects("personas", personasChoferes);
         break;
+      case "choferesDisponibles":
+        listado = cargarSelects(
+          "personas",
+          personas.filter(
+            (ps) =>
+              ps?.puesto === "CHOFER" &&
+              (!ps.enViaje || String(ps.viajeActivo) === String(elemento?.id)) &&
+              !viajes.some(
+                (viaje) =>
+                  viaje.estado === true &&
+                  String(viaje.id) !== String(elemento?.id) &&
+                  String(viaje.persona) === String(ps.id),
+              ),
+          ),
+        );
+        break;
       case "administrativos":
         const personasAdm = (personas || []).filter(
           (ps) => ps?.puesto === "ADMINISTRATIVO",
@@ -77,8 +93,40 @@ const FormContent = ({
       case "tractores":
         listado = cargarSelects("tractores", tractores);
         break;
+      case "tractoresDisponibles":
+        listado = cargarSelects(
+          "tractores",
+          tractores.filter(
+            (tr) =>
+              (!tr.enViaje || String(tr.viajeActivo) === String(elemento?.id)) &&
+              !viajes.some(
+                (viaje) =>
+                  viaje.estado === true &&
+                  String(viaje.id) !== String(elemento?.id) &&
+                  String(viaje.tractor) === String(tr.id),
+              ),
+          ),
+        );
+        break;
       case "furgones":
         listado = cargarSelects("furgones", furgones);
+        break;
+      case "furgonesDisponibles":
+        listado = cargarSelects(
+          "furgones",
+          furgones.filter(
+            (fg) =>
+              (!fg.enViaje || String(fg.viajeActivo) === String(elemento?.id)) &&
+              !viajes.some(
+                (viaje) =>
+                  viaje.estado === true &&
+                  String(viaje.id) !== String(elemento?.id) &&
+                  (viaje.furgon || []).some(
+                    (furgonId) => String(furgonId) === String(fg.id),
+                  ),
+              ),
+          ),
+        );
         break;
       case "empresasPropias":
         listado = cargarSelects(

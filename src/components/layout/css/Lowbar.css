@@ -54,7 +54,9 @@
 }
 
 .lowbar .nav-logo {
-    width: 5rem;
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
 }
 
 .low-bar-link {

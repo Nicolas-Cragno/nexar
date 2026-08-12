@@ -39,6 +39,7 @@ const PersonasAccess = ({ filtro = null }) => {
     <>
       <Access
         coleccion={personas}
+        entity="personas"
         title={TITLE}
         logo={Logo}
         headers={headers}

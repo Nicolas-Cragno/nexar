@@ -637,6 +637,26 @@ const cruceBarcaza = async (doc, carga, i) => {
 
 }
 
+export const generarDocumentoCruce = async (viaje, cruce) => {
+  if (!viaje || !cruce) return false;
+
+  const datosCruce = normalizarDatosPdf({
+    ...viaje,
+    fecha: cruce.fecha || viaje.fecha,
+    crucesBarcazaCompletos: [],
+    crucesRegistrados: [cruce],
+  });
+  const { jsPDF } = window.jspdf || require("jspdf");
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  await cruceBarcaza(doc, datosCruce, 0);
+  return true;
+};
+
 const anticipo = async (doc, carga, i) => {
 
   let index = i || 0;

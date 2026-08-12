@@ -26,7 +26,7 @@ export function ViajesProvider({ children }) {
             const personaLabel = persona?.nombreCompleto;
             const estadoLabel = vj.estado ? "EN VIAJE" : "FINALIZADO";
             const label = `${vj.id} | ${personaLabel} (TR: ${vj.tractor}${vj.furgon ? " / FG: " + vj.furgon : ""} | ${estadoLabel})`;
-            const adelantos = movimientos.filter((mv) => String(mv.viaje) === String(vj.id));
+            const movimientosViaje = movimientos.filter((mv) => String(mv.viaje) === String(vj.id));
             const cruceBarcaza = cruces.filter((cc) => String(cc.viaje) === String(vj.id));
             // arrays
             const clientes = empresas.filter((em) => (vj.cliente || []).some((id) => String(id) === String(em.id) || String(id) === String(em.cuit)));
@@ -42,7 +42,8 @@ export function ViajesProvider({ children }) {
                 furgonCompleto: furgonesLabel,
                 clienteCompleto: clientesLabel,
                 clienteObj: clientes || [],
-                adelantosRegistrados: adelantos || [],
+                movimientosRegistrados: movimientosViaje || [],
+                adelantosRegistrados: movimientosViaje || [],
                 crucesRegistrados: cruceBarcaza || []
             };
         });

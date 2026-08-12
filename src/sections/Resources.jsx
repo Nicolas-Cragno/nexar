@@ -8,7 +8,9 @@ const Resources = () => {
   return (
     <section className="section-container page">
       <div className="sections-options-group">
+        <div className="section-heading"><h1>Recursos</h1><p>Personas, empresas y unidades disponibles.</p></div>
         <PersonasAccess />
+        <EmpresasAccess />
         <TractoresAccess />
         <FurgonesAccess />
       </div>

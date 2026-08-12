@@ -685,3 +685,28 @@
     font-size: .75rem;
   }
 }
+/* Bloques relacionados, incorporados sin alterar la estructura base de Ficha. */
+.ficha-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+  margin: .5rem 0 1rem;
+}
+
+.ficha-summary-grid > div {
+  background: #f3f4f6;
+  border-left: 3px solid #4161bd;
+  padding: .7rem;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.movement-adelanto, .movement-pago { border-left: 4px solid #2f855a; }
+.movement-cobro { border-left: 4px solid #4161bd; }
+.movement-gasto { border-left: 4px solid #c53030; }
+.ficha-link { width: 100%; border: 0; border-top: 1px solid #d1d5db; padding: .65rem; text-align: left; cursor: pointer; background: #fff; }
+
+@media (max-width: 768px) {
+  .ficha-summary-grid { grid-template-columns: 1fr; }
+}

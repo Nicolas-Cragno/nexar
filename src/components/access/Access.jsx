@@ -19,6 +19,7 @@ const Access = ({
   filtro = null,
   onClickForm = null,
   editable = true,
+  entity = null,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -45,7 +46,7 @@ const Access = ({
         <Modal
           title={title}
           tipo={coleccion}
-          coleccion={title}
+          coleccion={entity || title}
           data={coleccion}
           headers={headers}
           onClose={() => handleClose()}

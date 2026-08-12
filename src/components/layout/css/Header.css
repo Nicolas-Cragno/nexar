@@ -29,6 +29,8 @@ header {
   color: #ccc;
 }
 
+.header-navbar li a.active { color: #9db1ff; }
+
 /* ------------------------------------------ RESONSIVE */
 
   @media (max-width: 768px) {

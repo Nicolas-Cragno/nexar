@@ -14,10 +14,10 @@ import { useMovimientos } from "../../contexto/MovimientosContext";
 import { usePersonas } from "../../contexto/PersonasContext";
 import "./css/Forms.css";
 
-const FormLiquidacion = ({ onGuardar, onClose }) => {
+const FormLiquidacion = ({ onGuardar, onClose, cuentaInicial = "" }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    cuenta: "",
+    cuenta: cuentaInicial,
     operador: "",
     detalle: "",
     movimientos: [],

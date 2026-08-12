@@ -1,16 +1,15 @@
-import CuentasAccess from "../components/access/CuentasAccess";
+import MovimientosAccess from "../components/access/MovimientosAccess";
 import ViajesAccess from "../components/access/ViajesAccess";
 import CrucesAccess from "../components/access/CrucesAccess";
-import LiquidacionesAccess from "../components/access/LiquidacionesAccess";
 
 const Actions = () => {
   return (
     <section className="section-container page">
       <div className="sections-options-group">
-        <CuentasAccess />
+        <div className="section-heading"><h1>Operaciones</h1><p>Gestión diaria de viajes, movimientos y documentación.</p></div>
         <ViajesAccess />
+        <MovimientosAccess />
         <CrucesAccess />
-        <LiquidacionesAccess />
       </div>
     </section>
   );

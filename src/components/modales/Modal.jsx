@@ -184,7 +184,8 @@ const Modal = ({
           container={
             filtroSector
               ? fichaContent[filtroSector.toLowerCase()]
-              : (fichaContent[itemSeleccionado.area?.toLowerCase()] ??
+              : (fichaContent[coleccion?.toLowerCase()] ??
+                fichaContent[itemSeleccionado.area?.toLowerCase()] ??
                 fichaContent[title?.toLowerCase()] ??
                 [])
           }

@@ -1,41 +1,43 @@
 .dashboard {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: calc(100vh - 80px);
   width: 100%;
+  padding: 1.5rem;
+  overflow: auto;
 }
 
-.dashboard-content {
+.dashboard-content { width: min(1200px, 100%); margin: 0 auto; }
+.dashboard-heading { color: var(--color-text); margin-bottom: 1rem; }
+.dashboard-heading h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); }
+.dashboard-heading p { margin: .25rem 0 0; }
+
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-metrics a {
+  background: #1f2937;
+  color: #fff;
+  padding: 1rem;
+  text-decoration: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  border-left: 4px solid #4161bd;
 }
 
-.dashboard-logo {
-  width: 180px;
-  max-width: 40vw;
-  margin-bottom: 30px;
-  user-select: none;
-  object-fit: contain;
-  transition: transform 0.2s ease;
-}
+.dashboard-metrics strong { font-size: 2rem; margin-top: .35rem; }
+.dashboard-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.dashboard-panel { background: rgba(255,255,255,.94); padding: 1rem; color: #1f2937; }
+.dashboard-panel h2 { margin: 0 0 .75rem; font-size: 1.15rem; }
+.dashboard-panel > div { display: flex; justify-content: space-between; gap: 1rem; padding: .65rem 0; border-top: 1px solid #d1d5db; }
+.dashboard-panel span { text-align: right; color: #4b5563; }
 
-
-.dashboard-logo:hover {
-  transform: scale(1.02);
-}
-
-.dashboard-title {
-  font-size: clamp(2.5rem, 6vw, 5rem);
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
-}
-
-.dashboard-subtitle {
-  margin-top: 16px;
-  font-size: 1.3rem;
-  color: var(--color-border);
+@media (max-width: 768px) {
+  .dashboard { padding: 1rem 1rem 90px; }
+  .dashboard-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+  .dashboard-panels { grid-template-columns: 1fr; }
+  .dashboard-metrics a { padding: .75rem; }
+  .dashboard-metrics strong { font-size: 1.5rem; }
 }
