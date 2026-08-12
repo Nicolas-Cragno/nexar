@@ -4,11 +4,14 @@
     min-height: 120px;
     display: flex;
     align-items: center;
+    margin-top: -24px;
     padding: 24px 32px;
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     overflow: hidden;
+    flex: 0 0 auto;
+    align-self: stretch;
 }
 
 .section-header-box {

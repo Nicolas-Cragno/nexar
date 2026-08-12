@@ -6,7 +6,7 @@
   height: 100%;
   background-color: rgba(0,0,0,0.5);
   display: flex;
-  justify-content: right;
+  justify-content: center;
   align-items: center;
   z-index: 999;
   text-align: left;
@@ -15,7 +15,8 @@
 }
 
 .ficha-content {
-  background: #fff;
+  background: linear-gradient(rgba(255,255,255,.86), rgba(255,255,255,.86)), url("../../../assets/images/IMG_BACK_2.png") center / cover;
+  backdrop-filter: blur(10px);
   padding: 2rem;
   border-radius: 2px;
   width: 90%;
@@ -601,11 +602,10 @@
 
 @media (max-width: 1140px) {
   .ficha {
-    justify-content: right;
+    justify-content: center;
   }
 
   .ficha-content {
-    background-color: white;
     padding: 1.5rem 2rem;
     border-radius: 2px;
     width: 80%;
@@ -621,7 +621,7 @@
 @media (max-width: 768px) {
   .ficha {
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     padding: .5rem;
   }
 

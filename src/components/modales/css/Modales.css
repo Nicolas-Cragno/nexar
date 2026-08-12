@@ -6,8 +6,8 @@
   height: 100%;
   background-color: var(--dark-transparent);
   display: flex;
-  justify-content: right;
-  align-items: top;
+  justify-content: center;
+  align-items: center;
   z-index: 1050;
   text-align: left;
   padding: 1rem;
@@ -220,7 +220,8 @@ color:#888
 }
 
 .modal-content {
-  background: #fff;
+  background: linear-gradient(rgba(255,255,255,.86), rgba(255,255,255,.86)), url("../../../assets/images/IMG_BACK_2.png") center / cover;
+  backdrop-filter: blur(10px);
   padding: 2rem;
   border-radius: 2px;
   width: 90%;
@@ -233,7 +234,8 @@ color:#888
 }
 
 .modal-content-2 {  /* para modal de personas que necesito mas espacio para los datos */
-  background: #fff;
+  background: linear-gradient(rgba(255,255,255,.86), rgba(255,255,255,.86)), url("../../../assets/images/IMG_BACK_2.png") center / cover;
+  backdrop-filter: blur(10px);
   padding: 2rem;
   border-radius: 2px;
   width: 90%;
@@ -630,10 +632,10 @@ Desktops
 
 @media (max-width: 1140px) {
   .modal {
-  justify-content: right;
+  justify-content: center;
+  align-items: center;
 }
 .modal-content { 
-  background-color: white;
   padding: 1.5rem 2rem;
   border-radius: 2px;
   width: 80%;
@@ -699,7 +701,7 @@ Desktops
 
   .modal{
     justify-content:center;
-    align-items:flex-start;
+    align-items:center;
     padding:.5rem;
   }
 

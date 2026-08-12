@@ -26,12 +26,10 @@ const Dashboard = () => {
   const liquidacionesRecientes = liquidaciones.slice(0, 5);
 
   return (
-    <section className="dashboard page">
+    <section className="section-container page">
+      <SectionHeader title={"Dashboard"} subtitle={"Estado operativo actual"} />
+
       <div className="dashboard-content">
-        <SectionHeader
-          title={"Dashboard"}
-          subtitle={"Estado operativo actual"}
-        />
         <div className="dashboard-metrics">
           <Link to="/operaciones">
             <span>Viajes activos</span>

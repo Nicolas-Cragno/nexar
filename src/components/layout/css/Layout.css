@@ -1,7 +1,7 @@
 .layout{
     display:flex;
     flex-direction:column;
-    min-height:100vh;
+    height:100dvh;
     width:100%;
     overflow:hidden;
 }
@@ -11,6 +11,8 @@
     display:flex;
     overflow:hidden;
     padding-bottom:70px;
+    min-height:0;
+    justify-content:center;
 
 }
 
