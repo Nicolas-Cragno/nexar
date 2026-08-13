@@ -22,6 +22,10 @@ const Dashboard = () => {
   const cuentasConSaldo = cuentaCorriente.filter(
     (cuenta) => Number(cuenta.monto) !== 0,
   );
+
+  const cuentaTCC = cuentaCorriente.find((cc) => cc.id === "33719349949");
+  const montoTCC = cuentaTCC?.monto || 0;
+
   const movimientosRecientes = movimientos.slice(0, 5);
   const liquidacionesRecientes = liquidaciones.slice(0, 5);
 
@@ -32,68 +36,65 @@ const Dashboard = () => {
       <div className="dashboard-content">
         <div className="dashboard-metrics">
           <Link>
-            <span>Viajes activos</span>
-            <strong>{viajesActivos.length}</strong>
+            <span>Viajes</span>
+            <strong>{viajesActivos.length} activos</strong>
           </Link>
           <Link>
-            <span>Movimientos pendientes</span>
-            <strong>{movimientosPendientes.length}</strong>
+            <span>Movimientos de cuenta</span>
+            <strong>{movimientosPendientes.length} pendientes</strong>
           </Link>
           <Link>
-            <span>Cuentas con saldo</span>
-            <strong>{cuentasConSaldo.length}</strong>
-          </Link>
-          <Link>
-            <span>Liquidaciones recientes</span>
-            <strong>{liquidacionesRecientes.length}</strong>
+            <span>{`Saldo (${cuentasConSaldo.length} cuentas con saldo pendiente)`}</span>
+            <strong>$ {formatearMonto(montoTCC)}</strong>
           </Link>
         </div>
         <div className="dashboard-panels">
           <article className="dashboard-panel">
-            <h2>Viajes activos</h2>
-            {viajesActivos.length === 0 && <p>Sin viajes activos.</p>}
-            {viajesActivos.slice(0, 5).map((viaje) => (
-              <div key={viaje.id}>
-                <strong>{viaje.id}</strong>
-                <span>{viaje.personaCompleta || viaje.persona}</span>
-              </div>
-            ))}
+            <h2>{viajesActivos.length} Viajes activos</h2>
+            <p className="dashboard-panel">
+              {viajesActivos.map((viaje) => (
+                <div key={viaje.id}>
+                  <strong>{viaje.label}</strong>
+                </div>
+              ))}
+            </p>
           </article>
           <article className="dashboard-panel">
-            <h2>Movimientos recientes</h2>
-            {movimientosRecientes.length === 0 && <p>Sin movimientos.</p>}
-            {movimientosRecientes.map((movimiento) => (
-              <div key={movimiento.id}>
-                <strong>
-                  {movimiento.tipo} · $ {formatearMonto(movimiento.monto)}
-                </strong>
-                <span>
-                  {movimiento.fecha
-                    ? formatearCampoFirestore(movimiento.fecha, true)
-                    : "-"}
-                </span>
-              </div>
-            ))}
+            <h2>{movimientosRecientes.length} Movimientos recientes</h2>
+            <p className="dashboard-panel">
+              {movimientosRecientes.map((movimiento) => (
+                <div key={movimiento.id}>
+                  <strong>{movimiento.label}</strong>
+                  <span>
+                    {movimiento.fecha
+                      ? formatearCampoFirestore(movimiento.fecha, true)
+                      : "-"}
+                  </span>
+                </div>
+              ))}
+            </p>
           </article>
           <article className="dashboard-panel">
             <h2>Cuentas pendientes de liquidar</h2>
-            {cuentasConSaldo.length === 0 && <p>Sin cuentas con saldo.</p>}
-            {cuentasConSaldo.slice(0, 5).map((cuenta) => (
-              <div key={cuenta.id}>
-                <strong>{cuenta.nombre || cuenta.id}</strong>
-                <span>$ {formatearMonto(cuenta.monto)}</span>
-              </div>
-            ))}
+            <p className="dashboard-panel">
+              {cuentasConSaldo.map((cuenta) => (
+                <div key={cuenta.id}>
+                  <strong>{cuenta.nombre || cuenta.id}</strong>
+                  <span>$ {formatearMonto(cuenta.monto)}</span>
+                </div>
+              ))}
+            </p>
           </article>
           <article className="dashboard-panel">
-            <h2>Liquidaciones recientes</h2>
-            {liquidacionesRecientes.length === 0 && <p>Sin liquidaciones.</p>}
-            {liquidacionesRecientes.map((liquidacion) => (
-              <div key={liquidacion.id}>
-                <strong>{liquidacion.id}</strong>
-                <span>{liquidacion.cuentaCompleta}</span>
-              </div>
-            ))}
+            <h2>{liquidacionesRecientes.length} Liquidaciones recientes</h2>
+
+            <p className="dashboard-panel">
+              {liquidacionesRecientes.map((liquidacion) => (
+                <div key={liquidacion.id}>
+                  <strong>{liquidacion.label}</strong>
+                </div>
+              ))}
+            </p>
           </article>
         </div>
       </div>
