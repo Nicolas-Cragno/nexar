@@ -15,11 +15,11 @@ export function LiquidacionesProvider({ children }) {
 
         listado = liquidaciones.map((liquidacion) => {
             const cuentaId = liquidacion.cuenta || liquidacion.persona;
-            const cuenta = cuentaCorriente.find((ct) => String(ct.id) === String(cuentaId));
+            const cuenta = cuentaCorriente.find((ct) => String(ct.id) === String(cuentaId)) || personas.find((ps) => String(ps.id) === String(cuentaId));
             const operador = personas.find((ps) => String(ps.id) === String(liquidacion.operador));
-            const saldo = formatearMonto(liquidacion.saldoLiquidado);
+            const saldo = formatearMonto(liquidacion.monto);
             const cantidadMovimientos = liquidacion.movimientos?.length || 0;
-            const liquidacionLabel = `${liquidacion.id} ($${saldo} | ${cuenta?.nombre || cuentaId})`;
+            const liquidacionLabel = `${liquidacion.id} ($${saldo} | ${cuenta?.label || cuentaId})`;
             return {
                 ...liquidacion,
                 cuentaCompleta: cuenta?.nombre || cuentaId || "",

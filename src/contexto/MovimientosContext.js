@@ -15,9 +15,9 @@ export function MovimientosProvider({ children }) {
 
         listado = movimientos.map((mv) => {
             const cuentaId = mv.cuenta || mv.persona;
-            const persona = cuentaCorriente.find((ps) => String(ps.id) === String(cuentaId));
+            const persona = cuentaCorriente.find((ps) => String(ps.id) === String(cuentaId)) || personas.find((ps) => String(ps.id) === String(cuentaId));
             const operador = personas.find((ps) => String(ps.id) === String(mv.operador));
-            const monto = formatearMonto(mv.monto);
+            const monto = formatearMonto(Number(mv.monto));
             const movimientoLabel = `${mv.id} ($${monto} | ${persona?.label})`;
             return {
                 ...mv,

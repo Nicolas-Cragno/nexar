@@ -92,6 +92,11 @@ const Dashboard = () => {
               {liquidacionesRecientes.map((liquidacion) => (
                 <div key={liquidacion.id}>
                   <strong>{liquidacion.label}</strong>
+                  <span>
+                    {liquidacion.fecha
+                      ? formatearCampoFirestore(liquidacion.fecha, true)
+                      : "-"}
+                  </span>
                 </div>
               ))}
             </p>
