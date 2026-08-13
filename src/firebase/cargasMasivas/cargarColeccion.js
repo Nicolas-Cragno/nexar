@@ -5,6 +5,21 @@ import { db } from "../../firebase/firebaseConfig.js";
 
 const camposFecha = ["fecha", "fechaSalida", "fechaLlegada"];
 
+function calcularFecha(nro) {
+  const dias = Number(nro);
+
+  if (!Number.isFinite(dias)) {
+    throw new Error(`Cantidad de días inválida: ${nro}`);
+  }
+
+  const fecha = new Date();
+
+  fecha.setHours(12, 0, 0, 0);
+  fecha.setDate(fecha.getDate() - dias);
+
+  return Timestamp.fromDate(fecha);
+}
+
 function convertirFechas(obj, campo = null) {
   if (Array.isArray(obj)) {
     return obj.map((item) => convertirFechas(item));
@@ -20,6 +35,16 @@ function convertirFechas(obj, campo = null) {
     return nuevo;
   }
 
+  // Si el campo es una fecha y viene como número,
+  // representa cantidad de días hacia atrás desde hoy
+  if (
+    typeof obj === "number" &&
+    camposFecha.includes(campo)
+  ) {
+    return calcularFecha(obj);
+  }
+
+  // Si viene como string de fecha
   if (
     typeof obj === "string" &&
     camposFecha.includes(campo)

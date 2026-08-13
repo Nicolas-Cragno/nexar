@@ -31,19 +31,19 @@ const Dashboard = () => {
 
       <div className="dashboard-content">
         <div className="dashboard-metrics">
-          <Link to="/operaciones">
+          <Link>
             <span>Viajes activos</span>
             <strong>{viajesActivos.length}</strong>
           </Link>
-          <Link to="/operaciones">
+          <Link>
             <span>Movimientos pendientes</span>
             <strong>{movimientosPendientes.length}</strong>
           </Link>
-          <Link to="/cuentas">
+          <Link>
             <span>Cuentas con saldo</span>
             <strong>{cuentasConSaldo.length}</strong>
           </Link>
-          <Link to="/cuentas">
+          <Link>
             <span>Liquidaciones recientes</span>
             <strong>{liquidacionesRecientes.length}</strong>
           </Link>

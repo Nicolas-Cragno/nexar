@@ -30,7 +30,15 @@ export function ViajesProvider({ children }) {
             const cruceBarcaza = cruces.filter((cc) => String(cc.viaje) === String(vj.id));
             // arrays
             const clientes = empresas.filter((em) => (vj.cliente || []).some((id) => String(id) === String(em.id) || String(id) === String(em.cuit)));
-            const furgon = furgones.filter((fg) => vj.furgon?.some((id) => String(id) === String(fg.id)));
+            const furgonesViaje = Array.isArray(vj.furgon)
+                ? vj.furgon
+                : vj.furgon != null
+                    ? [vj.furgon]
+                    : [];
+
+            const furgon = furgones.filter((fg) =>
+                furgonesViaje.some((id) => String(id) === String(fg.id))
+            );
             const clientesLabel = clientes.map((c) => c.label).join(", ") || "-";
             const furgonesLabel = furgon.map((f) => f.label).join(", ") || "-";
             return {
