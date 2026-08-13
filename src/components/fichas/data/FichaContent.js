@@ -91,6 +91,16 @@ export const fichaContent = {
         //{ key: "adelantosRegistrados", label: "Adelantos", type: "secondary" }, se renderiza directo en Ficha.jsx
         //{ key: "crucesRegistrados", label: "Cruces de barcaza", type: "secondary" }, se renderiza directo en Ficha.jsx
     ],
+    cruces: [
+        { key: "id", label: "Cruce", type: "title" },
+        { key: "fecha", label: "Fecha", type: "principal", soloFecha: true },
+        { key: "viajeCompleto", label: "Viaje", type: "principal" },
+        { key: "personaCompleta", label: "Chofer", type: "principal" },
+        { key: "tractorCompleto", label: "Tractor", type: "principal" },
+        { key: "furgonCompleto", label: "Carga/Furgón", type: "principal" },
+        { key: "detalle", label: "Detalle", type: "secondary" },
+        { key: "pdf", label: "Impresión", type: "pdf" },
+    ],
     liquidaciones: [
         { key: "id", label: "N° Liquidación", type: "title" },
         { key: "fecha", label: "Fecha", type: "principal" },

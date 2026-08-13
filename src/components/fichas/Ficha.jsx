@@ -1,5 +1,6 @@
 //------------------------------------------------------ externos
 import { memo, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { FaRegFilePdf as PDFsLogo } from "react-icons/fa6";
 //------------------------------------------------------ elementos
 import TextButton from "../buttons/TextButton.jsx";
@@ -76,6 +77,7 @@ const Ficha = ({
   const campos = fichaContent[auxCampos] ?? [];
   const esCuenta = auxCampos === "cuentacorriente";
   const esViaje = auxCampos === "viajes";
+  const esCruce = auxCampos === "cruces";
   const esPersona = auxCampos === "personas";
   const cuentaId = esCuenta
     ? elemento.id
@@ -158,17 +160,23 @@ const Ficha = ({
   }
   console.log(`----------- Render Ficha ${elemento.id}`);
 
-  const handleClose = async () => {
+  const handleGuardarEdicion = async () => {
     if (reload) await reload();
     setFormEditarVisible(false);
-    onClose();
   };
 
   const handleImprimir = async () => {
+    if (esCruce) {
+      await handleImprimirCruce(elemento);
+      return;
+    }
     await generarDocumentos("pdf", elemento, imgPlantilla, true);
   }
 
   const handleImprimirCruce = async (cruce) => {
+    const viajeCruce = esViaje
+      ? elemento
+      : viajes.find((viaje) => String(viaje.id) === String(cruce.viaje));
     const personaCruce = personas.find(
       (persona) => String(persona.id) === String(cruce.persona),
     );
@@ -186,12 +194,20 @@ const Ficha = ({
 
     await generarDocumentoCruce(
       {
-        ...elemento,
-        personaCompleta: personaCruce?.label || elemento.personaCompleta,
-        tractorCompleto: tractorCruce?.label || elemento.tractorCompleto,
+        ...(viajeCruce || {}),
+        id: viajeCruce?.id || cruce.viaje || "-",
+        fecha: viajeCruce?.fecha || cruce.fecha,
+        persona: cruce.persona,
+        tractor: cruce.tractor,
+        furgon: cruce.furgon,
+        personaCompleta:
+          personaCruce?.label || cruce.personaCompleta || "-",
+        tractorCompleto:
+          tractorCruce?.label || cruce.tractorCompleto || "-",
         furgonCompleto:
           furgonesCruce.map((furgon) => furgon.label).join(", ") ||
-          elemento.furgonCompleto,
+          cruce.furgonCompleto ||
+          "-",
       },
       cruce,
     );
@@ -556,30 +572,36 @@ const Ficha = ({
           </>
         )}
 
-        {formEditarVisible && (
-          <FormGestor
-            elemento={elemento}
-            tipo={coleccion}
-            coleccion={coleccion}
-            onGuardar={handleClose}
-            onClose={handleClose}
-          />
-        )}
-        {formLiquidacionVisible && (
-          <FormLiquidacion
-            cuentaInicial={String(elemento.id)}
-            onClose={() => setFormLiquidacionVisible(false)}
-          />
-        )}
-        {viajeVinculado && (
-          <Ficha
-            elemento={viajeVinculado}
-            coleccion="viajes"
-            container={fichaContent.viajes}
-            editable={false}
-            onClose={() => setViajeVinculado(null)}
-          />
-        )}
+        {formEditarVisible &&
+          createPortal(
+            <FormGestor
+              elemento={elemento}
+              tipo={coleccion}
+              coleccion={coleccion}
+              onGuardar={handleGuardarEdicion}
+              onClose={() => setFormEditarVisible(false)}
+            />,
+            document.body,
+          )}
+        {formLiquidacionVisible &&
+          createPortal(
+            <FormLiquidacion
+              cuentaInicial={String(elemento.id)}
+              onClose={() => setFormLiquidacionVisible(false)}
+            />,
+            document.body,
+          )}
+        {viajeVinculado &&
+          createPortal(
+            <Ficha
+              elemento={viajeVinculado}
+              coleccion="viajes"
+              container={fichaContent.viajes}
+              editable={false}
+              onClose={() => setViajeVinculado(null)}
+            />,
+            document.body,
+          )}
 
         <div className="ficha-info-footer">
           {container.map((campo, index) => {

@@ -1,4 +1,5 @@
 import { useMemo, useState, memo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import "./css/Modales.css";
 import "./css/Tablas.css";
 import CloseButton from "../buttons/CloseButton";
@@ -40,7 +41,7 @@ const Modal = ({
     return () => media.removeEventListener("change", update);
   }, []);
 
-  const rows = data ?? [];
+  const rows = useMemo(() => data ?? [], [data]);
   const columnas =
     headers ??
     Object.keys(rows?.[0] ?? {}).map((key) => ({
@@ -85,6 +86,16 @@ const Modal = ({
       );
     });
   }, [rows, textoFiltro, limiteFiltro, filtrosEspeciales, index]);
+
+  const itemSeleccionadoActual = useMemo(() => {
+    if (!itemSeleccionado) return null;
+
+    return (
+      rows.find(
+        (row) => String(row[index]) === String(itemSeleccionado[index]),
+      ) || itemSeleccionado
+    );
+  }, [rows, itemSeleccionado, index]);
 
   const handleCloseFicha = async () => {
     if (reload) await reload();
@@ -176,32 +187,36 @@ const Modal = ({
             */}
       </div>
 
-      {itemSeleccionado && (
-        <Ficha
-          elemento={itemSeleccionado}
-          coleccion={coleccion}
-          area={subcoleccion}
-          container={
-            filtroSector
-              ? fichaContent[filtroSector.toLowerCase()]
-              : (fichaContent[coleccion?.toLowerCase()] ??
-                fichaContent[itemSeleccionado.area?.toLowerCase()] ??
-                fichaContent[title?.toLowerCase()] ??
-                [])
-          }
-          onClose={handleCloseFicha}
-          editable={editable}
-        />
-      )}
-      {formAgregarVisible && (
-        <FormGestor
-          tipo={coleccion}
-          coleccion={filtroSector ? `${coleccion}${filtroSector}` : coleccion}
-          area={subcoleccion}
-          onClose={() => setFormAgregarVisible(false)}
-          reload={reload}
-        />
-      )}
+      {itemSeleccionadoActual &&
+        createPortal(
+          <Ficha
+            elemento={itemSeleccionadoActual}
+            coleccion={coleccion}
+            area={subcoleccion}
+            container={
+              filtroSector
+                ? fichaContent[filtroSector.toLowerCase()]
+                : (fichaContent[coleccion?.toLowerCase()] ??
+                  fichaContent[itemSeleccionadoActual.area?.toLowerCase()] ??
+                  fichaContent[title?.toLowerCase()] ??
+                  [])
+            }
+            onClose={handleCloseFicha}
+            editable={editable}
+          />,
+          document.body,
+        )}
+      {formAgregarVisible &&
+        createPortal(
+          <FormGestor
+            tipo={coleccion}
+            coleccion={filtroSector ? `${coleccion}${filtroSector}` : coleccion}
+            area={subcoleccion}
+            onClose={() => setFormAgregarVisible(false)}
+            reload={reload}
+          />,
+          document.body,
+        )}
     </div>
   );
 };
