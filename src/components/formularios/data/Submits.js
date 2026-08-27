@@ -19,8 +19,6 @@ export const submitTractor = async (formData, campos, loading, onGuardar, onClos
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return;
 
-    loading(true); // ahora si empieza a cargar ...
-
     let campoId;
 
     const elementoAGuardar = campos.reduce((acc, cp) => {
@@ -38,22 +36,18 @@ export const submitTractor = async (formData, campos, loading, onGuardar, onClos
         if (modoEdicion) {
             const result = await confirmDataSwal("Modificación de Tractor", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
 
+            loading(true);
             const modificacion = await update(idElemento, "tractores", elementoAGuardar, onGuardar);
 
             statusOptions(modificacion);
         } else {
             const result = await confirmDataSwal("Nuevo Tractor", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
 
+            loading(true);
             // avanzar con la carga
             const carga = await submit("tractores", { id: campoId, ...elementoAGuardar, estado: true }, onGuardar);
             if (carga && String(elementoAGuardar.empresa) === String(CUIT_TRANSCAN)) {
@@ -82,8 +76,6 @@ export const submitFurgon = async (formData, campos, loading, onGuardar, onClose
 
     if (!verificacion) return;
 
-    loading(true); // ahora si empieza a cargar ...
-
     let campoId;
 
     const elementoAGuardar = campos.reduce((acc, cp) => {
@@ -101,22 +93,18 @@ export const submitFurgon = async (formData, campos, loading, onGuardar, onClose
         if (modoEdicion) {
             const result = await confirmDataSwal("Modificación de Furgón", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
 
+            loading(true);
             const modificacion = await update(idElemento, "furgones", elementoAGuardar, onGuardar);
 
             statusOptions(modificacion);
         } else {
             const result = await confirmDataSwal("Nuevo Furgón", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
 
+            loading(true);
             // avanzar con la carga
             const carga = await submit("furgones", { id: campoId, ...elementoAGuardar, estado: true }, onGuardar);
             if (carga && String(elementoAGuardar.empresa) === String(CUIT_TRANSCAN)) {
@@ -144,8 +132,6 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
 
     if (!verificacion) return;
 
-    loading(true); // ahora si empieza a cargar ...
-
     let campoId;
 
     const elementoAGuardar = campos.reduce((acc, cp) => {
@@ -165,10 +151,9 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
             // preguntar al usuario si quiere confirmar
             const result = await confirmDataSwal("Edición de Persona", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
+
+            loading(true);
             // avanzar a modificar
             const modificacion = await update(idElemento, "personas", { ...elementoAGuardar, ultimaModificacion: serverTimestamp() }, onGuardar);
 
@@ -177,11 +162,9 @@ export const submitPersona = async (formData, campos, loading, onGuardar, onClos
             // preguntar al usuario si quiere confirmar
             const result = await confirmDataSwal("Ingreso de Persona", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
 
+            loading(true);
             // avanzar con la carga
             const carga = await submit("personas", { id: campoId, ...elementoAGuardar, estado: true, alta: serverTimestamp() }, onGuardar);
 
@@ -215,8 +198,6 @@ export const submitEmpresa = async (formData, campos, loading, onGuardar, onClos
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return;
 
-    loading(true); // ahora si empieza a cargar ...
-
     let campoId;
 
     const elementoAGuardar = campos.reduce((acc, cp) => {
@@ -234,22 +215,18 @@ export const submitEmpresa = async (formData, campos, loading, onGuardar, onClos
         if (modoEdicion) {
             const result = await confirmDataSwal("Modificación de empresa", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
 
+            loading(true);
             const modificacion = await update(idElemento, "empresas", elementoAGuardar, onGuardar);
 
             statusOptions(modificacion);
         } else {
             const result = await confirmDataSwal("Nueva empresa", elementoAGuardar);
 
-            if (!result.isConfirmed) {
-                loading(false);
-                return;
-            }
+            if (!result.isConfirmed) return;
 
+            loading(true);
             // avanzar con la carga
             const carga = await submit("empresas", { id: campoId, ...elementoAGuardar }, onGuardar);
             if (carga) {
@@ -289,8 +266,6 @@ export const submitMovimientoCuenta = async (
 
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return null;
-
-    loading(true);
 
     try {
 
@@ -349,6 +324,8 @@ export const submitMovimientoCuenta = async (
         if (!result.isConfirmed) {
             return null;
         }
+
+        loading(true);
 
 
         // --------------------------------------------------
@@ -527,7 +504,6 @@ export const submitMovimientoCuenta = async (
     }
 };
 export const submitLiquidacion = async ({ formData, ubicaciones, contadores, sucursal, loading, onGuardar, onClose }) => {
-    loading(true);
     try {
         const seleccionados = formData?.movimientos || [];
         const cuenta = String(formData?.cuenta || formData?.persona || "");
@@ -559,6 +535,7 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
         });
         if (!confirmacion.isConfirmed) return null;
 
+        loading(true);
         const { id: idLiquidacion } = await eventCode("liquidaciones", ubicaciones, contadores, sucursal);
         let idMovimientoCierre = null;
         if (tipoEsperado) {
@@ -729,7 +706,6 @@ export const submitViaje = async (
 ) => {
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return null;
-    loading(true);
 
     try {
         const datosViaje = campos.reduce((acc, campo) => {
@@ -742,6 +718,7 @@ export const submitViaje = async (
         const confirmacion = await confirmDataSwal("Viaje", datosViaje);
         if (!confirmacion.isConfirmed) return null;
 
+        loading(true);
         const modoEdicion = !!elemento;
         const idViaje = modoEdicion
             ? String(elemento.id)
@@ -935,7 +912,6 @@ export const submitCruce = async (
 ) => {
     const verificacion = verificarCamposObligatorios(campos, formData);
     if (!verificacion) return null;
-    loading(true);
 
     try {
         const elementoAGuardar = campos.reduce((acc, campo) => {
@@ -974,6 +950,7 @@ export const submitCruce = async (
         const confirmacion = await confirmDataSwal("Cruce", elementoAGuardar);
         if (!confirmacion.isConfirmed) return null;
 
+        loading(true);
         const { id: identificador } = await eventCode(
             "cruces",
             ubicaciones,

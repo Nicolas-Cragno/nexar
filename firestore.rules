@@ -1,0 +1,226 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function accessPath() {
+      return /databases/$(database)/documents/accesosUsuarios/$(request.auth.uid);
+    }
+
+    function getAccess() {
+      return get(accessPath());
+    }
+
+    function currentUserPath() {
+      return /databases/$(database)/documents/usuarios/$(getAccess().data.usuarioId);
+    }
+
+    function getCurrentUser() {
+      return get(currentUserPath());
+    }
+
+    function rolePath() {
+      return /databases/$(database)/documents/roles/$(getCurrentUser().data.tipo);
+    }
+
+    function getRole() {
+      return get(rolePath());
+    }
+
+    function permissionsPath() {
+      return /databases/$(database)/documents/permisosRoles/$(getCurrentUser().data.tipo);
+    }
+
+    function getPermissions() {
+      return get(permissionsPath());
+    }
+
+    function hasValidAccessAndUser() {
+      return isSignedIn()
+        && exists(accessPath())
+        && getAccess().data.estado == true
+        && getAccess().data.uid == request.auth.uid
+        && exists(currentUserPath())
+        && getCurrentUser().data.estado == true
+        && getCurrentUser().data.uid == request.auth.uid
+        && getCurrentUser().data.id == getAccess().data.usuarioId
+        && getCurrentUser().data.tipo == getAccess().data.tipo;
+    }
+
+    function isAuthorized() {
+      return hasValidAccessAndUser()
+        && exists(rolePath())
+        && getRole().data.estado == true
+        && getRole().data.id == getCurrentUser().data.tipo
+        && exists(permissionsPath())
+        && getPermissions().data.estado == true;
+    }
+
+    function hasPermission(permission) {
+      return isAuthorized()
+        && (getPermissions().data.get('allAccess', false) == true
+          || getPermissions().data.get(permission, false) == true);
+    }
+
+    function hasAnyPermission(first, second) {
+      return hasPermission(first) || hasPermission(second);
+    }
+
+    function isTravelOperationalUpdate() {
+      return hasPermission('viajesWrite')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'enViaje',
+          'viajeActivo',
+          'ultimaModificacion'
+        ]);
+    }
+
+    function isInitialAccountBase(accountId) {
+      return request.resource.data.id == accountId
+        && request.resource.data.estado == true
+        && request.resource.data.monto == 0
+        && request.resource.data.nombre is string;
+    }
+
+    function isInitialPersonAccount(accountId) {
+      return hasPermission('personasWrite')
+        && isInitialAccountBase(accountId)
+        && request.resource.data.dni != null
+        && request.resource.data.keys().hasOnly([
+          'id', 'estado', 'monto', 'nombre', 'dni'
+        ]);
+    }
+
+    function isInitialCompanyAccount(accountId) {
+      return hasPermission('empresasWrite')
+        && isInitialAccountBase(accountId)
+        && request.resource.data.keys().hasOnly([
+          'id', 'estado', 'monto', 'nombre'
+        ]);
+    }
+
+    function canReadCurrentAccount() {
+      return hasPermission('movimientosView')
+        || hasPermission('liquidacionesView')
+        || hasPermission('adminView');
+    }
+
+    function canWriteCurrentAccount() {
+      return hasPermission('movimientosWrite')
+        || hasPermission('liquidacionesWrite');
+    }
+
+    match /accesosUsuarios/{uid} {
+      allow get: if isSignedIn() && uid == request.auth.uid;
+      allow list, write: if false;
+    }
+
+    match /usuarios/{usuarioId} {
+      allow get: if isSignedIn()
+        && exists(accessPath())
+        && getAccess().data.estado == true
+        && getAccess().data.uid == request.auth.uid
+        && getAccess().data.usuarioId == usuarioId;
+      allow list, write: if false;
+    }
+
+    match /roles/{rolId} {
+      allow get: if hasValidAccessAndUser()
+        && getCurrentUser().data.tipo == rolId;
+      allow list, write: if false;
+    }
+
+    match /permisosRoles/{rolId} {
+      allow get: if hasValidAccessAndUser()
+        && getCurrentUser().data.tipo == rolId;
+      allow list, write: if false;
+    }
+
+    match /viajes/{resourceId} {
+      allow read: if hasPermission('viajesView');
+      allow write: if hasPermission('viajesWrite');
+    }
+
+    match /movimientos/{resourceId} {
+      allow read: if hasPermission('movimientosView');
+      allow write: if hasPermission('movimientosWrite');
+    }
+
+    match /cruces/{resourceId} {
+      allow read: if hasPermission('crucesView');
+      allow write: if hasPermission('crucesWrite');
+    }
+
+    match /liquidaciones/{resourceId} {
+      allow read: if hasPermission('liquidacionesView');
+      allow write: if hasPermission('liquidacionesWrite');
+    }
+
+    match /personas/{resourceId} {
+      allow read: if hasPermission('personasView');
+      allow create, delete: if hasPermission('personasWrite');
+      allow update: if hasPermission('personasWrite') || isTravelOperationalUpdate();
+    }
+
+    match /empresas/{resourceId} {
+      allow read: if hasPermission('empresasView');
+      allow write: if hasPermission('empresasWrite');
+    }
+
+    match /tractores/{resourceId} {
+      allow read: if hasPermission('flotaView');
+      allow create, delete: if hasPermission('flotaWrite');
+      allow update: if hasPermission('flotaWrite') || isTravelOperationalUpdate();
+    }
+
+    match /furgones/{resourceId} {
+      allow read: if hasPermission('flotaView');
+      allow create, delete: if hasPermission('flotaWrite');
+      allow update: if hasPermission('flotaWrite') || isTravelOperationalUpdate();
+    }
+
+    match /cuentaCorriente/{resourceId} {
+      allow read: if canReadCurrentAccount();
+      allow create: if isInitialPersonAccount(resourceId)
+        || isInitialCompanyAccount(resourceId);
+      allow update: if canWriteCurrentAccount()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'monto', 'ultimaModificacion'
+        ]);
+      allow delete: if false;
+    }
+
+    match /ubicaciones/{resourceId} {
+      allow read: if isAuthorized();
+      allow write: if false;
+    }
+
+    match /sectores/{resourceId} {
+      allow read: if isAuthorized();
+      allow write: if false;
+    }
+
+    match /contadores/viajes {
+      allow read, write: if hasPermission('viajesWrite');
+    }
+
+    match /contadores/movimientos {
+      allow read, write: if hasPermission('movimientosWrite');
+    }
+
+    match /contadores/liquidaciones {
+      allow read, write: if hasPermission('liquidacionesWrite');
+    }
+
+    match /contadores/cruces {
+      allow read, write: if hasPermission('crucesWrite');
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

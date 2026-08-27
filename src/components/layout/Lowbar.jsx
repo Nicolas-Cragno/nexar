@@ -4,8 +4,13 @@ import Logo from "../../assets/logos/LOGO_PRINCIPAL.png";
 import { MdEvent as EventLogo } from "react-icons/md";
 import { GrResources as ResourcesLogo } from "react-icons/gr";
 import { MdAccountBalanceWallet as AccountsLogo } from "react-icons/md";
+import { MdLogout as LogoutLogo } from "react-icons/md";
+import { useAuth } from "../../contexto/AuthContext";
+import { confirmLogout } from "../../functions/confirmLogout";
 
 export default function Lowbar() {
+  const { logout } = useAuth();
+
   return (
     <div className={`lowbar`}>
       <nav className="lowbar-nav">
@@ -25,6 +30,10 @@ export default function Lowbar() {
           <ResourcesLogo size={50} className="nav-logo" />
           <span className="nav-text">Recursos</span>
         </NavLink>
+        <button type="button" className="nav-item lowbar-logout" onClick={() => confirmLogout(logout)}>
+          <LogoutLogo className="nav-logo" />
+          <span className="nav-text">Salir</span>
+        </button>
       </nav>
     </div>
   );

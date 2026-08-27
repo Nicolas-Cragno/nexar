@@ -8,7 +8,7 @@
   display: flex;
   justify-content:flex-end;
     align-items:flex-start;
-  z-index: 4000;
+  z-index: var(--z-form);
   text-align: left;
   padding: 1rem;
   box-sizing: border-box;
@@ -68,7 +68,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 4000;
+  z-index: var(--z-form);
 }
 
 .doble-form-modal {

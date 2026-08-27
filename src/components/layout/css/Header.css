@@ -16,6 +16,7 @@ header {
   list-style: none;
   display: flex;
   gap: 20px;
+  align-items: center;
 }
 
 .header-navbar li a {
@@ -30,6 +31,35 @@ header {
 }
 
 .header-navbar li a.active { color: #9db1ff; }
+
+.header-session {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 20px;
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.header-session span {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.header-session button {
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.header-session button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
 
 /* ------------------------------------------ RESONSIVE */
 

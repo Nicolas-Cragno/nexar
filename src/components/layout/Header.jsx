@@ -1,8 +1,12 @@
 import { NavLink } from "react-router-dom";
 import Logo from "../../assets/logos/LOGO_PRINCIPAL.png";
+import { useAuth } from "../../contexto/AuthContext";
+import { confirmLogout } from "../../functions/confirmLogout";
 import "./css/Header.css";
 
 const Header = () => {
+  const { fullUser, logout } = useAuth();
+
   return (
     <>
       <header>
@@ -11,7 +15,6 @@ const Header = () => {
         </NavLink>
         <nav>
           <ul className="header-navbar">
-            <li></li>
             <li>
               <NavLink to="/operaciones">Operaciones</NavLink>
             </li>
@@ -20,6 +23,12 @@ const Header = () => {
             </li>
             <li>
               <NavLink to="/recursos">Recursos</NavLink>
+            </li>
+            <li className="header-session">
+              <span>{fullUser?.nombre}</span>
+              <button type="button" onClick={() => confirmLogout(logout)}>
+                Cerrar sesión
+              </button>
             </li>
           </ul>
         </nav>

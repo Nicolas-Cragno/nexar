@@ -1,75 +1,147 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { collection, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
-import { collection, onSnapshot } from "firebase/firestore";
+import { useAuth } from "./AuthContext";
 
 const DataContext = createContext();
 
-const colecciones = [
-    "personas",
-    "tractores",
-    "furgones",
-    "empresas",
-    "ubicaciones",
-    "sectores",
-    "movimientos",
-    "liquidaciones",
-    "cuentaCorriente",
-    "viajes",
-    "cruces", // para cruces de barcaza
-    "contadores", // para viajes y ordenes de cruces en principio
+const domainCollections = [
+  { name: "personas", viewPermissions: ["personasView"] },
+  { name: "tractores", viewPermissions: ["flotaView"] },
+  { name: "furgones", viewPermissions: ["flotaView"] },
+  { name: "empresas", viewPermissions: ["empresasView"] },
+  { name: "ubicaciones", authorizedRead: true },
+  { name: "sectores", authorizedRead: true },
+  { name: "movimientos", viewPermissions: ["movimientosView"] },
+  { name: "liquidaciones", viewPermissions: ["liquidacionesView"] },
+  {
+    name: "cuentaCorriente",
+    viewPermissions: ["movimientosView", "liquidacionesView", "adminView"],
+  },
+  { name: "viajes", viewPermissions: ["viajesView"] },
+  { name: "cruces", viewPermissions: ["crucesView"] },
 ];
 
-let contador = 0;
+const counterPermissions = {
+  viajes: "viajesWrite",
+  movimientos: "movimientosWrite",
+  liquidaciones: "liquidacionesWrite",
+  cruces: "crucesWrite",
+};
+
+const allCollectionNames = [
+  ...domainCollections.map(({ name }) => name),
+  "contadores",
+];
+
+const emptyData = () =>
+  Object.fromEntries(allCollectionNames.map((name) => [name, []]));
 
 export function DataProvider({ children }) {
-    const [data, setData] = useState({});
-    const [loading, setLoading] = useState(true);
+  const { isAuthenticated, permissions } = useAuth();
+  const [data, setData] = useState(emptyData);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const unsubs = [];
+  const readableCollections = useMemo(
+    () =>
+      domainCollections.filter(
+        ({ authorizedRead, viewPermissions = [] }) =>
+          isAuthenticated &&
+          (authorizedRead ||
+            permissions?.allAccess === true ||
+            viewPermissions.some((permission) => permissions?.[permission] === true)),
+      ),
+    [isAuthenticated, permissions],
+  );
 
-        colecciones.forEach((nombreColeccion) => {
-            const ref = collection(db, nombreColeccion);
+  const readableCounters = useMemo(
+    () =>
+      Object.entries(counterPermissions)
+        .filter(
+          ([, permission]) =>
+            isAuthenticated &&
+            (permissions?.allAccess === true || permissions?.[permission] === true),
+        )
+        .map(([counter]) => counter),
+    [isAuthenticated, permissions],
+  );
 
-            console.log("[Firestore] Iniciando carga ...");
+  useEffect(() => {
+    const unsubscribers = [];
+    const initialData = emptyData();
+    const pendingSources = new Set([
+      ...readableCollections.map(({ name }) => `collection:${name}`),
+      ...readableCounters.map((counter) => `counter:${counter}`),
+    ]);
+    const counterDocuments = new Map();
 
-            const unsub = onSnapshot(ref, (snapshot) => {
-                setData((prev) => {
-                    const newData = {
-                        ...prev,
-                        [nombreColeccion]: snapshot.docs.map((dt) => ({
-                            id: dt.id,
-                            ...dt.data(), // trae TODO lo que tenga esa preview
-                        })),
-                    };
+    setData(initialData);
+    setLoading(pendingSources.size > 0);
 
-                    if (Object.keys(newData).length === colecciones.length) {
-                        setLoading(false);
-                    };
+    const markSourceReady = (source) => {
+      pendingSources.delete(source);
+      if (pendingSources.size === 0) setLoading(false);
+    };
 
-                    console.log(
-                        ` → ${nombreColeccion} ✓ - ${snapshot.docs.length} registros.`
-                    ); contador++;
-                    return newData;
-                });
+    const handleListenerError = (source, error) => {
+      console.error(`[Firestore] No se pudo leer ${source}:`, error);
+      markSourceReady(source);
+    };
+
+    readableCollections.forEach(({ name }) => {
+      const source = `collection:${name}`;
+      const unsubscribe = onSnapshot(
+        collection(db, name),
+        (snapshot) => {
+          setData((previous) => ({
+            ...previous,
+            [name]: snapshot.docs.map((item) => ({
+              id: item.id,
+              ...item.data(),
+            })),
+          }));
+          markSourceReady(source);
+        },
+        (error) => handleListenerError(source, error),
+      );
+
+      unsubscribers.push(unsubscribe);
+    });
+
+    readableCounters.forEach((counter) => {
+      const source = `counter:${counter}`;
+      const unsubscribe = onSnapshot(
+        doc(db, "contadores", counter),
+        (snapshot) => {
+          if (snapshot.exists()) {
+            counterDocuments.set(counter, {
+              id: snapshot.id,
+              ...snapshot.data(),
             });
+          } else {
+            counterDocuments.delete(counter);
+          }
 
-            unsubs.push(unsub);
-        });
+          setData((previous) => ({
+            ...previous,
+            contadores: Array.from(counterDocuments.values()),
+          }));
+          markSourceReady(source);
+        },
+        (error) => handleListenerError(source, error),
+      );
 
-        return () => unsubs.forEach((fn) => fn());
-    }, []);
+      unsubscribers.push(unsubscribe);
+    });
 
-    return (
-        <DataContext.Provider value={{ ...data, loading }}>
-            {children}
-        </DataContext.Provider>
-    )
+    return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+  }, [readableCollections, readableCounters]);
+
+  return (
+    <DataContext.Provider value={{ ...data, loading }}>
+      {children}
+    </DataContext.Provider>
+  );
 }
-
-console.log(
-    `[Firestore] Carga Finalizada (${contador}/${colecciones.length
-    } coleccion${colecciones.length !== 1 ? "es" : ""}) ✓✓`
-);
 
 export const useData = () => useContext(DataContext);

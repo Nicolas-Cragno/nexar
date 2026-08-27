@@ -4,4 +4,11 @@
     --color-accent: #e8c39e;
     --color-text: #fff;
     --color-muted: #f5e1ce;
+    --z-navigation: 200;
+    --z-clock: 1000;
+    --z-modal: 2000;
+    --z-ficha: 3000;
+    --z-form: 4000;
+    --z-loading: 5000;
+    --z-swal: 6000;
 }

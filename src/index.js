@@ -4,15 +4,15 @@ import './assets/css/index.css';
 import App from './routes/App';
 import reportWebVitals from './reportWebVitals';
 import "./assets/styles/colors.css";
-import DataLayer from './contexto/DataLayer';
+import { AuthProvider } from './contexto/AuthContext';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <DataLayer>
+    <AuthProvider>
       <App />
-    </DataLayer>
+    </AuthProvider>
   </React.StrictMode>
 );
 
