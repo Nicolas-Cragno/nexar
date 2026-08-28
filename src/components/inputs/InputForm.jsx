@@ -16,7 +16,7 @@ const InputForm = ({
   const isDisabled = disabled || (modoEdicion && campo.isId && campo.notChange);
 
   return (
-    <div className="form-info">
+    <div className={`form-info ${campo.key === "monto" ? "form-info-money" : ""}`}>
       {campo.inputType !== "boolean" && (
         <strong>
           {campo.label}
@@ -26,23 +26,26 @@ const InputForm = ({
 
       {/* INPUT */}
       {campo.inputType === "input" && (
-        <input
-          className="form-input"
-          style={
-            campo.dato === "text" ? { textTransform: "uppercase" } : undefined
-          }
-          type={campo.dato === "number" ? "number" : "text"}
-          value={value ?? ""}
-          onChange={(e) =>
-            onChange(
-              campo.key,
-              campo.dato === "text"
-                ? e.target.value.toUpperCase()
-                : e.target.value,
-            )
-          }
-          disabled={isDisabled}
-        />
+        <div className={campo.key === "monto" ? "money-input" : undefined}>
+          {campo.key === "monto" && <span>$</span>}
+          <input
+            className="form-input"
+            style={
+              campo.dato === "text" ? { textTransform: "uppercase" } : undefined
+            }
+            type={campo.dato === "number" ? "number" : "text"}
+            value={value ?? ""}
+            onChange={(e) =>
+              onChange(
+                campo.key,
+                campo.dato === "text"
+                  ? e.target.value.toUpperCase()
+                  : e.target.value,
+              )
+            }
+            disabled={isDisabled}
+          />
+        </div>
       )}
 
       {/* INPUT DATE */}

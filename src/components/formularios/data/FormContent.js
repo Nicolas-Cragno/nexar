@@ -216,3 +216,11 @@ export const elementos = {
         { key: "ubicacion", label: "Ubicacion", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "localidades", important: false },
     ]
 }
+
+export const movimientoCuentaCamposComunes = eventos.cuentaCorriente.filter(
+    (campo) => ["viaje", "operador", "persona"].includes(campo.key)
+);
+
+export const movimientoCuentaCamposItem = eventos.cuentaCorriente.filter(
+    (campo) => ["tipo", "monto", "detalle"].includes(campo.key)
+);

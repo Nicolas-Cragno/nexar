@@ -503,6 +503,165 @@ export const submitMovimientoCuenta = async (
 
     }
 };
+
+export const submitMovimientosCuenta = async ({
+    datosComunes,
+    movimientos,
+    ubicaciones,
+    sucursal,
+    loading,
+    onGuardar,
+    onClose,
+}) => {
+    const movimientosNormalizados = movimientos.map((movimiento) => ({
+        tipo: formatearCampoParaCarga(movimiento.tipo, "text"),
+        monto: formatearCampoParaCarga(movimiento.monto, "number"),
+        detalle: formatearCampoParaCarga(movimiento.detalle, "text"),
+    }));
+    const datosNormalizados = {
+        viaje: formatearCampoParaCarga(datosComunes.viaje, "text"),
+        operador: formatearCampoParaCarga(datosComunes.operador, "number"),
+        persona: String(datosComunes.persona || ""),
+    };
+    const errorValidacion = validarCargaMovimientos(
+        datosNormalizados,
+        movimientosNormalizados,
+    );
+
+    if (errorValidacion) {
+        await Swal.fire({
+            title: "No se puede registrar la carga",
+            text: errorValidacion,
+            icon: "error",
+            confirmButtonColor: "#4161bd",
+        });
+        return null;
+    }
+
+    const resumen = resumirMovimientos(movimientosNormalizados);
+    const confirmacion = await confirmarCargaMovimientos(
+        movimientosNormalizados.length,
+        resumen,
+    );
+
+    if (!confirmacion.isConfirmed) return null;
+
+    loading(true);
+
+    try {
+        const sucursalOriginal = String(sucursal || "01");
+        const ubicacion = ubicaciones.find(
+            (item) => String(item.id).toLowerCase() === sucursalOriginal.toLowerCase(),
+        );
+        const prefijo = String(ubicacion?.id || sucursalOriginal).padStart(3, "0");
+        const contadorRef = doc(db, "contadores", "movimientos");
+        const cuentaRef = doc(db, "cuentaCorriente", datosNormalizados.persona);
+        const transcanRef = doc(db, "cuentaCorriente", CUIT_TRANSCAN);
+
+        const elementos = await runTransaction(db, async (transaction) => {
+            const contadorSnapshot = await transaction.get(contadorRef);
+            const cuentaSnapshot = await transaction.get(cuentaRef);
+            const transcanSnapshot = await transaction.get(transcanRef);
+
+            if (!contadorSnapshot.exists()) {
+                throw new Error("No existe el contador de movimientos.");
+            }
+            if (!cuentaSnapshot.exists()) {
+                throw new Error(`No existe la cuenta corriente ${datosNormalizados.persona}.`);
+            }
+            if (!transcanSnapshot.exists()) {
+                throw new Error(`No existe la cuenta corriente ${CUIT_TRANSCAN}.`);
+            }
+
+            const contador = contadorSnapshot.data();
+            const ultimoSucursal = Number(contador[sucursalOriginal]);
+            const ultimoGeneral = Number(contador.ultimo);
+
+            if (!Number.isFinite(ultimoSucursal)) {
+                throw new Error(
+                    `El contador movimientos no tiene un correlativo válido para la sucursal ${sucursalOriginal}.`,
+                );
+            }
+
+            const elementosConId = movimientosNormalizados.map((movimiento, index) => {
+                const orden = ultimoSucursal + index + 1;
+                return {
+                    id: `${prefijo}-${String(orden).padStart(8, "0")}`,
+                    orden,
+                    ...datosNormalizados,
+                    ...movimiento,
+                    estado: false,
+                };
+            });
+            const referencias = elementosConId.map((movimiento) =>
+                doc(db, "movimientos", movimiento.id),
+            );
+            const existentes = [];
+
+            for (const referencia of referencias) {
+                existentes.push(await transaction.get(referencia));
+            }
+
+            const duplicado = existentes.find((snapshot) => snapshot.exists());
+            if (duplicado) {
+                throw new Error(`El movimiento ${duplicado.id} ya existe.`);
+            }
+
+            const siguienteSucursal = ultimoSucursal + elementosConId.length;
+            transaction.update(contadorRef, {
+                ultimo: Number.isFinite(ultimoGeneral)
+                    ? ultimoGeneral + elementosConId.length
+                    : siguienteSucursal,
+                [sucursalOriginal]: siguienteSucursal,
+            });
+
+            referencias.forEach((referencia, index) => {
+                const { orden, ...movimiento } = elementosConId[index];
+                transaction.set(referencia, {
+                    ...movimiento,
+                    fecha: serverTimestamp(),
+                });
+            });
+
+            if (resumen.impactoNeto !== 0) {
+                transaction.update(cuentaRef, {
+                    monto: increment(resumen.impactoNeto),
+                    ultimaModificacion: serverTimestamp(),
+                });
+                transaction.update(transcanRef, {
+                    monto: increment(-resumen.impactoNeto),
+                    ultimaModificacion: serverTimestamp(),
+                });
+            }
+
+            return elementosConId.map(({ orden, ...movimiento }) => movimiento);
+        });
+
+        await Swal.fire({
+            title: "Movimientos registrados",
+            text: `Se registraron ${elementos.length} movimientos.`,
+            icon: "success",
+            confirmButtonColor: "#4161bd",
+        });
+
+        if (onGuardar) await onGuardar();
+        if (onClose) onClose();
+
+        return { elementos };
+    } catch (error) {
+        console.error("[Error] al registrar movimientos de cuenta:", error);
+        await Swal.fire({
+            title: "No se registraron los movimientos",
+            text: error?.message || "No hemos podido procesar la carga.",
+            icon: "error",
+            confirmButtonColor: "#4161bd",
+        });
+        return null;
+    } finally {
+        loading(false);
+    }
+};
+
 export const submitLiquidacion = async ({ formData, ubicaciones, contadores, sucursal, loading, onGuardar, onClose }) => {
     try {
         const seleccionados = formData?.movimientos || [];
@@ -1160,6 +1319,68 @@ const confirmDataSwal = async (title, data) => {
 };
 
 // helpers para liquidacion y movimiento de cuenta
+
+const TIPOS_MOVIMIENTO_VALIDOS = ["ADELANTO", "PAGO", "COBRO", "GASTO"];
+
+const validarCargaMovimientos = (datosComunes, movimientos) => {
+    if (!datosComunes.persona) return "Seleccione una cuenta corriente.";
+    if (datosComunes.persona === CUIT_TRANSCAN) {
+        return "La cuenta seleccionada no puede ser la cuenta de Transcan.";
+    }
+    if (!datosComunes.operador) return "Seleccione un operador.";
+    if (!movimientos.length) return "Agregue al menos un movimiento.";
+    if (movimientos.length > 25) return "La carga admite hasta 25 movimientos.";
+
+    const tipoInvalido = movimientos.find(
+        (movimiento) => !TIPOS_MOVIMIENTO_VALIDOS.includes(movimiento.tipo),
+    );
+    if (tipoInvalido) return "Todos los movimientos deben tener un tipo válido.";
+
+    const montoInvalido = movimientos.find(
+        (movimiento) => !Number.isFinite(movimiento.monto) || movimiento.monto <= 0,
+    );
+    if (montoInvalido) return "Todos los movimientos deben tener un monto mayor a cero.";
+
+    return null;
+};
+
+const resumirMovimientos = (movimientos) => {
+    const totalPorTipo = (tipo) => movimientos
+        .filter((movimiento) =>
+            tipo === "ADELANTO"
+                ? ["ADELANTO", "PAGO"].includes(movimiento.tipo)
+                : movimiento.tipo === tipo
+        )
+        .reduce((total, movimiento) => total + movimiento.monto, 0);
+
+    return {
+        adelantos: totalPorTipo("ADELANTO"),
+        gastos: totalPorTipo("GASTO"),
+        cobros: totalPorTipo("COBRO"),
+        impactoNeto: movimientos.reduce(
+            (total, movimiento) => total + calcularImpactoMovimiento(movimiento),
+            0,
+        ),
+    };
+};
+
+const confirmarCargaMovimientos = (cantidad, resumen) => Swal.fire({
+    title: `Registrar ${cantidad} movimiento${cantidad === 1 ? "" : "s"}`,
+    html: `
+        <div style="text-align:left">
+            <p>Adelantos/Pagos: <strong>$ ${formatearMonto(resumen.adelantos)}</strong></p>
+            <p>Gastos: <strong>$ ${formatearMonto(resumen.gastos)}</strong></p>
+            <p>Cobros: <strong>$ ${formatearMonto(resumen.cobros)}</strong></p>
+            <p>Impacto neto cuenta: <strong>$ ${formatearMonto(resumen.impactoNeto)}</strong></p>
+            <p>¿Confirmar carga?</p>
+        </div>
+    `,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Guardar movimientos",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#4161bd",
+});
 
 
 export const calcularImpactoMovimiento = (movimiento) => {
