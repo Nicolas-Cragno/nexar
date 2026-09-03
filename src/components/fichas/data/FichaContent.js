@@ -8,6 +8,7 @@ export const fichaContent = {
     ],
     movimientos: [
         { key: "id", label: "Movimiento", type: "title" },
+        { key: "nroAdelanto", label: "N° Adelanto", type: "principal" },
         { key: "fecha", label: "Fecha", type: "principal" },
         { key: "tipo", label: "Tipo", type: "principal" },
         { key: "montoCompleto", label: "Monto", type: "principal" },
@@ -103,6 +104,7 @@ export const fichaContent = {
     ],
     liquidaciones: [
         { key: "id", label: "N° Liquidación", type: "title" },
+        { key: "nroAdelanto", label: "N° Adelanto", type: "principal" },
         { key: "fecha", label: "Fecha", type: "principal" },
         { key: "cuentaCompleta", label: "Cuenta", type: "principal" },
         { key: "saldoCompleto", label: "Saldo liquidado", type: "principal" },

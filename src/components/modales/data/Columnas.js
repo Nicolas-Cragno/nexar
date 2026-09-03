@@ -46,7 +46,8 @@ export const columnas = {
     { key: "personaCompleta", label: "Persona / empleado", filtroEspecial: true, responsive: true },
     { key: "operadorCompleto", label: "Operador", filtroEspecial: true },
     { key: "tipo", label: "TIPO", filtroEspecial: true, responsive: true },
-    { key: "montoCompleto", label: "Monto", responsive: true }
+    { key: "montoCompleto", label: "Monto", responsive: true },
+    { key: "nroAdelanto", label: "n° Adelanto", responsive: false }
   ],
   liquidaciones: [
     { key: "id", label: "N° Liquidación", filtroEspecial: true, responsive: true },
@@ -56,6 +57,7 @@ export const columnas = {
     { key: "cantidadMovimientos", label: "Movimientos", responsive: true },
     { key: "tipoCierreCompleto", label: "Cierre", responsive: true },
     { key: "operadorCompleto", label: "Operador" },
+    { key: "nroAdelanto", label: "n° Adelanto", responsive: false }
   ],
   viajes: [
     { key: "id", label: "N° Viaje", filtroEspecial: true },
