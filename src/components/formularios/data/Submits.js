@@ -10,6 +10,7 @@ import {
 } from "../../../functions/dataFunctions";
 import { db } from "../../../firebase/firebaseConfig";
 import { submit, update, statusOptions, eventCode } from "../../../functions/abmFunctions";
+import { asignarNrosAdelanto } from "../../../functions/adelantos";
 
 const CUIT_TRANSCAN = "33719349949";
 
@@ -554,17 +555,26 @@ export const submitMovimientosCuenta = async ({
             (item) => String(item.id).toLowerCase() === sucursalOriginal.toLowerCase(),
         );
         const prefijo = String(ubicacion?.id || sucursalOriginal).padStart(3, "0");
+        const codigoSucursalAdelantos = String(ubicacion?.id || sucursalOriginal).padStart(2, "0");
         const contadorRef = doc(db, "contadores", "movimientos");
+        const contadorAdelantosRef = doc(db, "contadores", "adelantos");
         const cuentaRef = doc(db, "cuentaCorriente", datosNormalizados.persona);
         const transcanRef = doc(db, "cuentaCorriente", CUIT_TRANSCAN);
+        const hayPagos = movimientosNormalizados.some((movimiento) => movimiento.tipo === "PAGO");
 
         const elementos = await runTransaction(db, async (transaction) => {
             const contadorSnapshot = await transaction.get(contadorRef);
+            const contadorAdelantosSnapshot = hayPagos
+                ? await transaction.get(contadorAdelantosRef)
+                : null;
             const cuentaSnapshot = await transaction.get(cuentaRef);
             const transcanSnapshot = await transaction.get(transcanRef);
 
             if (!contadorSnapshot.exists()) {
                 throw new Error("No existe el contador de movimientos.");
+            }
+            if (hayPagos && !contadorAdelantosSnapshot.exists()) {
+                throw new Error("No existe el contador de adelantos.");
             }
             if (!cuentaSnapshot.exists()) {
                 throw new Error(`No existe la cuenta corriente ${datosNormalizados.persona}.`);
@@ -574,6 +584,7 @@ export const submitMovimientosCuenta = async ({
             }
 
             const contador = contadorSnapshot.data();
+            const contadorAdelantos = contadorAdelantosSnapshot?.data() || {};
             const ultimoSucursal = Number(contador[sucursalOriginal]);
             const ultimoGeneral = Number(contador.ultimo);
 
@@ -583,7 +594,12 @@ export const submitMovimientosCuenta = async ({
                 );
             }
 
-            const elementosConId = movimientosNormalizados.map((movimiento, index) => {
+            const adelantos = asignarNrosAdelanto(
+                movimientosNormalizados,
+                codigoSucursalAdelantos,
+                hayPagos ? contadorAdelantos[codigoSucursalAdelantos] : 0,
+            );
+            const elementosConId = adelantos.elementos.map((movimiento, index) => {
                 const orden = ultimoSucursal + index + 1;
                 return {
                     id: `${prefijo}-${String(orden).padStart(8, "0")}`,
@@ -614,6 +630,15 @@ export const submitMovimientosCuenta = async ({
                     : siguienteSucursal,
                 [sucursalOriginal]: siguienteSucursal,
             });
+            if (adelantos.cantidad > 0) {
+                const ultimoAdelantosGeneral = Number(contadorAdelantos.ultimo);
+                transaction.update(contadorAdelantosRef, {
+                    ultimo: Number.isFinite(ultimoAdelantosGeneral)
+                        ? Math.max(ultimoAdelantosGeneral, adelantos.ultimo)
+                        : adelantos.ultimo,
+                    [codigoSucursalAdelantos]: adelantos.ultimo,
+                });
+            }
 
             referencias.forEach((referencia, index) => {
                 const { orden, ...movimiento } = elementosConId[index];
@@ -705,6 +730,13 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
         const cierreRef = idMovimientoCierre ? doc(db, "movimientos", idMovimientoCierre) : null;
         const movimientosRefs = seleccionados.map((movimiento) => doc(db, "movimientos", String(movimiento.id)));
         const cuentaRef = doc(db, "cuentaCorriente", cuenta);
+        const sucursalOriginal = String(sucursal || "01");
+        const ubicacion = ubicaciones.find(
+            (item) => String(item.id).toLowerCase() === sucursalOriginal.toLowerCase(),
+        );
+        const codigoSucursalAdelantos = String(ubicacion?.id || sucursalOriginal).padStart(2, "0");
+        const generaNroAdelanto = tipoEsperado === "PAGO";
+        const contadorAdelantosRef = doc(db, "contadores", "adelantos");
         const cuentas = tipoEsperado ? obtenerCuentasMovimiento(tipoEsperado, cuenta) : null;
         const sumaRef = cuentas ? doc(db, "cuentaCorriente", String(cuentas.cuentaSuma)) : null;
         const restaRef = cuentas ? doc(db, "cuentaCorriente", String(cuentas.cuentaResta)) : null;
@@ -719,12 +751,18 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
             }
             const liquidacionSnap = await transaction.get(liquidacionRef);
             const cuentaSnap = await transaction.get(cuentaRef);
+            const contadorAdelantosSnap = generaNroAdelanto
+                ? await transaction.get(contadorAdelantosRef)
+                : null;
             const cierreSnap = cierreRef ? await transaction.get(cierreRef) : null;
             const sumaSnap = sumaRef ? await transaction.get(sumaRef) : null;
             const restaSnap = restaRef ? await transaction.get(restaRef) : null;
 
             if (liquidacionSnap.exists()) throw new Error(`La liquidación ${idLiquidacion} ya existe.`);
             if (!cuentaSnap.exists()) throw new Error(`No existe la cuenta corriente ${cuenta}.`);
+            if (generaNroAdelanto && !contadorAdelantosSnap.exists()) {
+                throw new Error("No existe el contador de adelantos.");
+            }
             if (cierreSnap?.exists()) throw new Error(`El movimiento ${idMovimientoCierre} ya existe.`);
 
             const actuales = snaps.map((snap) => ({ id: snap.id, ...snap.data() }));
@@ -746,12 +784,22 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
             if (tipoReal && !sumaSnap.exists()) throw new Error(`No existe la cuenta corriente ${cuentas.cuentaSuma}.`);
             if (tipoReal && !restaSnap.exists()) throw new Error(`No existe la cuenta corriente ${cuentas.cuentaResta}.`);
 
+            const contadorAdelantos = contadorAdelantosSnap?.data() || {};
+            const asignacionAdelanto = asignarNrosAdelanto(
+                [{ tipo: tipoReal }, { tipo: tipoReal }],
+                codigoSucursalAdelantos,
+                generaNroAdelanto ? contadorAdelantos[codigoSucursalAdelantos] : 0,
+            );
+            const nroAdelantoLiquidacion = asignacionAdelanto.elementos[0].nroAdelanto;
+            const nroAdelantoMovimientoCierre = asignacionAdelanto.elementos[1].nroAdelanto;
+
             transaction.set(liquidacionRef, {
                 id: idLiquidacion, fecha: serverTimestamp(), cuenta, persona: cuenta,
                 movimientos: actuales.map((movimiento) => movimiento.id),
                 saldoLiquidado: saldoReal, tipoCierre: tipoReal,
                 movimientoCierre: idMovimientoCierre, operador: formData?.operador || null,
                 detalle: formData?.detalle || "", estado: true,
+                ...(nroAdelantoLiquidacion ? { nroAdelanto: nroAdelantoLiquidacion } : {}),
             });
             movimientosRefs.forEach((movimientoRef) => transaction.update(movimientoRef, {
                 estado: true, liquidacion: idLiquidacion, fechaLiquidacion: serverTimestamp(),
@@ -763,11 +811,28 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
                     detalle: "Movimiento compensatorio automático",
                     operador: formData?.operador || null, estado: true,
                     liquidacion: idLiquidacion, esCierreLiquidacion: true,
+                    ...(nroAdelantoMovimientoCierre
+                        ? { nroAdelanto: nroAdelantoMovimientoCierre }
+                        : {}),
                 });
                 transaction.update(sumaRef, { monto: increment(montoReal), ultimaModificacion: serverTimestamp() });
                 transaction.update(restaRef, { monto: increment(-montoReal), ultimaModificacion: serverTimestamp() });
             }
-            resultadoReal = { saldoLiquidado: saldoReal, tipoCierre: tipoReal, cantidad: actuales.length };
+            if (asignacionAdelanto.cantidad > 0) {
+                const ultimoAdelantosGeneral = Number(contadorAdelantos.ultimo);
+                transaction.update(contadorAdelantosRef, {
+                    ultimo: Number.isFinite(ultimoAdelantosGeneral)
+                        ? Math.max(ultimoAdelantosGeneral, asignacionAdelanto.ultimo)
+                        : asignacionAdelanto.ultimo,
+                    [codigoSucursalAdelantos]: asignacionAdelanto.ultimo,
+                });
+            }
+            resultadoReal = {
+                saldoLiquidado: saldoReal,
+                tipoCierre: tipoReal,
+                cantidad: actuales.length,
+                nroAdelanto: nroAdelantoLiquidacion,
+            };
         });
 
         await Swal.fire({
@@ -785,6 +850,7 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
             movimientos: seleccionados.map((movimiento) => movimiento.id),
             saldoLiquidado: resultadoReal.saldoLiquidado,
             tipoCierre: resultadoReal.tipoCierre, movimientoCierre: idMovimientoCierre,
+            ...(resultadoReal.nroAdelanto ? { nroAdelanto: resultadoReal.nroAdelanto } : {}),
         }};
     } catch (error) {
         console.error("[Error] al registrar liquidación:", error);

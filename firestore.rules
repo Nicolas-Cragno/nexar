@@ -211,6 +211,11 @@ service cloud.firestore {
       allow read, write: if hasPermission('movimientosWrite');
     }
 
+    match /contadores/adelantos {
+      allow read, write: if hasPermission('movimientosWrite')
+        || hasPermission('liquidacionesWrite');
+    }
+
     match /contadores/liquidaciones {
       allow read, write: if hasPermission('liquidacionesWrite');
     }
