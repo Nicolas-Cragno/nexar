@@ -5,11 +5,13 @@ import App from './routes/App';
 import reportWebVitals from './reportWebVitals';
 import "./assets/styles/colors.css";
 import { AuthProvider } from './contexto/AuthContext';
+import EmulatorBanner from './components/layout/EmulatorBanner';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <EmulatorBanner />
     <AuthProvider>
       <App />
     </AuthProvider>

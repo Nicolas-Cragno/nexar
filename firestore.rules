@@ -113,6 +113,61 @@ service cloud.firestore {
         || hasPermission('liquidacionesWrite');
     }
 
+    function isCancellationMetadataUpdate() {
+      return resource.data.get('anulado', false) != true
+        && request.resource.data.anulado == true
+        && request.resource.data.motivoAnulacion is string
+        && request.resource.data.motivoAnulacion.size() > 0
+        && request.resource.data.uidAnulacion == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'anulado', 'fechaAnulacion', 'usuarioAnulacion', 'uidAnulacion',
+          'motivoAnulacion', 'anulacion'
+        ]);
+    }
+
+    function preservesCancellation() {
+      return resource.data.get('anulado', false) != true;
+    }
+
+    function isTravelCancellationOfCruce() {
+      return hasPermission('viajesWrite')
+        && isCancellationMetadataUpdate()
+        && getAfter(/databases/$(database)/documents/viajes/$(resource.data.viaje)).data.anulado == true;
+    }
+
+    function isLiquidationOperationalUpdate() {
+      return hasPermission('liquidacionesWrite')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'estado', 'liquidacion', 'fechaLiquidacion', 'liquidacionAnterior',
+          'ultimaModificacion', 'anulado', 'fechaAnulacion', 'usuarioAnulacion',
+          'uidAnulacion', 'motivoAnulacion', 'anulacion',
+          'revertidoPorAnulacionLiquidacion'
+        ]);
+    }
+
+    function canCreateCancellationAudit() {
+      return request.resource.data.uidAnulacion == request.auth.uid
+        && request.resource.data.motivo is string
+        && request.resource.data.motivo.size() > 0
+        && (
+          (request.resource.data.tipoOperacion == 'movimientos' && hasPermission('movimientosWrite'))
+          || (request.resource.data.tipoOperacion == 'viajes' && hasPermission('viajesWrite'))
+          || (request.resource.data.tipoOperacion == 'liquidaciones' && hasPermission('liquidacionesWrite'))
+          || (request.resource.data.tipoOperacion == 'cruces'
+            && (hasPermission('crucesWrite')
+              || (hasPermission('viajesWrite')
+                && request.resource.data.efectosRevertidos.automaticoPorViaje == true
+                && getAfter(/databases/$(database)/documents/viajes/$(request.resource.data.referencias.viaje)).data.anulado == true)))
+        );
+    }
+
+    function canReadCancellationAudit() {
+      return (resource.data.tipoOperacion == 'movimientos' && hasPermission('movimientosView'))
+        || (resource.data.tipoOperacion == 'viajes' && hasPermission('viajesView'))
+        || (resource.data.tipoOperacion == 'cruces' && hasPermission('crucesView'))
+        || (resource.data.tipoOperacion == 'liquidaciones' && hasPermission('liquidacionesView'));
+    }
+
     match /accesosUsuarios/{uid} {
       allow get: if isSignedIn() && uid == request.auth.uid;
       allow list, write: if false;
@@ -141,22 +196,32 @@ service cloud.firestore {
 
     match /viajes/{resourceId} {
       allow read: if hasPermission('viajesView');
-      allow write: if hasPermission('viajesWrite');
+      allow create: if hasPermission('viajesWrite') && request.resource.data.get('anulado', false) != true;
+      allow update: if hasPermission('viajesWrite') && preservesCancellation();
+      allow delete: if false;
     }
 
     match /movimientos/{resourceId} {
       allow read: if hasPermission('movimientosView');
-      allow write: if hasPermission('movimientosWrite');
+      allow create: if hasPermission('movimientosWrite') && request.resource.data.get('anulado', false) != true;
+      allow update: if (hasPermission('movimientosWrite') || isLiquidationOperationalUpdate())
+        && preservesCancellation();
+      allow delete: if false;
     }
 
     match /cruces/{resourceId} {
       allow read: if hasPermission('crucesView');
-      allow write: if hasPermission('crucesWrite');
+      allow create: if hasPermission('crucesWrite') && request.resource.data.get('anulado', false) != true;
+      allow update: if (hasPermission('crucesWrite') || isTravelCancellationOfCruce())
+        && preservesCancellation();
+      allow delete: if false;
     }
 
     match /liquidaciones/{resourceId} {
       allow read: if hasPermission('liquidacionesView');
-      allow write: if hasPermission('liquidacionesWrite');
+      allow create: if hasPermission('liquidacionesWrite') && request.resource.data.get('anulado', false) != true;
+      allow update: if hasPermission('liquidacionesWrite') && preservesCancellation();
+      allow delete: if false;
     }
 
     match /personas/{resourceId} {
@@ -222,6 +287,12 @@ service cloud.firestore {
 
     match /contadores/cruces {
       allow read, write: if hasPermission('crucesWrite');
+    }
+
+    match /anulaciones/{anulacionId} {
+      allow get, list: if canReadCancellationAudit();
+      allow create: if canCreateCancellationAudit();
+      allow update, delete: if false;
     }
 
     match /{document=**} {

@@ -30,7 +30,7 @@ const FormLiquidacion = ({ onGuardar, onClose, cuentaInicial = "" }) => {
     () =>
       movimientos.filter(
         (movimiento) =>
-          movimiento.estado === false &&
+          movimiento.estado === false && movimiento.anulado !== true &&
           String(movimiento.cuenta || movimiento.persona) ===
             String(formData.cuenta),
       ),

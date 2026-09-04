@@ -1,0 +1,15 @@
+.emulator-banner {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  width: 100%;
+  padding: 0.35rem 1rem;
+  box-sizing: border-box;
+  border-radius: 2px;
+  background: #7a4b00;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+}

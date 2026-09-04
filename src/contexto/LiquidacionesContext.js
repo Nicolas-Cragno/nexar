@@ -19,7 +19,7 @@ export function LiquidacionesProvider({ children }) {
             const operador = personas.find((ps) => String(ps.id) === String(liquidacion.operador));
             const saldo = formatearMonto(liquidacion.monto);
             const cantidadMovimientos = liquidacion.movimientos?.length || 0;
-            const liquidacionLabel = `${liquidacion.id} ($${saldo} | ${cuenta?.label || cuentaId})`;
+            const liquidacionLabel = `${liquidacion.id} ($${saldo} | ${cuenta?.label || cuentaId})${liquidacion.anulado === true ? " | ANULADA" : ""}`;
             return {
                 ...liquidacion,
                 cuentaCompleta: cuenta?.nombre || cuentaId || "",
@@ -29,6 +29,7 @@ export function LiquidacionesProvider({ children }) {
                 montoCompleto: `$ ${saldo}`,
                 cantidadMovimientos,
                 tipoCierreCompleto: liquidacion.tipoCierre || "SIN MOVIMIENTO",
+                estadoLabel: liquidacion.anulado === true ? "ANULADA" : "VIGENTE",
                 label: liquidacionLabel
             };
         }).sort((a, b) => {

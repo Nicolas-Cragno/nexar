@@ -226,6 +226,17 @@
   background-color: #0056b3;
 }
 
+.viaje-recurso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.viaje-recurso button {
+  border-radius: 2px;
+}
+
 .person-name {
   font-size: 2.3rem;
   margin: 0;
@@ -684,6 +695,18 @@
   .chequeo-item {
     font-size: .75rem;
   }
+}
+
+.ficha-anulada {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #b42318;
+  border-radius: 2px;
+  background: #fef3f2;
+  color: #912018;
 }
 /* Bloques relacionados, incorporados sin alterar la estructura base de Ficha. */
 .ficha-summary-grid {

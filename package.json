@@ -21,6 +21,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:emulator": "cross-env REACT_APP_USE_FIREBASE_EMULATOR=true BROWSER=none HOST=127.0.0.1 PORT=3001 react-scripts start",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-nexar-transcan",
+    "dev:emulator": "concurrently --kill-others-on-fail --names EMULATORS,REACT \"npm:emulators\" \"npm:start:emulator\"",
+    "seed:emulator": "node scripts/emulator/seed.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -42,5 +46,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4",
+    "cross-env": "^10.1.0",
+    "firebase-tools": "^15.29.0"
   }
 }

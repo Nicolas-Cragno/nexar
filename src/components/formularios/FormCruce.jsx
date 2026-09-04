@@ -34,7 +34,7 @@ const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
   const { viajes } = useViajes();
   const { personas } = usePersonas();
   const viajeSeleccionado = viajes.find(
-    (viaje) => String(viaje.id) === String(formData.viaje),
+    (viaje) => String(viaje.id) === String(formData.viaje) && viaje.anulado !== true,
   );
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
       return;
     }
     const viajeSeleccionado = viajes.find(
-      (vj) => String(vj.id) === String(formData.viaje) && vj.estado === true,
+      (vj) => String(vj.id) === String(formData.viaje) && vj.estado === true && vj.anulado !== true,
     );
 
     if (!viajeSeleccionado) {
@@ -66,6 +66,15 @@ const FormCruce = ({ elemento = null, onGuardar, onClose }) => {
       await Swal.fire({
         title: "Viaje no disponible",
         text: "El viaje seleccionado ya no está activo.",
+        icon: "error",
+        confirmButtonColor: "#4161bd",
+      });
+      return;
+    }
+    if (!viajeSeleccionado.tractor || viajeSeleccionado.situacion === "ESPERANDO_TRACTOR") {
+      await Swal.fire({
+        title: "Viaje sin tractor",
+        text: "Asigne un tractor al viaje antes de registrar un nuevo cruce.",
         icon: "error",
         confirmButtonColor: "#4161bd",
       });

@@ -163,6 +163,14 @@
   background-color: #d7dce5;
 }
 
+.btn-danger {
+  background-color: #b42318;
+}
+
+.btn-danger:hover {
+  background-color: #8f1c13;
+}
+
 .btn-body:disabled,
 .btn-body-doble:disabled,
 .btn-body-mini:disabled {

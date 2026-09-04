@@ -63,7 +63,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const conflictosRecursos = useMemo(() => {
     const viajeId = elemento?.id;
     const activosAjenos = viajes.filter(
-      (viaje) => viaje.estado === true && String(viaje.id) !== String(viajeId),
+      (viaje) => viaje.estado === true && viaje.anulado !== true && String(viaje.id) !== String(viajeId),
     );
     const conflictos = [];
     const persona = personas.find((ps) => String(ps.id) === String(formData.persona));

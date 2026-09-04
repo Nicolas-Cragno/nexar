@@ -29,7 +29,7 @@ export function CrucesProvider({ children }) {
                 idsFurgones.some((id) => String(id) === String(fg.id))
             );
             //const personaLabel = persona?.nombreCompleto;
-            const cruceLabel = `${cr.viaje} ${cr.fecha}`;
+            const cruceLabel = `${cr.viaje} ${cr.fecha}${cr.anulado === true ? " | ANULADO" : ""}`;
 
             return {
                 ...cr,
@@ -38,6 +38,7 @@ export function CrucesProvider({ children }) {
                 tractorCompleto: tractor?.label || "-",
                 furgonCompleto: furgonesCruce.map((fg) => fg.label).join(", ") || "-",
                 furgonesCompletos: furgonesCruce,
+                estadoLabel: cr.anulado === true ? "ANULADO" : "VIGENTE",
                 label: cruceLabel
             };
         });

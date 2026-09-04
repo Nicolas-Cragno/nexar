@@ -24,8 +24,13 @@ export function ViajesProvider({ children }) {
             const persona = personas.find((ps) => String(vj.persona) === String(ps.id));
             const tractor = tractores.find((tr) => String(vj.tractor) === String(tr.id));
             const personaLabel = persona?.nombreCompleto;
-            const estadoLabel = vj.estado ? "EN VIAJE" : "FINALIZADO";
-            const label = `${vj.id} | ${personaLabel} (TR: ${vj.tractor}${vj.furgon ? " / FG: " + vj.furgon : ""} | ${estadoLabel})`;
+            const situacion = vj.situacion || (vj.estado === true && vj.tractor ? "EN_CURSO" : vj.estado === true ? "ESPERANDO_TRACTOR" : null);
+            const estadoLabel = vj.anulado === true
+                ? "ANULADO"
+                : vj.estado
+                    ? situacion === "ESPERANDO_TRACTOR" ? "ESPERANDO TRACTOR" : "EN VIAJE"
+                    : "FINALIZADO";
+            const label = `${vj.id} | ${personaLabel} (TR: ${vj.tractor || "SIN TRACTOR"}${vj.furgon?.length ? " / FG: " + vj.furgon : ""} | ${estadoLabel})`;
             const movimientosViaje = movimientos.filter((mv) => String(mv.viaje) === String(vj.id));
             const cruceBarcaza = cruces.filter((cc) => String(cc.viaje) === String(vj.id));
             // arrays
@@ -43,10 +48,11 @@ export function ViajesProvider({ children }) {
             const furgonesLabel = furgon.map((f) => f.label).join(", ") || "-";
             return {
                 ...vj,
+                situacion,
                 label: label,
                 estadoLabel: estadoLabel,
                 personaCompleta: persona?.label,
-                tractorCompleto: tractor?.label || "-",
+                tractorCompleto: tractor?.label || (vj.tractor ? String(vj.tractor) : "Sin tractor asignado"),
                 furgonCompleto: furgonesLabel,
                 clienteCompleto: clientesLabel,
                 clienteObj: clientes || [],

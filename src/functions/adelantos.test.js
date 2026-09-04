@@ -47,6 +47,16 @@ test("reserva números diferentes para pagos simultáneos del mismo lote", () =>
   expect(numeros[24]).toBe("0001-00000794");
 });
 
+test("un PAGO generado desde un viaje consume exactamente un adelanto", () => {
+  const resultado = asignarNrosAdelanto([
+    { tipo: "PAGO", viaje: "001-00000001" },
+  ], "01", 769);
+
+  expect(resultado.cantidad).toBe(1);
+  expect(resultado.ultimo).toBe(770);
+  expect(resultado.elementos[0].nroAdelanto).toBe("0001-00000770");
+});
+
 test("movimientos y liquidaciones continúan una misma secuencia compartida", () => {
   const movimiento = asignarNrosAdelanto([{ tipo: "PAGO" }], "01", 769);
   const liquidacion = asignarNrosAdelanto([

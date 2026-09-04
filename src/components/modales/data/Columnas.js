@@ -40,6 +40,7 @@ export const columnas = {
     { key: "estado", label: "Estado" }
   ],
   movimientos: [
+    { key: "estadoLabel", label: "Estado", responsive: true },
     { key: "id", label: "N° Movimiento", filtroEspecial: true },
     { key: "fecha", label: "Fecha & hora", filtroEspecial: true, responsive: true },
     { key: "viaje", label: "N° Viaje", filtroEspecial: true },
@@ -50,6 +51,7 @@ export const columnas = {
     { key: "nroAdelanto", label: "n° Adelanto", responsive: false }
   ],
   liquidaciones: [
+    { key: "estadoLabel", label: "Estado", responsive: true },
     { key: "id", label: "N° Liquidación", filtroEspecial: true, responsive: true },
     { key: "fecha", label: "Fecha & hora", filtroEspecial: true, responsive: true },
     { key: "cuentaCompleta", label: "Cuenta", filtroEspecial: true, responsive: true },
@@ -70,6 +72,7 @@ export const columnas = {
     { key: "estadoLabel", label: "Estado" }
   ],
   cruces: [
+    { key: "estadoLabel", label: "Estado", responsive: true },
     { key: "id", label: "N° Cruce", filtroEspecial: true },
     { key: "viaje", label: "N° Viaje", filtroEspecial: true },
     { key: "fecha", label: "Fecha & hora", filtroEspecial: true, responsive: true },

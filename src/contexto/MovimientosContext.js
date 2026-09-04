@@ -18,12 +18,13 @@ export function MovimientosProvider({ children }) {
             const persona = cuentaCorriente.find((ps) => String(ps.id) === String(cuentaId)) || personas.find((ps) => String(ps.id) === String(cuentaId));
             const operador = personas.find((ps) => String(ps.id) === String(mv.operador));
             const monto = formatearMonto(Number(mv.monto));
-            const movimientoLabel = `${mv.id} ($${monto} | ${persona?.label})`;
+            const movimientoLabel = `${mv.id} ($${monto} | ${persona?.label})${mv.anulado === true ? " | ANULADO" : ""}`;
             return {
                 ...mv,
                 personaCompleta: persona?.nombre || "",
                 operadorCompleto: operador?.label || "",
                 montoCompleto: `$ ${monto}`,
+                estadoLabel: mv.anulado === true ? "ANULADO" : mv.estado === true ? "LIQUIDADO" : "PENDIENTE",
                 label: movimientoLabel
             };
         }).sort((a, b) => {

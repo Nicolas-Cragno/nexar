@@ -2,6 +2,7 @@
 import { memo, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { FaRegFilePdf as PDFsLogo } from "react-icons/fa6";
+import Swal from "sweetalert2";
 //------------------------------------------------------ elementos
 import TextButton from "../buttons/TextButton.jsx";
 import CloseButton from "../buttons/CloseButton";
@@ -13,7 +14,11 @@ import {
 } from "../../functions/dataFunctions";
 import { eventos } from "../formularios/data/FormContent.js";
 import { fichaContent } from "./data/FichaContent.js";
-import { submitFinViaje } from "../formularios/data/Submits.js";
+import {
+  actualizarTractorViaje,
+  liberarFurgonViaje,
+  submitFinViaje,
+} from "../formularios/data/Submits.js";
 import { getSubmitFunction } from "../formularios/data/SubmitGestor.js";
 import {
   generarDocumentoCruce,
@@ -30,6 +35,8 @@ import { useViajes } from "../../contexto/ViajesContext.js";
 import { useMovimientos } from "../../contexto/MovimientosContext.js";
 import { useLiquidaciones } from "../../contexto/LiquidacionesContext.js";
 import FormLiquidacion from "../formularios/FormLiquidacion.jsx";
+import { useAuth } from "../../contexto/AuthContext.js";
+import { anuladores, permisoAnulacion } from "../../functions/anulaciones.js";
 
 const CUIT_TRANSCAN = "33719349949";
 
@@ -57,6 +64,7 @@ const Ficha = ({
   const { viajes } = useViajes();
   const { movimientos } = useMovimientos();
   const { liquidaciones } = useLiquidaciones();
+  const { firebaseUser, fullUser, permissions } = useAuth();
   const titulado = container.find((campo) => campo.type === "title");
   const tituladoAbajo = container.find((campo) => campo.type === "secondtitle");
   const titulo = titulado ? elemento[titulado.key] : elemento["id"];
@@ -79,6 +87,22 @@ const Ficha = ({
   const esViaje = auxCampos === "viajes";
   const esCruce = auxCampos === "cruces";
   const esPersona = auxCampos === "personas";
+  const tipoAnulable = ["movimientos", "viajes", "cruces", "liquidaciones"].includes(auxCampos)
+    ? auxCampos
+    : null;
+  const permisoRequerido = permisoAnulacion(tipoAnulable);
+  const etiquetaAnulacion = ({
+    movimientos: "movimiento",
+    viajes: "viaje",
+    cruces: "cruce",
+    liquidaciones: "liquidacion",
+  })[tipoAnulable] || "operacion";
+  const puedeAnular = Boolean(
+    tipoAnulable &&
+    elemento.anulado !== true &&
+    (permissions?.allAccess === true || permissions?.[permisoRequerido] === true) &&
+    !(tipoAnulable === "movimientos" && (elemento.estado === true || elemento.liquidacion || elemento.esCierreLiquidacion))
+  );
   const cuentaId = esCuenta
     ? elemento.id
     : elemento.cuenta || elemento.cuit;
@@ -94,11 +118,11 @@ const Ficha = ({
   const viajesPersona = esPersona
     ? viajes.filter((viaje) => String(viaje.persona) === String(elemento.id))
     : [];
-  const viajeActivoPersona = viajesPersona.find((viaje) => viaje.estado === true);
+  const viajeActivoPersona = viajesPersona.find((viaje) => viaje.estado === true && viaje.anulado !== true);
   const movimientosViaje = esViaje
     ? movimientos.filter((movimiento) => String(movimiento.viaje) === String(elemento.id))
     : [];
-  const resumenViaje = movimientosViaje.reduce(
+  const resumenViaje = movimientosViaje.filter((movimiento) => movimiento.anulado !== true).reduce(
     (resumen, movimiento) => {
       const monto = Number(movimiento.monto) || 0;
       const tipo = movimiento.tipo === "PAGO" ? "ADELANTO" : movimiento.tipo;
@@ -109,6 +133,21 @@ const Ficha = ({
       return resumen;
     },
     { adelantos: 0, gastos: 0, cobros: 0, saldo: 0 },
+  );
+  const viajeActivo = esViaje && elemento.estado === true && elemento.anulado !== true;
+  const puedeGestionarRecursos = viajeActivo && (
+    permissions?.allAccess === true || permissions?.viajesWrite === true
+  );
+  const idsFurgonesViaje = esViaje
+    ? (Array.isArray(elemento.furgon) ? elemento.furgon : elemento.furgon ? [elemento.furgon] : []).map(String)
+    : [];
+  const tractoresDisponibles = tractores.filter((tractor) =>
+    tractor.enViaje !== true &&
+    !tractor.viajeActivo &&
+    String(tractor.id) !== String(elemento.tractor || "") &&
+    !viajes.some((viaje) =>
+      viaje.estado === true && viaje.anulado !== true && String(viaje.tractor) === String(tractor.id)
+    )
   );
 
   const stateButton = campos.find((cp) => cp.type === "stateButton");
@@ -142,7 +181,7 @@ const Ficha = ({
   // gestion para dar de alta o baja un viaje
   const handleStateClick = async (st) => {
     if (!stateButton?.submitType) return;
-    if (!st) return;
+    if (!st || elemento.anulado === true) return;
 
     const submitFc = getSubmitFunction(stateButton.submitType);
 
@@ -163,6 +202,154 @@ const Ficha = ({
   const handleGuardarEdicion = async () => {
     if (reload) await reload();
     setFormEditarVisible(false);
+  };
+
+  const handleAnular = async () => {
+    const motivoResult = await Swal.fire({
+      title: `Anular ${etiquetaAnulacion} ${elemento.id}`,
+      input: "textarea",
+      inputLabel: "Motivo de anulacion",
+      inputPlaceholder: "Indique el motivo obligatorio",
+      showCancelButton: true,
+      confirmButtonText: "Continuar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#b42318",
+      inputValidator: (value) => String(value || "").trim() ? undefined : "El motivo es obligatorio.",
+    });
+    if (!motivoResult.isConfirmed) return;
+    const confirmacion = await Swal.fire({
+      title: "Confirmar anulacion",
+      html: `<p>Se anulara <strong>${etiquetaAnulacion} ${elemento.id}</strong>.</p><p>Esta accion conservara el registro y revertira sus efectos aplicables.</p>`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, anular",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#b42318",
+    });
+    if (!confirmacion.isConfirmed) return;
+    try {
+      await anuladores[tipoAnulable]({
+        id: elemento.id,
+        motivo: motivoResult.value,
+        usuario: { id: fullUser?.id, uid: firebaseUser?.uid },
+      });
+      await Swal.fire({ title: "Operacion anulada", icon: "success", confirmButtonColor: "#4161bd" });
+      if (reload) await reload();
+      if (onClose) onClose();
+    } catch (error) {
+      await Swal.fire({
+        title: "No se pudo anular",
+        text: error?.message || "No se pudo completar la anulacion.",
+        icon: "error",
+        confirmButtonColor: "#4161bd",
+      });
+    }
+  };
+
+  const seleccionarTractor = async () => {
+    if (!tractoresDisponibles.length) {
+      await Swal.fire({
+        title: "Sin tractores disponibles",
+        icon: "info",
+        confirmButtonColor: "#4161bd",
+      });
+      return null;
+    }
+    const seleccion = await Swal.fire({
+      title: "Seleccionar tractor",
+      input: "select",
+      inputOptions: Object.fromEntries(
+        tractoresDisponibles.map((tractor) => [String(tractor.id), tractor.label || tractor.id]),
+      ),
+      inputPlaceholder: "Seleccione un tractor",
+      showCancelButton: true,
+      confirmButtonText: "Asignar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#4161bd",
+      inputValidator: (value) => value ? undefined : "Seleccione un tractor.",
+    });
+    return seleccion.isConfirmed ? String(seleccion.value) : null;
+  };
+
+  const ejecutarCambioTractor = async (nuevoTractorId) => {
+    try {
+      await actualizarTractorViaje(elemento.id, nuevoTractorId);
+      await Swal.fire({
+        title: nuevoTractorId ? "Tractor asignado" : "Tractor liberado",
+        icon: "success",
+        confirmButtonColor: "#4161bd",
+      });
+      if (reload) await reload();
+    } catch (error) {
+      await Swal.fire({
+        title: "No se pudo actualizar el tractor",
+        text: error?.message || "No hemos podido procesar la solicitud.",
+        icon: "error",
+        confirmButtonColor: "#4161bd",
+      });
+    }
+  };
+
+  const handleLiberarTractor = async () => {
+    const confirmacion = await Swal.fire({
+      title: `Liberar tractor ${elemento.tractor}`,
+      text: "El chofer y el viaje continuarán activos.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Continuar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#4161bd",
+    });
+    if (!confirmacion.isConfirmed) return;
+
+    const reemplazo = await Swal.fire({
+      title: "¿Desea reemplazarlo?",
+      text: "Puede asignar otro tractor disponible o continuar sin tractor.",
+      icon: "question",
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: "Reemplazar",
+      denyButtonText: "Continuar sin tractor",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#4161bd",
+    });
+    if (reemplazo.isDismissed) return;
+    if (reemplazo.isDenied) {
+      await ejecutarCambioTractor(null);
+      return;
+    }
+    const nuevoId = await seleccionarTractor();
+    if (nuevoId) await ejecutarCambioTractor(nuevoId);
+  };
+
+  const handleAsignarTractor = async () => {
+    const nuevoId = await seleccionarTractor();
+    if (nuevoId) await ejecutarCambioTractor(nuevoId);
+  };
+
+  const handleLiberarFurgon = async (furgonId) => {
+    const confirmacion = await Swal.fire({
+      title: `Liberar furgón ${furgonId}`,
+      text: "El viaje continuará activo con sus demás recursos.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, liberar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#4161bd",
+    });
+    if (!confirmacion.isConfirmed) return;
+    try {
+      await liberarFurgonViaje(elemento.id, furgonId);
+      await Swal.fire({ title: "Furgón liberado", icon: "success", confirmButtonColor: "#4161bd" });
+      if (reload) await reload();
+    } catch (error) {
+      await Swal.fire({
+        title: "No se pudo liberar el furgón",
+        text: error?.message || "No hemos podido procesar la solicitud.",
+        icon: "error",
+        confirmButtonColor: "#4161bd",
+      });
+    }
   };
 
   const handleImprimir = async () => {
@@ -216,6 +403,12 @@ const Ficha = ({
   return (
     <div className="ficha">
       <div className="ficha-content">
+        {elemento.anulado === true && (
+          <div className="ficha-anulada">
+            <strong>ANULADO</strong>
+            {elemento.motivoAnulacion && <span>{elemento.motivoAnulacion}</span>}
+          </div>
+        )}
         <CloseButton onClose={onClose} />
         <h1 className="ficha-header">
           <strong className="ficha-id">
@@ -405,6 +598,41 @@ const Ficha = ({
           </>
         )}
 
+        {esViaje && (
+          <>
+            <label><strong className="ficha-info-title">Recursos actuales</strong></label>
+            <div className="ficha-info-box">
+              <div className="ficha-info viaje-recurso">
+                <span>Chofer: {elemento.personaCompleta || elemento.persona || "-"}</span>
+              </div>
+              <div className="ficha-info viaje-recurso">
+                <span>Tractor: {elemento.tractorCompleto || elemento.tractor || "Sin tractor asignado"}</span>
+                {puedeGestionarRecursos && elemento.tractor && (
+                  <TextButton mini text="Liberar" onClick={handleLiberarTractor} />
+                )}
+                {puedeGestionarRecursos && !elemento.tractor && (
+                  <TextButton mini text="Asignar" onClick={handleAsignarTractor} />
+                )}
+              </div>
+              {idsFurgonesViaje.map((furgonId) => {
+                const furgon = furgones.find((item) => String(item.id) === furgonId);
+                return (
+                  <div key={furgonId} className="ficha-info viaje-recurso">
+                    <span>Furgón: {furgon?.label || furgonId}</span>
+                    {puedeGestionarRecursos && (
+                      <TextButton mini text="Liberar" onClick={() => handleLiberarFurgon(furgonId)} />
+                    )}
+                  </div>
+                );
+              })}
+              {!idsFurgonesViaje.length && <div className="ficha-info">Sin furgones asignados</div>}
+              <div className="ficha-info">
+                Situación: {elemento.situacion || (elemento.tractor ? "EN_CURSO" : "ESPERANDO_TRACTOR")}
+              </div>
+            </div>
+          </>
+        )}
+
         {movimientosViaje.length > 0 && (
           <>
             <label>
@@ -486,9 +714,9 @@ const Ficha = ({
             <label><strong className="ficha-info-title">Resumen de cuenta</strong></label>
             <div className="ficha-summary-grid">
               <div><span>Saldo actual</span><strong>$ {formatearMonto(elemento.monto)}</strong></div>
-              <div><span>Pendientes</span><strong>{movimientosCuenta.filter((m) => m.estado === false).length}</strong></div>
-              <div><span>Liquidados</span><strong>{movimientosCuenta.filter((m) => m.estado === true).length}</strong></div>
-              <div><span>Liquidaciones</span><strong>{liquidacionesCuenta.length}</strong></div>
+              <div><span>Pendientes</span><strong>{movimientosCuenta.filter((m) => m.estado === false && m.anulado !== true).length}</strong></div>
+              <div><span>Liquidados</span><strong>{movimientosCuenta.filter((m) => m.estado === true && m.anulado !== true).length}</strong></div>
+              <div><span>Liquidaciones</span><strong>{liquidacionesCuenta.filter((l) => l.anulado !== true).length}</strong></div>
             </div>
             <label><strong className="ficha-info-title">Historial de movimientos</strong></label>
             <div className="ficha-info-box">
@@ -504,7 +732,7 @@ const Ficha = ({
                       </span>
                     </div>
                     <div className="obj-info-footer">
-                      {movimiento.estado === true ? "Liquidado" : "Pendiente"}
+                      {movimiento.anulado === true ? "ANULADO" : movimiento.estado === true ? "Liquidado" : "Pendiente"}
                       {movimiento.viaje ? ` · Viaje ${movimiento.viaje}` : ""}
                     </div>
                   </div>
@@ -546,7 +774,7 @@ const Ficha = ({
               <p>{viajesPersona.length} viajes · {movimientosCuenta.length} movimientos · {liquidacionesCuenta.length} liquidaciones</p>
               {viajesPersona.map((viaje) => (
                 <button className="ficha-link" key={viaje.id} onClick={() => setViajeVinculado(viaje)}>
-                  {viaje.id} · {viaje.estado ? "En viaje" : "Finalizado"}
+                  {viaje.id} · {viaje.anulado === true ? "ANULADO" : viaje.estado ? "En viaje" : "Finalizado"}
                 </button>
               ))}
             </div>
@@ -556,7 +784,7 @@ const Ficha = ({
               {movimientosCuenta.map((movimiento) => (
                 <div key={movimiento.id} className={`ficha-info movement-${movimiento.tipo?.toLowerCase()}`}>
                   <div className="obj-info-body"><strong>{movimiento.tipo} · {movimiento.id}</strong><span>$ {formatearMonto(movimiento.monto)}</span></div>
-                  <div className="obj-info-footer">{movimiento.estado ? "Liquidado" : "Pendiente"}</div>
+                  <div className="obj-info-footer">{movimiento.anulado === true ? "ANULADO" : movimiento.estado ? "Liquidado" : "Pendiente"}</div>
                 </div>
               ))}
             </div>
@@ -631,6 +859,11 @@ const Ficha = ({
               text={"EDITAR"}
               onClick={() => setFormEditarVisible(true)}
             />
+          </div>
+        )}
+        {puedeAnular && (
+          <div className="ficha-buttons">
+            <TextButton text="ANULAR" variant="danger" onClick={handleAnular} />
           </div>
         )}
       </div>

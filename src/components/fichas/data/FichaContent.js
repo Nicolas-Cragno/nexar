@@ -7,6 +7,7 @@ export const fichaContent = {
         { key: "estado", label: "Estado", type: "state" },
     ],
     movimientos: [
+        { key: "estadoLabel", label: "Estado de operacion", type: "secondary" },
         { key: "id", label: "Movimiento", type: "title" },
         { key: "nroAdelanto", label: "N° Adelanto", type: "principal" },
         { key: "fecha", label: "Fecha", type: "principal" },
@@ -93,6 +94,7 @@ export const fichaContent = {
         //{ key: "crucesRegistrados", label: "Cruces de barcaza", type: "secondary" }, se renderiza directo en Ficha.jsx
     ],
     cruces: [
+        { key: "estadoLabel", label: "Estado de operacion", type: "secondary" },
         { key: "id", label: "Cruce", type: "title" },
         { key: "fecha", label: "Fecha", type: "principal", soloFecha: true },
         { key: "viajeCompleto", label: "Viaje", type: "principal" },
@@ -103,6 +105,7 @@ export const fichaContent = {
         { key: "pdf", label: "Impresión", type: "pdf" },
     ],
     liquidaciones: [
+        { key: "estadoLabel", label: "Estado de operacion", type: "secondary" },
         { key: "id", label: "N° Liquidación", type: "title" },
         { key: "nroAdelanto", label: "N° Adelanto", type: "principal" },
         { key: "fecha", label: "Fecha", type: "principal" },

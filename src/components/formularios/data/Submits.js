@@ -11,6 +11,12 @@ import {
 import { db } from "../../../firebase/firebaseConfig";
 import { submit, update, statusOptions, eventCode } from "../../../functions/abmFunctions";
 import { asignarNrosAdelanto } from "../../../functions/adelantos";
+import {
+    puedeCrearCruceViaje,
+    prepararCambioTractor,
+    prepararLiberacionFurgon,
+    recursosActualesParaFinalizar,
+} from "../../../functions/viajeRecursos";
 
 const CUIT_TRANSCAN = "33719349949";
 
@@ -371,6 +377,10 @@ export const submitMovimientoCuenta = async (
             "cuentaCorriente",
             String(cuentaResta)
         );
+        const codigoSucursalAdelantos = String(sucursal || "01").padStart(2, "0");
+        const esPago = elementoAGuardar.tipo === "PAGO";
+        const contadorAdelantosRef = doc(db, "contadores", "adelantos");
+        let nroAdelanto;
 
 
         // --------------------------------------------------
@@ -387,6 +397,10 @@ export const submitMovimientoCuenta = async (
 
             const cuentaRestaSnap =
                 await transaction.get(cuentaRestaRef);
+
+            const contadorAdelantosSnap = esPago
+                ? await transaction.get(contadorAdelantosRef)
+                : null;
 
 
             if (movimientoSnap.exists()) {
@@ -410,6 +424,18 @@ export const submitMovimientoCuenta = async (
             }
 
 
+            if (esPago && !contadorAdelantosSnap.exists()) {
+                throw new Error("No existe el contador de adelantos.");
+            }
+
+            const contadorAdelantos = contadorAdelantosSnap?.data() || {};
+            const asignacionAdelanto = asignarNrosAdelanto(
+                [{ tipo: elementoAGuardar.tipo }],
+                codigoSucursalAdelantos,
+                esPago ? contadorAdelantos[codigoSucursalAdelantos] : 0,
+            );
+            nroAdelanto = asignacionAdelanto.elementos[0].nroAdelanto;
+
             transaction.set(
                 movimientoRef,
                 {
@@ -421,6 +447,7 @@ export const submitMovimientoCuenta = async (
 
                     // mantener compatibilidad actual
                     persona: cuenta,
+                    ...(nroAdelanto ? { nroAdelanto } : {}),
 
                     estado:
                         elementoAGuardar.estado ?? false,
@@ -444,6 +471,16 @@ export const submitMovimientoCuenta = async (
                     ultimaModificacion: serverTimestamp(),
                 }
             );
+
+            if (asignacionAdelanto.cantidad > 0) {
+                const ultimoAdelantosGeneral = Number(contadorAdelantos.ultimo);
+                transaction.update(contadorAdelantosRef, {
+                    ultimo: Number.isFinite(ultimoAdelantosGeneral)
+                        ? Math.max(ultimoAdelantosGeneral, asignacionAdelanto.ultimo)
+                        : asignacionAdelanto.ultimo,
+                    [codigoSucursalAdelantos]: asignacionAdelanto.ultimo,
+                });
+            }
         });
 
         statusOptions({
@@ -466,6 +503,7 @@ export const submitMovimientoCuenta = async (
                 id: identificador,
                 ...elementoAGuardar,
                 persona: cuenta,
+                ...(nroAdelanto ? { nroAdelanto } : {}),
                 estado:
                     elementoAGuardar.estado ?? false,
             }
@@ -697,6 +735,8 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
         if (seleccionados.some((movimiento) => !["ADELANTO", "PAGO", "COBRO", "GASTO"].includes(movimiento.tipo))) {
             throw new Error("La selección contiene un tipo de movimiento no compatible.");
         }
+        const anulado = seleccionados.find((movimiento) => movimiento.anulado === true);
+        if (anulado) throw new Error(`El movimiento ${anulado.id} se encuentra anulado.`);
         const liquidado = seleccionados.find((movimiento) => movimiento.estado === true);
         if (liquidado) throw new Error(`El movimiento ${liquidado.id} ya se encuentra liquidado.`);
 
@@ -771,6 +811,8 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
             }
             const yaLiquidado = actuales.find((movimiento) => movimiento.estado === true);
             if (yaLiquidado) throw new Error(`El movimiento ${yaLiquidado.id} ya fue liquidado.`);
+            const yaAnulado = actuales.find((movimiento) => movimiento.anulado === true);
+            if (yaAnulado) throw new Error(`El movimiento ${yaAnulado.id} se encuentra anulado.`);
             if (actuales.some((movimiento) => String(movimiento.cuenta || movimiento.persona) !== cuenta)) {
                 throw new Error("Todos los movimientos deben pertenecer a la misma cuenta corriente.");
             }
@@ -950,7 +992,7 @@ export const submitViaje = async (
             : (await eventCode("viajes", ubicaciones, contadores, sucursal)).id;
         const viajeRef = doc(db, "viajes", idViaje);
         const viajesActivosConocidos = viajes.filter(
-            (viaje) => viaje.estado === true
+            (viaje) => viaje.estado === true && viaje.anulado !== true
         );
         const viajesConflictoRefs = viajesActivosConocidos
             .filter((viaje) => String(viaje.id) !== idViaje)
@@ -970,6 +1012,12 @@ export const submitViaje = async (
             const viajeAnterior = viajeSnap.exists() ? viajeSnap.data() : null;
             if (modoEdicion && viajeAnterior.estado !== true) {
                 throw new Error("No se pueden reasignar recursos de un viaje cerrado.");
+            }
+            if (modoEdicion && viajeAnterior.anulado === true) {
+                throw new Error("No se puede editar un viaje anulado.");
+            }
+            if (modoEdicion && String(datosViaje.persona) !== String(viajeAnterior.persona)) {
+                throw new Error("El chofer de un viaje no puede modificarse.");
             }
 
             const recursosNuevos = [
@@ -1063,6 +1111,7 @@ export const submitViaje = async (
                     id: idViaje,
                     fecha: serverTimestamp(),
                     estado: true,
+                    situacion: "EN_CURSO",
                     movimiento: datosViaje.adelanto > 0,
                     ...datosViaje,
                 };
@@ -1151,10 +1200,13 @@ export const submitCruce = async (
 
         if (viajeReferencia) {
             if (
-                viajeReferencia.estado !== true ||
+                viajeReferencia.estado !== true || viajeReferencia.anulado === true ||
                 String(viajeReferencia.id) !== String(elementoAGuardar.viaje)
             ) {
                 throw new Error("El viaje seleccionado ya no está activo o no coincide.");
+            }
+            if (!puedeCrearCruceViaje(viajeReferencia)) {
+                throw new Error("El viaje no tiene un tractor asignado para registrar el cruce.");
             }
 
             const furgonesViaje = normalizarIds(viajeReferencia.furgon);
@@ -1190,7 +1242,21 @@ export const submitCruce = async (
             viaje: String(elementoAGuardar.viaje),
             furgon: normalizarIds(elementoAGuardar.furgon),
         };
-        const resultadoCarga = await submit("cruces", documento);
+        const cruceRef = doc(db, "cruces", identificador);
+        const viajeRef = doc(db, "viajes", String(documento.viaje));
+        await runTransaction(db, async (transaction) => {
+            const viajeSnap = await transaction.get(viajeRef);
+            const cruceSnap = await transaction.get(cruceRef);
+            if (!viajeSnap.exists() || viajeSnap.data().estado !== true || viajeSnap.data().anulado === true) {
+                throw new Error("El viaje seleccionado ya no esta activo.");
+            }
+            if (!puedeCrearCruceViaje(viajeSnap.data())) {
+                throw new Error("El viaje no tiene un tractor asignado para registrar el cruce.");
+            }
+            if (cruceSnap.exists()) throw new Error(`El cruce ${identificador} ya existe.`);
+            transaction.set(cruceRef, documento);
+        });
+        const resultadoCarga = { status: "success", data: documento };
 
         statusOptions(resultadoCarga);
 
@@ -1221,6 +1287,80 @@ export const submitCruce = async (
     } finally {
         loading(false);
     }
+};
+
+export const actualizarTractorViaje = async (viajeId, nuevoTractorId = null) => {
+    const id = String(viajeId);
+    const nuevoId = nuevoTractorId ? String(nuevoTractorId) : null;
+    const viajeRef = doc(db, "viajes", id);
+
+    return runTransaction(db, async (transaction) => {
+        const viajeSnap = await transaction.get(viajeRef);
+        const viaje = viajeSnap.exists() ? viajeSnap.data() : null;
+
+        const anteriorId = viaje?.tractor ? String(viaje.tractor) : null;
+        const anteriorRef = anteriorId ? doc(db, "tractores", anteriorId) : null;
+        const nuevoRef = nuevoId ? doc(db, "tractores", nuevoId) : null;
+        const anteriorSnap = anteriorRef ? await transaction.get(anteriorRef) : null;
+        const nuevoSnap = nuevoRef ? await transaction.get(nuevoRef) : null;
+
+        if (anteriorRef && !anteriorSnap.exists()) throw new Error(`No existe el tractor ${anteriorId}.`);
+        if (nuevoRef && !nuevoSnap.exists()) throw new Error(`No existe el tractor ${nuevoId}.`);
+        const cambio = prepararCambioTractor({
+            viaje,
+            viajeId: id,
+            tractorAnterior: anteriorSnap?.data(),
+            tractorNuevo: nuevoSnap?.data(),
+            nuevoId,
+        });
+
+        if (anteriorRef) transaction.update(anteriorRef, {
+            enViaje: false,
+            viajeActivo: null,
+            ultimaModificacion: serverTimestamp(),
+        });
+        if (nuevoRef) transaction.update(nuevoRef, {
+            enViaje: true,
+            viajeActivo: id,
+            ultimaModificacion: serverTimestamp(),
+        });
+        transaction.update(viajeRef, {
+            ...cambio,
+            ultimaModificacion: serverTimestamp(),
+        });
+
+        return cambio;
+    });
+};
+
+export const liberarFurgonViaje = async (viajeId, furgonId) => {
+    const id = String(viajeId);
+    const recursoId = String(furgonId);
+    const viajeRef = doc(db, "viajes", id);
+    const furgonRef = doc(db, "furgones", recursoId);
+
+    return runTransaction(db, async (transaction) => {
+        const viajeSnap = await transaction.get(viajeRef);
+        const furgonSnap = await transaction.get(furgonRef);
+        if (!furgonSnap.exists()) throw new Error(`No existe el furgón ${recursoId}.`);
+        const cambio = prepararLiberacionFurgon({
+            viaje: viajeSnap.exists() ? viajeSnap.data() : null,
+            viajeId: id,
+            furgon: furgonSnap.data(),
+            furgonId: recursoId,
+        });
+
+        transaction.update(furgonRef, {
+            enViaje: false,
+            viajeActivo: null,
+            ultimaModificacion: serverTimestamp(),
+        });
+        transaction.update(viajeRef, {
+            furgon: cambio.furgon,
+            ultimaModificacion: serverTimestamp(),
+        });
+        return true;
+    });
 };
 
 // estados
@@ -1258,18 +1398,14 @@ export const submitFinViaje = async (
             }
 
             const viajeActual = viajeSnap.data();
+            if (viajeActual.anulado === true) {
+                throw new Error(`El viaje ${id} se encuentra anulado.`);
+            }
             if (viajeActual.estado !== true) {
                 throw new Error(`El viaje ${id} ya está cerrado.`);
             }
 
-            const recursos = [
-                { tipo: "personas", id: String(viajeActual.persona) },
-                { tipo: "tractores", id: String(viajeActual.tractor) },
-                ...normalizarIds(viajeActual.furgon).map((furgonId) => ({
-                    tipo: "furgones",
-                    id: furgonId,
-                })),
-            ];
+            const recursos = recursosActualesParaFinalizar(viajeActual);
             const recursosLeidos = [];
             for (const recurso of recursos) {
                 const ref = doc(db, recurso.tipo, recurso.id);
@@ -1313,7 +1449,7 @@ export const submitFinViaje = async (
 
             recursosLiberados = {
                 persona: viajeActual.persona,
-                tractor: viajeActual.tractor,
+                tractor: viajeActual.tractor || null,
                 furgones: normalizarIds(viajeActual.furgon),
             };
         });
