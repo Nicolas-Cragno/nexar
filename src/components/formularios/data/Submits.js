@@ -987,20 +987,40 @@ export const submitViaje = async (
 
         loading(true);
         const modoEdicion = !!elemento;
-        const idViaje = modoEdicion
-            ? String(elemento.id)
-            : (await eventCode("viajes", ubicaciones, contadores, sucursal)).id;
-        const viajeRef = doc(db, "viajes", idViaje);
+        const contadorRef = modoEdicion ? null : doc(db, "contadores", "viajes");
+        const codigoSucursalOriginal = String(sucursal || "01");
+        const sucursalUb = modoEdicion ? null : ubicaciones.find(
+            (ub) => String(ub.id).toLowerCase() === codigoSucursalOriginal.toLowerCase()
+        );
+        const codigoSucursal = String(sucursalUb?.id || codigoSucursalOriginal).padStart(3, "0");
         const viajesActivosConocidos = viajes.filter(
             (viaje) => viaje.estado === true && viaje.anulado !== true
         );
-        const viajesConflictoRefs = viajesActivosConocidos
-            .filter((viaje) => String(viaje.id) !== idViaje)
-            .map((viaje) => doc(db, "viajes", String(viaje.id)));
-
-        let viajeGuardado;
-
-        await runTransaction(db, async (transaction) => {
+        const viajeGuardado = await runTransaction(db, async (transaction) => {
+            let idViaje = modoEdicion ? String(elemento.id) : null;
+            let contadorActualizado;
+            if (!modoEdicion) {
+                const contadorSnapshot = await transaction.get(contadorRef);
+                if (!contadorSnapshot.exists()) {
+                    throw new Error("No existe el contador viajes.");
+                }
+                const contadorActual = contadorSnapshot.data();
+                const ultimoSucursal = Number(contadorActual[codigoSucursalOriginal]);
+                const ultimoGeneral = Number(contadorActual.ultimo);
+                if (!Number.isFinite(ultimoSucursal)) {
+                    throw new Error(`El contador viajes no tiene un correlativo valido para la sucursal ${codigoSucursalOriginal}.`);
+                }
+                const siguienteOrden = ultimoSucursal + 1;
+                idViaje = `${codigoSucursal}-${String(siguienteOrden).padStart(8, "0")}`;
+                contadorActualizado = {
+                    ultimo: Number.isFinite(ultimoGeneral) ? ultimoGeneral + 1 : siguienteOrden,
+                    [codigoSucursalOriginal]: siguienteOrden,
+                };
+            }
+            const viajeRef = doc(db, "viajes", idViaje);
+            const viajesConflictoRefs = viajesActivosConocidos
+                .filter((viaje) => String(viaje.id) !== idViaje)
+                .map((viaje) => doc(db, "viajes", String(viaje.id)));
             const viajeSnap = await transaction.get(viajeRef);
             if (modoEdicion && !viajeSnap.exists()) {
                 throw new Error(`No existe el viaje ${idViaje}.`);
@@ -1100,7 +1120,7 @@ export const submitViaje = async (
                 }
             });
 
-            viajeGuardado = modoEdicion
+            const viajeGuardado = modoEdicion
                 ? {
                     ...viajeAnterior,
                     ...datosViaje,
@@ -1122,6 +1142,7 @@ export const submitViaje = async (
                     ultimaModificacion: serverTimestamp(),
                 });
             } else {
+                transaction.update(contadorRef, contadorActualizado);
                 transaction.set(viajeRef, viajeGuardado);
             }
 
@@ -1153,6 +1174,7 @@ export const submitViaje = async (
                     ultimaModificacion: serverTimestamp(),
                 });
             });
+            return viajeGuardado;
         });
 
         statusOptions({ status: "success" });
