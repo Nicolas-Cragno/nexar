@@ -111,6 +111,7 @@ export const eventos = {
     ],
     cuentaCorriente: [
         { key: "viaje", label: "Viaje", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "viajesActivos", important: false },
+        { key: "sucursal", label: "Sucursal", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "ubicaciones", important: true },
         { key: "tipo", label: "Tipo", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "tipoCuentaCorriente", important: true, neverDisabled: true },
         { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true, neverDisabled: true },
         { key: "persona", label: "Empleado", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "cuentasCorrientes", important: true },
@@ -218,7 +219,7 @@ export const elementos = {
 }
 
 export const movimientoCuentaCamposComunes = eventos.cuentaCorriente.filter(
-    (campo) => ["viaje", "operador", "persona"].includes(campo.key)
+    (campo) => ["viaje", "sucursal", "operador", "persona"].includes(campo.key)
 );
 
 export const movimientoCuentaCamposItem = eventos.cuentaCorriente.filter(

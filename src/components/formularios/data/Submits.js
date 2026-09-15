@@ -339,11 +339,14 @@ export const submitMovimientoCuenta = async (
         // Generar ID recién después de confirmar
         // --------------------------------------------------
 
+        const sucursalOrigen = formData.sucursal || sucursal;
+
+
         const { id: identificador } = await eventCode(
             "movimientos",
             ubicaciones,
             contadores,
-            sucursal
+            sucursalOrigen
         );
 
 
@@ -887,13 +890,15 @@ export const submitLiquidacion = async ({ formData, ubicaciones, contadores, suc
         });
         if (onGuardar) await onGuardar();
         if (onClose) onClose();
-        return { liquidacion: {
-            id: idLiquidacion, cuenta, persona: cuenta,
-            movimientos: seleccionados.map((movimiento) => movimiento.id),
-            saldoLiquidado: resultadoReal.saldoLiquidado,
-            tipoCierre: resultadoReal.tipoCierre, movimientoCierre: idMovimientoCierre,
-            ...(resultadoReal.nroAdelanto ? { nroAdelanto: resultadoReal.nroAdelanto } : {}),
-        }};
+        return {
+            liquidacion: {
+                id: idLiquidacion, cuenta, persona: cuenta,
+                movimientos: seleccionados.map((movimiento) => movimiento.id),
+                saldoLiquidado: resultadoReal.saldoLiquidado,
+                tipoCierre: resultadoReal.tipoCierre, movimientoCierre: idMovimientoCierre,
+                ...(resultadoReal.nroAdelanto ? { nroAdelanto: resultadoReal.nroAdelanto } : {}),
+            }
+        };
     } catch (error) {
         console.error("[Error] al registrar liquidación:", error);
         Swal.fire({

@@ -27,6 +27,7 @@ const FormMovimientoCuenta = ({
   const [readOnly, setReadOnly] = useState(false);
   const [datosComunes, setDatosComunes] = useState({
     viaje: elemento?.viaje || "",
+    sucursal: elemento?.sucursal || "01",
     operador: elemento?.operador || "",
     persona: elemento?.persona || elemento?.personas || "",
   });
@@ -45,7 +46,9 @@ const FormMovimientoCuenta = ({
     );
 
     setCuentaError(
-      cuentaPersona ? "" : "El chofer del viaje no tiene una cuenta corriente asociada.",
+      cuentaPersona
+        ? ""
+        : "El chofer del viaje no tiene una cuenta corriente asociada.",
     );
     setDatosComunes({
       viaje: elemento.id,
@@ -79,7 +82,9 @@ const FormMovimientoCuenta = ({
     );
 
     if (!cuentaPersona) {
-      setCuentaError("El chofer del viaje no tiene una cuenta corriente asociada.");
+      setCuentaError(
+        "El chofer del viaje no tiene una cuenta corriente asociada.",
+      );
       setDatosComunes((previo) => ({ ...previo, persona: "" }));
       setReadOnly(true);
       return;
@@ -111,7 +116,7 @@ const FormMovimientoCuenta = ({
       datosComunes,
       movimientos,
       ubicaciones,
-      sucursal: operador?.sucursal || "01",
+      sucursal: datosComunes.sucursal || operador?.sucursal || "01",
       loading: setLoading,
       onGuardar,
       onClose,
@@ -124,7 +129,11 @@ const FormMovimientoCuenta = ({
         <Loading />
       ) : (
         <div className="doble-form-content movimiento-form-content">
-          <FormHeader title="Movimiento" subTitle="Cuenta Corriente" onClose={onClose} />
+          <FormHeader
+            title="Movimiento"
+            subTitle="Cuenta Corriente"
+            onClose={onClose}
+          />
           <div className="doble-form-modal movimiento-form-layout">
             <FormContent
               elemento={elemento}
@@ -146,13 +155,19 @@ const FormMovimientoCuenta = ({
                   monto: elemento?.monto || elemento?.adelanto || "",
                   detalle:
                     elemento?.detalle ||
-                    (desdeViaje && elemento?.id ? `ADELANTO VIAJE ${elemento.id}` : ""),
+                    (desdeViaje && elemento?.id
+                      ? `ADELANTO VIAJE ${elemento.id}`
+                      : ""),
                 })}
               />
             </div>
           </div>
           <div className="form-buttons">
-            <TextButton text="Guardar movimientos" type="button" onClick={handleSubmit} />
+            <TextButton
+              text="Guardar movimientos"
+              type="button"
+              onClick={handleSubmit}
+            />
           </div>
         </div>
       )}
