@@ -63,11 +63,18 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
   const conflictosRecursos = useMemo(() => {
     const viajeId = elemento?.id;
     const activosAjenos = viajes.filter(
-      (viaje) => viaje.estado === true && viaje.anulado !== true && String(viaje.id) !== String(viajeId),
+      (viaje) =>
+        viaje.estado === true &&
+        viaje.anulado !== true &&
+        String(viaje.id) !== String(viajeId),
     );
     const conflictos = [];
-    const persona = personas.find((ps) => String(ps.id) === String(formData.persona));
-    const tractor = tractores.find((tr) => String(tr.id) === String(formData.tractor));
+    const persona = personas.find(
+      (ps) => String(ps.id) === String(formData.persona),
+    );
+    const tractor = tractores.find(
+      (tr) => String(tr.id) === String(formData.tractor),
+    );
 
     const viajePersona = activosAjenos.find(
       (viaje) => String(viaje.persona) === String(formData.persona),
@@ -76,25 +83,54 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
       (viaje) => String(viaje.tractor) === String(formData.tractor),
     );
 
-    if (persona && ((persona.enViaje && String(persona.viajeActivo) !== String(viajeId)) || viajePersona)) {
-      conflictos.push(`El chofer ${persona.id} está afectado al viaje ${viajePersona?.id || persona.viajeActivo || "desconocido"}.`);
+    if (
+      persona &&
+      ((persona.enViaje && String(persona.viajeActivo) !== String(viajeId)) ||
+        viajePersona)
+    ) {
+      conflictos.push(
+        `El chofer ${persona.id} está afectado al viaje ${viajePersona?.id || persona.viajeActivo || "desconocido"}.`,
+      );
     }
-    if (tractor && ((tractor.enViaje && String(tractor.viajeActivo) !== String(viajeId)) || viajeTractor)) {
-      conflictos.push(`El tractor ${tractor.id} está afectado al viaje ${viajeTractor?.id || tractor.viajeActivo || "desconocido"}.`);
+    if (
+      tractor &&
+      ((tractor.enViaje && String(tractor.viajeActivo) !== String(viajeId)) ||
+        viajeTractor)
+    ) {
+      conflictos.push(
+        `El tractor ${tractor.id} está afectado al viaje ${viajeTractor?.id || tractor.viajeActivo || "desconocido"}.`,
+      );
     }
 
     (formData.furgon || []).forEach((id) => {
       const furgon = furgones.find((fg) => String(fg.id) === String(id));
       const viajeFurgon = activosAjenos.find((viaje) =>
-        (viaje.furgon || []).some((furgonId) => String(furgonId) === String(id)),
+        (viaje.furgon || []).some(
+          (furgonId) => String(furgonId) === String(id),
+        ),
       );
-      if (furgon && ((furgon.enViaje && String(furgon.viajeActivo) !== String(viajeId)) || viajeFurgon)) {
-        conflictos.push(`El furgón ${id} está afectado al viaje ${viajeFurgon?.id || furgon.viajeActivo || "desconocido"}.`);
+      if (
+        furgon &&
+        ((furgon.enViaje && String(furgon.viajeActivo) !== String(viajeId)) ||
+          viajeFurgon)
+      ) {
+        conflictos.push(
+          `El furgón ${id} está afectado al viaje ${viajeFurgon?.id || furgon.viajeActivo || "desconocido"}.`,
+        );
       }
     });
 
     return conflictos;
-  }, [elemento?.id, formData.persona, formData.tractor, formData.furgon, viajes, personas, tractores, furgones]);
+  }, [
+    elemento?.id,
+    formData.persona,
+    formData.tractor,
+    formData.furgon,
+    viajes,
+    personas,
+    tractores,
+    furgones,
+  ]);
 
   const handleCloseFormMovimientoCuenta = () => {
     setFormMovimientoCuentaVisible(false);
@@ -135,7 +171,6 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
 
     setNuevoViaje(viajeCreado);
 
-
     let anticipoCreado = null;
     let cruceCreado = null;
 
@@ -151,6 +186,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           tipo: "PAGO",
           operador: viajeCreado.operador,
           persona: cuentaPersona.id,
+          sucursal: sucursalOperadora,
           monto: viajeCreado.adelanto,
         },
         camposMov,
@@ -191,7 +227,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         onClose,
       );
     }
-      
+
     const handleImprimir = async () => {
       const persona = personas.find(
         (ps) => String(ps.dni) === String(viajeCreado.persona),
@@ -205,7 +241,6 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
           (idGuardado) => String(idGuardado) === String(em.id),
         ),
       );
-
 
       const anticiposAsignados = movimientos?.filter(
         (mv) => String(mv.viaje) === String(viajeCreado.id),
@@ -223,7 +258,6 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         crucesBarcazaAsignados.unshift(cruceCreado);
       }
 
-
       const nombresClientes = clientesAsignados.map((c) => c.label);
 
       const idFurgon1 = viajeCreado.furgon?.[0];
@@ -236,18 +270,12 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
         ? furgones.find((fg) => String(fg.id) === String(idFurgon2))
         : null;
 
-
-
-
       const viajeEnriquecido = {
         ...viajeCreado,
         personaCompleta: persona?.label ?? "",
         tractorCompleto: tractor?.label ?? "",
 
-        furgonCompleto: [
-          furgon1?.label ?? "",
-          furgon2?.label ?? "",
-        ],
+        furgonCompleto: [furgon1?.label ?? "", furgon2?.label ?? ""],
 
         anticiposCompletos: anticiposAsignados,
         crucesBarcazaCompletos: crucesBarcazaAsignados,
@@ -268,7 +296,7 @@ const FormViaje = ({ elemento = null, onGuardar, onClose }) => {
     };
 
     await handleImprimir();
-      
+
     onClose();
   };
 
