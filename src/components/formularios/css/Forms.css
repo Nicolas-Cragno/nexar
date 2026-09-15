@@ -120,8 +120,8 @@
   background: white;
   padding: 20px;
   border-radius: 2px;
-  min-width: 80%;
-  max-width: 80%;
+  min-width: 90%;
+  max-width: 90%;
   max-height: 90%;
   overflow-y: auto;
   position: relative;
@@ -939,11 +939,12 @@ padding-top: 1rem;}
 .movimiento-form-layout {
   align-items: stretch;
   min-height: 0;
+  
 }
 
 .movimiento-form-layout .doble-form-left,
 .movimiento-form-layout .doble-form-right {
-  overflow: hidden;
+  overflow:visible;
 }
 
 .movimientos-list {

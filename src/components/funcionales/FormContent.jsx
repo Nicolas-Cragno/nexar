@@ -53,7 +53,9 @@ const FormContent = ({
         listado = cargarSelects("viajes", viajes);
         break;
       case "viajesActivos":
-        const viajesTrue = (viajes || []).filter((vj) => vj.estado && vj.anulado !== true);
+        const viajesTrue = (viajes || []).filter(
+          (vj) => vj.estado && vj.anulado !== true,
+        );
         listado = cargarSelects("viajes", viajesTrue);
         break;
       case "personas":
@@ -71,10 +73,12 @@ const FormContent = ({
           personas.filter(
             (ps) =>
               ps?.puesto === "CHOFER" &&
-              (!ps.enViaje || String(ps.viajeActivo) === String(elemento?.id)) &&
+              (!ps.enViaje ||
+                String(ps.viajeActivo) === String(elemento?.id)) &&
               !viajes.some(
                 (viaje) =>
-                  viaje.estado === true && viaje.anulado !== true &&
+                  viaje.estado === true &&
+                  viaje.anulado !== true &&
                   String(viaje.id) !== String(elemento?.id) &&
                   String(viaje.persona) === String(ps.id),
               ),
@@ -98,10 +102,12 @@ const FormContent = ({
           "tractores",
           tractores.filter(
             (tr) =>
-              (!tr.enViaje || String(tr.viajeActivo) === String(elemento?.id)) &&
+              (!tr.enViaje ||
+                String(tr.viajeActivo) === String(elemento?.id)) &&
               !viajes.some(
                 (viaje) =>
-                  viaje.estado === true && viaje.anulado !== true &&
+                  viaje.estado === true &&
+                  viaje.anulado !== true &&
                   String(viaje.id) !== String(elemento?.id) &&
                   String(viaje.tractor) === String(tr.id),
               ),
@@ -116,10 +122,12 @@ const FormContent = ({
           "furgones",
           furgones.filter(
             (fg) =>
-              (!fg.enViaje || String(fg.viajeActivo) === String(elemento?.id)) &&
+              (!fg.enViaje ||
+                String(fg.viajeActivo) === String(elemento?.id)) &&
               !viajes.some(
                 (viaje) =>
-                  viaje.estado === true && viaje.anulado !== true &&
+                  viaje.estado === true &&
+                  viaje.anulado !== true &&
                   String(viaje.id) !== String(elemento?.id) &&
                   (viaje.furgon || []).some(
                     (furgonId) => String(furgonId) === String(fg.id),
@@ -187,7 +195,10 @@ const FormContent = ({
   const bloqueToDo = campos.filter((cp) => cp.type === "toDo");
   const bloqueTramos = campos.filter((cp) => cp.type === "groupTramos"); // especial para viajes
   const bloqueSecret = campos.filter((cp) => cp.type === "secret");
-
+  const bloqueSpecialAdelantos = campos.filter(
+    (cp) =>
+      cp.type === "specialAdelantos" && cp.sucursales?.includes(data.sucursal),
+  ); // solo para movimientos de cuenta
   return (
     <>
       {bloquePrincipal.length > 0 && (
@@ -206,9 +217,21 @@ const FormContent = ({
                 disabled={readOnly && !campo.neverDisabled}
               />
             ))}
+            {bloqueSpecialAdelantos.length > 0 &&
+              bloqueSpecialAdelantos.map((cp) => (
+                <InputForm
+                  campo={cp}
+                  value={data[cp.key]}
+                  onChange={handleChange}
+                  opciones={listarOpciones(cp.optionsList)}
+                  modoEdicion={modoEdicion}
+                  disabled={readOnly && !cp.neverDisabled}
+                />
+              ))}
           </div>
         </div>
       )}
+
       {bloqueSecondary.length > 0 && (
         <div className={`${isDouble ? "doble-form-left" : ""}`}>
           <label>

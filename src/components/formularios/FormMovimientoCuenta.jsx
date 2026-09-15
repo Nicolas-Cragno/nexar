@@ -28,6 +28,7 @@ const FormMovimientoCuenta = ({
   const [datosComunes, setDatosComunes] = useState({
     viaje: elemento?.viaje || "",
     sucursal: elemento?.sucursal || "01",
+    adelantoSucursal: elemento?.adelantoSucursal || "",
     operador: elemento?.operador || "",
     persona: elemento?.persona || elemento?.personas || "",
   });

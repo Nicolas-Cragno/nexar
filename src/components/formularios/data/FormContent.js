@@ -111,10 +111,11 @@ export const eventos = {
     ],
     cuentaCorriente: [
         { key: "viaje", label: "Viaje", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "viajesActivos", important: false },
-        { key: "sucursal", label: "Sucursal", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "ubicaciones", important: true },
         { key: "tipo", label: "Tipo", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "tipoCuentaCorriente", important: true, neverDisabled: true },
         { key: "operador", label: "Operador", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "administrativos", important: true, neverDisabled: true },
         { key: "persona", label: "Empleado", type: "principal", use: "database", dato: "number", inputType: "inputOptions", optionsList: "cuentasCorrientes", important: true },
+        { key: "sucursal", label: "Sucursal", type: "principal", use: "database", dato: "text", inputType: "inputOptions", optionsList: "ubicaciones", important: true },
+        { key: "anticipoSucursal", label: "Número de anticipo en sucursal", type: "specialAdelantos", use: "database", dato: "number", inputType: "input", important: false, sucursales: ["02"] },
         { key: "monto", label: "Monto", use: "database", type: "secondary", dato: "number", inputType: "input", important: true, neverDisabled: true },
         { key: "detalle", label: "Detalle", use: "database", type: "secondary", dato: "text", inputType: "textarea", important: false, neverDisabled: true },
     ],
@@ -204,6 +205,7 @@ export const elementos = {
         { key: "puesto", label: "Puesto", type: "secondary", use: "database", dato: "text", inputType: "inputOptions", optionsList: "puestos", important: false },
         { key: "especializacion", label: "Especialización", type: "secondary", use: "database", dato: "text", inputType: "inputOptions", optionsList: "especializaciones", important: false },
         { key: "sucursal", label: "Sucursal", type: "secondary", use: "database", dato: "text", inputType: "inputOptions", optionsList: "ubicaciones", important: false },
+
         //{ key: "ingreso", label: "Ingreso", type: "secret", use: "database", dato: "date", inputType: "", important: false },
         { key: "detalle", label: "Detalle", type: "principal", use: "database", dato: "text", inputType: "textarea", important: false },
         //{ key: "comentario", label: "Comentario", type: "secret", use: "database", dato: "text", inputType: "", important: false },
@@ -219,7 +221,7 @@ export const elementos = {
 }
 
 export const movimientoCuentaCamposComunes = eventos.cuentaCorriente.filter(
-    (campo) => ["viaje", "sucursal", "operador", "persona"].includes(campo.key)
+    (campo) => ["viaje", "operador", "persona", "sucursal", "anticipoSucursal"].includes(campo.key)
 );
 
 export const movimientoCuentaCamposItem = eventos.cuentaCorriente.filter(
