@@ -48,7 +48,8 @@ export const columnas = {
     { key: "operadorCompleto", label: "Operador", filtroEspecial: true },
     { key: "tipo", label: "TIPO", filtroEspecial: true, responsive: true },
     { key: "montoCompleto", label: "Monto", responsive: true },
-    { key: "nroAdelanto", label: "n° Adelanto", responsive: false }
+    { key: "nroAdelanto", label: "n° Adelanto", responsive: false },
+    { key: "detalle", label: "Detalle", responsive: true }
   ],
   liquidaciones: [
     { key: "estadoLabel", label: "Estado", responsive: true },
