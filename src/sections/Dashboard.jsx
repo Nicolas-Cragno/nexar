@@ -1,108 +1,105 @@
-import "./css/Dashboard.css";
-import { Link } from "react-router-dom";
-import { useData } from "../contexto/DataContext";
+﻿import "./css/Dashboard.css";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useViajes } from "../contexto/ViajesContext";
-import { useMovimientos } from "../contexto/MovimientosContext";
-import { useLiquidaciones } from "../contexto/LiquidacionesContext";
-import {
-  formatearCampoFirestore,
-  formatearMonto,
-} from "../functions/dataFunctions";
+import { useAuth } from "../contexto/AuthContext";
+import { formatearCampoFirestore } from "../functions/dataFunctions";
 import SectionHeader from "../components/funcionales/SectionHeader";
+import Ficha from "../components/fichas/Ficha";
+import { fichaContent } from "../components/fichas/data/FichaContent";
 
 const Dashboard = () => {
-  const { cuentaCorriente } = useData();
-  const { viajes } = useViajes();
-  const { movimientos } = useMovimientos();
-  const { liquidaciones } = useLiquidaciones();
+  const { viajes, loading } = useViajes();
+  const { permissions } = useAuth();
+  const [viajeSeleccionadoId, setViajeSeleccionadoId] = useState(null);
   const viajesActivos = viajes.filter((viaje) => viaje.estado === true);
-  const movimientosPendientes = movimientos.filter(
-    (movimiento) => movimiento.estado === false,
+  const puedeVerViajes = permissions?.allAccess || permissions?.viajesView;
+  const viajeSeleccionado = viajes.find(
+    (viaje) => viaje.id === viajeSeleccionadoId,
   );
-  const cuentasConSaldo = cuentaCorriente.filter(
-    (cuenta) => Number(cuenta.monto) !== 0,
-  );
-
-  const cuentaTCC = cuentaCorriente.find((cc) => cc.id === "33719349949");
-  const montoTCC = cuentaTCC?.monto || 0;
-
-  const movimientosRecientes = movimientos.slice(0, 5);
-  const liquidacionesRecientes = liquidaciones.slice(0, 5);
 
   return (
-    <section className="section-container page">
-      <SectionHeader title={"Dashboard"} subtitle={"Estado operativo actual"} />
-
-      <div className="dashboard-content">
-        <div className="dashboard-metrics">
-          <Link>
-            <span>Viajes</span>
-            <strong>{viajesActivos.length} activos</strong>
-          </Link>
-          <Link>
-            <span>Movimientos de cuenta</span>
-            <strong>{movimientosPendientes.length} pendientes</strong>
-          </Link>
-          <Link>
-            <span>{`Saldo (${cuentasConSaldo.length} cuentas con saldo pendiente)`}</span>
-            <strong>$ {formatearMonto(montoTCC)}</strong>
-          </Link>
-        </div>
-        <div className="dashboard-panels">
+    <section className="section-container page dashboard-page">
+      <SectionHeader title="Dashboard" subtitle="Estado operativo actual" />
+      <div className="dashboard-content" aria-busy={loading}>
+        {loading ? (
+          <p className="dashboard-message" role="status">
+            Cargando los viajes activos…
+          </p>
+        ) : !puedeVerViajes ? (
+          <p className="dashboard-message">
+            No tenés permisos para consultar los viajes.
+          </p>
+        ) : (
           <article className="dashboard-panel">
-            <h2>{viajesActivos.length} Viajes activos</h2>
-            <p className="dashboard-panel">
-              {viajesActivos.map((viaje) => (
-                <div key={viaje.id}>
-                  <strong>{viaje.label}</strong>
-                </div>
-              ))}
-            </p>
+            <div className="dashboard-panel-header">
+              <h2>
+                Viajes activos{" "}
+                <span className="dashboard-count">{viajesActivos.length}</span>
+              </h2>
+              <p>Seleccioná un viaje para abrir su ficha.</p>
+            </div>
+            {viajesActivos.length === 0 ? (
+              <p className="dashboard-empty">
+                No hay viajes activos en este momento.
+              </p>
+            ) : (
+              <ul className="dashboard-list dashboard-trips">
+                {viajesActivos.map((viaje) => (
+                  <li key={viaje.id} className="dashboard-trip">
+                    <div className="dashboard-row-heading">
+                      <strong>Viaje #{viaje.id}</strong>
+                      <span
+                        className={`dashboard-badge${viaje.anulado ? " dashboard-badge-muted" : viaje.situacion === "ESPERANDO_TRACTOR" ? " dashboard-badge-pending" : ""}`}
+                      >
+                        {viaje.estadoLabel}
+                      </span>
+                    </div>
+                    <p className="dashboard-trip-person">
+                      {viaje.personaCompleta || "Sin chofer asignado"}
+                    </p>
+                    <dl className="dashboard-trip-details">
+                      <div>
+                        <dt>Tractor</dt>
+                        <dd>{viaje.tractorCompleto}</dd>
+                      </div>
+                      <div>
+                        <dt>Furgón</dt>
+                        <dd>{viaje.furgonCompleto}</dd>
+                      </div>
+                      <div>
+                        <dt>Fecha</dt>
+                        <dd>{formatearCampoFirestore(viaje.fecha, true)}</dd>
+                      </div>
+                    </dl>
+                    <button
+                      type="button"
+                      className="dashboard-trip-open"
+                      aria-label={`Abrir ficha del viaje ${viaje.id}`}
+                      aria-haspopup="dialog"
+                      onClick={() => setViajeSeleccionadoId(viaje.id)}
+                    >
+                      Ver ficha <span aria-hidden="true">↗</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </article>
-          <article className="dashboard-panel">
-            <h2>{movimientosRecientes.length} Movimientos recientes</h2>
-            <p className="dashboard-panel">
-              {movimientosRecientes.map((movimiento) => (
-                <div key={movimiento.id}>
-                  <strong>{movimiento.label}</strong>
-                  <span>
-                    {movimiento.fecha
-                      ? formatearCampoFirestore(movimiento.fecha, true)
-                      : "-"}
-                  </span>
-                </div>
-              ))}
-            </p>
-          </article>
-          <article className="dashboard-panel">
-            <h2>Cuentas pendientes de liquidar</h2>
-            <p className="dashboard-panel">
-              {cuentasConSaldo.map((cuenta) => (
-                <div key={cuenta.id}>
-                  <strong>{cuenta.nombre || cuenta.id}</strong>
-                  <span>$ {formatearMonto(cuenta.monto)}</span>
-                </div>
-              ))}
-            </p>
-          </article>
-          <article className="dashboard-panel">
-            <h2>{liquidacionesRecientes.length} Liquidaciones recientes</h2>
-
-            <p className="dashboard-panel">
-              {liquidacionesRecientes.map((liquidacion) => (
-                <div key={liquidacion.id}>
-                  <strong>{liquidacion.label}</strong>
-                  <span>
-                    {liquidacion.fecha
-                      ? formatearCampoFirestore(liquidacion.fecha, true)
-                      : "-"}
-                  </span>
-                </div>
-              ))}
-            </p>
-          </article>
-        </div>
+        )}
       </div>
+      {puedeVerViajes &&
+        viajeSeleccionado &&
+        createPortal(
+          <Ficha
+            elemento={viajeSeleccionado}
+            coleccion="viajes"
+            container={fichaContent.viajes}
+            editable={false}
+            onClose={() => setViajeSeleccionadoId(null)}
+          />,
+          document.body,
+        )}
     </section>
   );
 };
